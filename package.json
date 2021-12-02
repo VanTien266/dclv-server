@@ -10,8 +10,13 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "install": "^0.13.0",
+    "lodash": "^4.17.21",
     "mongoose": "^6.0.14",
-    "request": "^2.88.2"
+    "npm": "^8.1.4",
+    "request": "^2.88.2",
+    "uuid": "^8.3.2"
   }
 }
