@@ -1,31 +1,32 @@
+require("dotenv").config();
+
+const port = process.env.PORT;
+const userName = process.env.DB_USER;
+const password = process.env.DB_PASS;
+
+const mongodb_url = `mongodb+srv://${userName}:${password}@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority`;
+
 const mongoose = require("mongoose");
+const express = require("express");
 
-mongoose
-  .connect(
-    "mongodb+srv://tiencot:Matkhau20062000@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority"
-  )
-  .catch((error) => handleError(error));
+const app = express();
 
-const Schema = mongoose.Schema;
+//Import from
+const { InsertToFabricRoll } = require("./src/create/CreateFabricRoll");
+const { InsertToFabricType } = require("./src/create/CreateFabricType");
+const { InsertToMarketPrice } = require("./src/create/CreateMarketPrice");
+const { InsertToItem } = require("./src/create/CreateItem");
 
-const userSchema = new Schema(
-  {
-    _id: String,
-    name: String,
-    role: String,
-  },
-  { collection: "user" }
-);
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+  mongoose.connect(mongodb_url).catch((error) => handleError(error));
 
-const User = mongoose.model("user", userSchema);
-module.exports = { User };
-// const data = User.find({});
-// console.log(data);
-console.log(User.find({}));
-User.find(function (err, user) {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log(user);
-  }
+  // InsertToFabricRoll();
+  // InsertToFabricType();
+  // InsertToMarketPrice();
+  // InsertToItem();
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
