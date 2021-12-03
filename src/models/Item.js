@@ -6,7 +6,7 @@ const ItemSchema = new Schema(
   {
     colorCode: { type: String, default: "", required: true },
     typeId: { type: String, default: "", required: true },
-    dayApplied: { type: Date, default: Date.now() },
+    marketPriceId: [{ type: mongoose.Types.ObjectId }],
     name: { type: String, default: "" },
   },
   { collection: "Item" }

@@ -1,5 +1,6 @@
 const { Item } = require("../models/Item");
 const _ = require("lodash");
+const mongoose = require("mongoose");
 
 const listColor = [
   { code: "01", name: "Cam lợt" },
@@ -46,6 +47,15 @@ const listType = [
   { id: "ch", name: "chiffon" },
 ];
 
+const marketPreceIdList = [
+  "61a8fe7f6d8debe25d1d92e0",
+  "61a8fe7f6d8debe25d1d92de",
+  "61a8fe7f6d8debe25d1d92e2",
+  "61a8fe7f6d8debe25d1d92dd",
+  "61a8fe7f6d8debe25d1d92df",
+  "61a8fe7f6d8debe25d1d92e3",
+  "61a8fe7f6d8debe25d1d92e1",
+];
 function InsertToItem() {
   for (let i = 0; i < listColor.length; i++)
     for (let j = 0; j < listType.length; j++) {
@@ -53,7 +63,9 @@ function InsertToItem() {
         {
           colorCode: listType[j].id + listColor[i].code,
           typeId: listType[j].id,
-          dayApplied: new Date().setDate(Math.floor(Math.random() * 30)),
+          marketPriceId: mongoose.Types.ObjectId(
+            marketPreceIdList[Math.floor(Math.random() * 7)]
+          ),
           name:
             _.capitalize(listType[j].name) +
             " " +
