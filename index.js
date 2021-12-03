@@ -12,21 +12,29 @@ const express = require("express");
 const app = express();
 
 //Import from
-const { InsertToFabricRoll } = require("./src/create/CreateFabricRoll");
-const { InsertToFabricType } = require("./src/create/CreateFabricType");
-const { InsertToMarketPrice } = require("./src/create/CreateMarketPrice");
-const { InsertToItem } = require("./src/create/CreateItem");
+// const { InsertToFabricRoll } = require("./src/create/CreateFabricRoll");
+// const { InsertToFabricType } = require("./src/create/CreateFabricType");
+// const { InsertToMarketPrice } = require("./src/create/CreateMarketPrice");
+// const { InsertToItem } = require("./src/create/CreateItem");
+// const { InsertToOrder } = require("./src/create/CreateOrder");
+// const { InsertToBill } = require("./src/create/CreateBill");
+// const staffService = require("./src/services/StaffService");
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+let StaffRoute = require("./src/routes/StaffRoute");
+let ClientRoute = require("./src/routes/ClientRoute");
+let FabricRollRoute = require("./src/routes/FabricRollRoute");
+let OrderRoute = require("./src/routes/OrderRoute");
+
+StaffRoute(app);
+ClientRoute(app);
+FabricRollRoute(app);
+OrderRoute(app);
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-  mongoose.connect(mongodb_url).catch((error) => handleError(error));
-
-  // InsertToFabricRoll();
-  // InsertToFabricType();
-  // InsertToMarketPrice();
-  // InsertToItem();
+    console.log(`Server is running at http://localhost:${port}`);
+    mongoose.connect(mongodb_url).catch((error) => handleError(error));
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
