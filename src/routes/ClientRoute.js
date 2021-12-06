@@ -7,6 +7,6 @@ module.exports = function(app) {
     app.route("/client/create").post(clientCtrl.create);
     app.route("/client/:id").get(clientCtrl.infoById);
     app.route("/client/:email").get(clientCtrl.infoByEmail);
-    app.route("/client/update_info").post(clientCtrl.updateInfo);
-    app.route("/client/update_password").post(clientCtrl.updatePassword);
+    app.route("/client/update_info").put(clientCtrl.updateInfo);
+    app.route("/client/update_password").put(clientCtrl.updatePassword);
 }

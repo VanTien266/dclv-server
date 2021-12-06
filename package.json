@@ -1,5 +1,5 @@
 {
-  "name": "newletter-signup",
+  "name": "dclv-server",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -20,5 +20,8 @@
     "npm": "^8.1.4",
     "request": "^2.88.2",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
