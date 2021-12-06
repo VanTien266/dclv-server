@@ -1,27 +1,20 @@
 require("dotenv").config();
-
-const port = process.env.PORT;
-const userName = process.env.DB_USER;
-const password = process.env.DB_PASS;
-
-const mongodb_url = `mongodb+srv://${userName}:${password}@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority`;
-
 const mongoose = require("mongoose");
 const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+
+const port = process.env.PORT;
+const mongodb_url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority`;
+
+const router = require("./src/routes/routes");
 
 const app = express();
-
-//Import from
-// const { InsertToFabricRoll } = require("./src/create/CreateFabricRoll");
-// const { InsertToFabricType } = require("./src/create/CreateFabricType");
-// const { InsertToMarketPrice } = require("./src/create/CreateMarketPrice");
-// const { InsertToItem } = require("./src/create/CreateItem");
-// const { InsertToOrder } = require("./src/create/CreateOrder");
-// const { InsertToBill } = require("./src/create/CreateBill");
-// const staffService = require("./src/services/StaffService");
-
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(router);
 
 let StaffRoute = require("./src/routes/StaffRoute");
 let ClientRoute = require("./src/routes/ClientRoute");
@@ -33,8 +26,17 @@ ClientRoute(app);
 FabricRollRoute(app);
 OrderRoute(app);
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-    mongoose.connect(mongodb_url).catch((error) => handleError(error));
-});
+mongoose
+  .connect(mongodb_url, { useNewUrlParser: true })
+  .then(() => {
+    console.log("Connect to MongoDB successfull!");
+    app.listen(port, () => {
+      console.log(`Server is running at http://localhost:${port}`);
+    });
 
+    // const { InsertToItem } = require("./src/create/CreateItem");
+    // InsertToItem();
+  })
+  .catch((error) => {
+    console.log("Connect to MongoDB failed!" + error);
+  });
