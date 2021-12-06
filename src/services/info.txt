@@ -1,1 +1,0 @@
-This is the base Service class which includes the database operations. If you want to change the default behaviour of the services you can update this file.
