@@ -11,6 +11,7 @@ const router = require("./src/routes/routes");
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(router);
@@ -24,8 +25,6 @@ StaffRoute(app);
 ClientRoute(app);
 FabricRollRoute(app);
 OrderRoute(app);
-
-
 
 mongoose
   .connect(mongodb_url, { useNewUrlParser: true })
