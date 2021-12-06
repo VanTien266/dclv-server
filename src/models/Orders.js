@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const OrderSchema = new Schema(
     {
-        id: {
-            type: String,
-            default: "",
+        orderId: {
+            type: Number,
+            default: 0,
             required: true,
         },
-        status: {
+        orderStatus: {
             type: String,
             default: "",
             required: true,
@@ -32,7 +32,7 @@ const OrderSchema = new Schema(
             default: "",
             required: false,
         },
-        address: {
+        receiverAddress: {
             type: String,
             default: "",
             required: true,
@@ -45,6 +45,14 @@ const OrderSchema = new Schema(
         clientID: {
             type: String,
             default: "",
+            required: true,
+        },
+        detailBill: {
+            type: [Number],
+            required: false,
+        },
+        products: {
+            type: [String],
             required: true,
         },
     },

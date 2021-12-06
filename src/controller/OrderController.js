@@ -1,4 +1,13 @@
 const { Orders } = require("../models/Orders");
+const { Counters } = require("../models/Counters");
+
+async function getNextSequenceValue(sequenceName) {
+    let seq = await Counters.findOneAndUpdate(
+        { _id: sequenceName },
+        { $inc: { sequence_value: 1 } }
+    ).exec();
+    return seq.sequence_value;
+}
 
 module.exports = {
     list: (req, res) => {
@@ -12,18 +21,21 @@ module.exports = {
             }
         });
     },
-    create: (req, res) => {
+    create: async (req, res) => {
+        const id = await getNextSequenceValue("orderId");
         Orders.create(
             {
-                id: "MDH" + (new Date().getTime() % 1000000),
-                status: req.body.status,
+                orderId: id,
+                orderStatus: req.body.orderStatus,
                 // orderTime: req.body.orderTime,
                 note: req.body.note,
                 receiverName: req.body.receiverName,
                 receiverPhone: req.body.receiverPhone,
-                address: req.body.address,
+                receiverAddress: req.body.receiverAddress,
                 deposit: req.body.deposit,
                 clientID: req.body.clientID,
+                detailBill: req.body.detailBill,
+                products: req.body.products,
             },
             function (err, result) {
                 if (err) {
@@ -80,5 +92,5 @@ module.exports = {
                 }
             }
         );
-    }
+    },
 };
