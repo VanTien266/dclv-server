@@ -16,15 +16,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(router);
 
-let StaffRoute = require("./src/routes/StaffRoute");
-let ClientRoute = require("./src/routes/ClientRoute");
-let FabricRollRoute = require("./src/routes/FabricRollRoute");
-let OrderRoute = require("./src/routes/OrderRoute");
+// let StaffRoute = require("./src/routes/StaffRoute");
+// let ClientRoute = require("./src/routes/ClientRoute");
+// let FabricRollRoute = require("./src/routes/FabricRollRoute");
+// let OrderRoute = require("./src/routes/OrderRoute");
 
-StaffRoute(app);
-ClientRoute(app);
-FabricRollRoute(app);
-OrderRoute(app);
+// StaffRoute(app);
+// ClientRoute(app);
+// FabricRollRoute(app);
+// OrderRoute(app);
 
 mongoose
   .connect(mongodb_url, { useNewUrlParser: true })
@@ -38,6 +38,8 @@ mongoose
     // InsertToItem();
     // const { InsertToFabricRoll } = require("./src/create/CreateFabricRoll");
     // InsertToFabricRoll();
+    // const { InsertToHas } = require("./src/create/CreateHas");
+    // InsertToHas();
   })
   .catch((error) => {
     console.log("Connect to MongoDB failed!" + error);

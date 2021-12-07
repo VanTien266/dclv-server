@@ -52,7 +52,7 @@ const OrderSchema = new Schema(
             required: false,
         },
         products: {
-            type: [String],
+            type: [mongoose.Types.ObjectId],
             required: true,
         },
     },
