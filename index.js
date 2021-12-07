@@ -4,8 +4,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const port = process.env.PORT;
-const mongodb_url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority`;
+const port = process.env.PORT || 5000;
+// const mongodb_url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority`;
+const mongodb_url = `mongodb+srv://nguyenvantinh06:Nguyenvantinh2625@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority`;
 
 const router = require("./src/routes/routes");
 
@@ -17,12 +18,12 @@ app.use(express.json());
 app.use(router);
 
 let StaffRoute = require("./src/routes/StaffRoute");
-let ClientRoute = require("./src/routes/ClientRoute");
+let CustomerRoute = require("./src/routes/CustomerRoute");
 let FabricRollRoute = require("./src/routes/FabricRollRoute");
 let OrderRoute = require("./src/routes/OrderRoute");
 
 StaffRoute(app);
-ClientRoute(app);
+CustomerRoute(app);
 FabricRollRoute(app);
 OrderRoute(app);
 
@@ -34,8 +35,8 @@ mongoose
       console.log(`Server is running at http://localhost:${port}`);
     });
 
-    // const { InsertToItem } = require("./src/create/CreateItem");
-    // InsertToItem();
+    // const { InsertToStaff } = require("./src/create/CreateStaff");
+    // InsertToStaff();
   })
   .catch((error) => {
     console.log("Connect to MongoDB failed!" + error);
