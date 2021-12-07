@@ -26,6 +26,15 @@ StaffRoute(app);
 CustomerRoute(app);
 FabricRollRoute(app);
 OrderRoute(app);
+// let StaffRoute = require("./src/routes/StaffRoute");
+// let ClientRoute = require("./src/routes/ClientRoute");
+// let FabricRollRoute = require("./src/routes/FabricRollRoute");
+// let OrderRoute = require("./src/routes/OrderRoute");
+
+// StaffRoute(app);
+// ClientRoute(app);
+// FabricRollRoute(app);
+// OrderRoute(app);
 
 mongoose
   .connect(mongodb_url, { useNewUrlParser: true })
@@ -34,9 +43,9 @@ mongoose
     app.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
+    // const { InsertToItem } = require("./src/create/CreateItem");
+    // InsertToItem();
 
-    // const { InsertToStaff } = require("./src/create/CreateStaff");
-    // InsertToStaff();
   })
   .catch((error) => {
     console.log("Connect to MongoDB failed!" + error);
