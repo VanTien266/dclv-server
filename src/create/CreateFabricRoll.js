@@ -56,15 +56,34 @@ for (let i = 0; i < listType.length; i++)
 
 function InsertToFabricRoll() {
   //FOR CREATE FABRIC ROLL WITH STATUS TRUE
+  // for (let i = 0; i < 200; i++)
+  //   FabricRoll.create(
+  //     {
+  //       status: true,
+  //       dayApplied: new Date().setDate(Math.floor(Math.random() * 30)), //pick a random day
+  //       length: Math.floor(Math.random() * 99 + 1) * 10, //random length from 100-990
+  //       lot: lotList[Math.floor(Math.random() * 6)],
+  //       warehouseId: warehouseList[Math.floor(Math.random() * 7)],
+  //       billId: "",
+  //       colorCode:
+  //         colorListCode[Math.floor(Math.random() * colorListCode.length)],
+  //     },
+  //     function (err, data) {
+  //       if (err) console.log(err);
+  //       else console.log(data);
+  //     }
+  //   );
+
+  // FOR CREATE FABRIC ROLL WITH STATUS FALSE
   for (let i = 0; i < 200; i++)
     FabricRoll.create(
       {
-        status: true,
-        dayApplied: new Date().setDate(Math.floor(Math.random() * 30)), //pick a random day
-        length: Math.floor(Math.random() * 99 + 1) * 10, //random length from 100-990
+        status: false,
+        dayApplied: new Date().setDate(Math.floor(Math.random() * 30)),
+        length: Math.floor(Math.random() * 9 + 1) * 100,
         lot: lotList[Math.floor(Math.random() * 6)],
         warehouseId: warehouseList[Math.floor(Math.random() * 7)],
-        billId: "",
+        billId: Math.floor(Math.random() * 100),
         colorCode:
           colorListCode[Math.floor(Math.random() * colorListCode.length)],
       },
@@ -73,24 +92,5 @@ function InsertToFabricRoll() {
         else console.log(data);
       }
     );
-
-  //FOR CREATE FABRIC ROLL WITH STATUS FALSE
-  // for (let i = 0; i < 200; i++)
-  // FabricRoll.create(
-  //   {
-  //     status: false,
-  //     dayApplied: new Date().setDate(Math.floor(Math.random() * 30)),
-  //     length: Math.floor(Math.random() * 9 + 1) * 100,
-  //     lot: lotList[Math.floor(Math.random() * 6)],
-  //     warehouseId: warehouseList[Math.floor(Math.random() * 7)],
-  //     billId: "",
-  //     colorCode:
-  //       colorListCode[Math.floor(Math.random() * colorListCode.length)],
-  //   },
-  //   function (err, data) {
-  //     if (err) console.log(err);
-  //     else console.log(data);
-  //   }
-  // );
 }
 module.exports = { InsertToFabricRoll };
