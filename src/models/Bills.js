@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const BillSchema = new Schema(
     {
         billID: {
-            type: String,
+            type: Number,
             default: "",
             required: true,
         },
@@ -28,8 +28,7 @@ const BillSchema = new Schema(
             required: false,
         },
         orderID: {
-            type: String,
-            default: "",
+            type: Number,
             required: true,
         },
         clientID: {
@@ -41,6 +40,11 @@ const BillSchema = new Schema(
             type: String,
             default: "",
             required: true,
+        },
+        fabrics: {
+            type: [mongoose.Types.ObjectId],
+            default: [],
+            required: false 
         }
     },
     { collection: "Bills" }
