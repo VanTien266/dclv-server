@@ -17,15 +17,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(router);
 
-let StaffRoute = require("./src/routes/StaffRoute");
-let CustomerRoute = require("./src/routes/CustomerRoute");
-let FabricRollRoute = require("./src/routes/FabricRollRoute");
-let OrderRoute = require("./src/routes/OrderRoute");
-
-StaffRoute(app);
-CustomerRoute(app);
-FabricRollRoute(app);
-OrderRoute(app);
 // let StaffRoute = require("./src/routes/StaffRoute");
 // let ClientRoute = require("./src/routes/ClientRoute");
 // let FabricRollRoute = require("./src/routes/FabricRollRoute");
