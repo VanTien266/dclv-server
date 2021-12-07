@@ -36,7 +36,10 @@ mongoose
     });
     // const { InsertToItem } = require("./src/create/CreateItem");
     // InsertToItem();
-
+    // const { InsertToFabricRoll } = require("./src/create/CreateFabricRoll");
+    // InsertToFabricRoll();
+    // const { InsertToHas } = require("./src/create/CreateHas");
+    // InsertToHas();
   })
   .catch((error) => {
     console.log("Connect to MongoDB failed!" + error);
