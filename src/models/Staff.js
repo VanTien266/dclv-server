@@ -39,9 +39,9 @@ const StaffSchema = new Schema({
         type: String,
         required: true
     },
-}, {collection: "Staffs"});
-const Staffs = mongoose.model("Staffs", StaffSchema);
-module.exports = { Staffs };
+}, {collection: "Staff"});
+const Staff = mongoose.model("Staff", StaffSchema);
+module.exports = { Staff };
 
 
 
