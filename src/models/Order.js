@@ -47,16 +47,19 @@ const OrderSchema = new Schema(
             default: "",
             required: true,
         },
-        detailBill: {
-            type: [Number],
+        detailBill: [{
+            type: Schema.Types.ObjectId,
             required: false,
-        },
-        products: {
-            type: [mongoose.Types.ObjectId],
-            required: true,
-        },
+            ref: "Bill"
+        }],
+        products: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Has"
+            }
+        ]
     },
-    { collection: "Orders" }
+    { collection: "Order" }
 );
-const Orders = mongoose.model("Orders", OrderSchema);
-module.exports = { Orders };
+const Order = mongoose.model("Order", OrderSchema);
+module.exports = { Order };

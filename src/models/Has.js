@@ -2,15 +2,16 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const HasSchema = new Schema(
     {
-        orderID: {
+        orderId: {
             type: Number,
             default: "",
             required: true,
         },
         colorCode: {
-            type: String,
+            type: Schema.Types.ObjectId,
             default: "",
             required: true,
+            ref: "Items"
         },
         length: {
             type: Number,
