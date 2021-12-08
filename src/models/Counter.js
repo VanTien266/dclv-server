@@ -11,7 +11,7 @@ const CounterSchema = new Schema(
             required: true
         }
     },
-    { collection: "Counters" }
+    { collection: "Counter" }
 );
-const Counters = mongoose.model("Counters", CounterSchema);
-module.exports = { Counters };
+const Counter = mongoose.model("Counter", CounterSchema);
+module.exports = { Counter };
