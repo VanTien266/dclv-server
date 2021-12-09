@@ -11,7 +11,7 @@ const HasSchema = new Schema(
             type: Schema.Types.ObjectId,
             default: "",
             required: true,
-            ref: "Items"
+            ref: "Item"
         },
         length: {
             type: Number,

@@ -36,7 +36,18 @@ module.exports = {
   },
   create: async (req, res) => {
     const id = await getNextSequenceValue("orderId");
-    let a = await Order.create({
+    const asyncRes = await Promise.all(req.body.products.map(async (item, idx) => {
+      let colorId = await Item.findOne({ colorCode: item }).exec();
+      console.log(colorId);
+      let a = await Has.create({
+        orderId: id,
+        colorCode: colorId._id,
+        length: 2000,
+        shippedLength: 0,
+      });
+      return a._id;
+    }));
+    let result = await Order.create({
       orderId: id,
       orderStatus: req.body.orderStatus,
       // orderTime: req.body.orderTime,
@@ -47,26 +58,10 @@ module.exports = {
       deposit: req.body.deposit,
       clientID: req.body.clientID,
       detailBill: req.body.detailBill,
-      products: Array(),
+      products: asyncRes,
     });
-    req.body.products.map(async (item, idx) => {
-      let colorId = await Item.findOne({ colorCode: item }).exec();
-      Has.create(
-        {
-          orderId: id,
-          colorCode: colorId._id,
-          length: 2000,
-          shippedLength: 0,
-        },
-        async (err, result) => {
-          await Order.findOneAndUpdate(
-            { orderId: id },
-            { $push: { products: result._id } }
-          );
-        }
-      );
-    });
-    res.send(a);
+    console.log(result);
+    res.send(result);
   },
   detail: (req, res) => {
     Order.findOne({ orderId: req.params.id })
