@@ -32,7 +32,7 @@ router.get("/api/bill", getListBill);
 // router.post("/api/bill/create")
 
 /*---------------------*/
-/*-----Fabric Type route------*/
+/*-----FabricType route------*/
 router.get("/api/fabrictype", getListFabricType);
 /*-----Fabric Roll route------*/
 router.get("/api/product", getProductList);
