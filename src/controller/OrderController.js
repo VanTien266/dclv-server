@@ -1,6 +1,6 @@
 const { Order } = require("../models/Order");
 const { Has } = require("../models/Has");
-const { Items } = require("../models/Items");
+const { Item } = require("../models/Item");
 const { FabricType } = require("../models/FabricType");
 const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
@@ -36,9 +36,8 @@ module.exports = {
   },
   create: async (req, res) => {
     const id = await getNextSequenceValue("orderId");
-    let hasArr = Array();
-    req.body.products.map(async (item, idx) => {
-      let colorId = await Items.findOne({ colorCode: item }).exec();
+    const asyncRes = await Promise.all(req.body.products.map(async (item, idx) => {
+      let colorId = await Item.findOne({ colorCode: item }).exec();
       console.log(colorId);
       let a = await Has.create({
         orderId: id,
@@ -46,24 +45,23 @@ module.exports = {
         length: 2000,
         shippedLength: 0,
       });
-      hasArr.push(a._id);
-      if ((hasArr.length = req.body.products.length)) {
-        let a = await Order.create({
-          orderId: id,
-          orderStatus: req.body.orderStatus,
-          // orderTime: req.body.orderTime,
-          note: req.body.note,
-          receiverName: req.body.receiverName,
-          receiverPhone: req.body.receiverPhone,
-          receiverAddress: req.body.receiverAddress,
-          deposit: req.body.deposit,
-          clientID: req.body.clientID,
-          detailBill: req.body.detailBill,
-          products: hasArr,
-        });
-        res.send(a);
-      }
+      return a._id;
+    }));
+    let result = await Order.create({
+      orderId: id,
+      orderStatus: req.body.orderStatus,
+      // orderTime: req.body.orderTime,
+      note: req.body.note,
+      receiverName: req.body.receiverName,
+      receiverPhone: req.body.receiverPhone,
+      receiverAddress: req.body.receiverAddress,
+      deposit: req.body.deposit,
+      clientID: req.body.clientID,
+      detailBill: req.body.detailBill,
+      products: asyncRes,
     });
+    console.log(result);
+    res.send(result);
   },
   detail: (req, res) => {
     Order.findOne({ orderId: req.params.id })
