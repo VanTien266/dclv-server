@@ -18,7 +18,7 @@ const getProductList = async (req, res) => {
           let: { color_code: "$colorCode" },
           pipeline: [
             { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
-            { $unwind: { path: "$marketPriceId" } }, //split array
+            { $unwind: { path: "$marketPriceId" } },
             {
               $lookup: {
                 from: "MarketPrice",
@@ -31,7 +31,9 @@ const getProductList = async (req, res) => {
                 as: "marketPrice",
               },
             },
+
             { $unwind: "$marketPrice" },
+
             {
               $lookup: {
                 from: "FabricType",
@@ -127,7 +129,7 @@ const getProductById = async (req, res) => {
   }
 };
 
-//Update product
+//Update product status
 const updateProductStatus = async (req, res) => {
   try {
     const body = req.body;

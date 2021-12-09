@@ -9,7 +9,11 @@ const FabricRollSchema = new Schema(
     lot: { type: String, default: "" },
     warehouseId: { type: String, default: "" },
     billId: { type: String, default: "" },
-    colorCode: { type: String, default: "", required: true },
+    colorCode: {
+      type: String,
+      default: "",
+      required: true,
+    },
   },
   { collection: "FabricRoll" }
 );
