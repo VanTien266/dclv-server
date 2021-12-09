@@ -1,8 +1,8 @@
-const {Clients} = require("../models/Client");
+const {Customers} = require("../models/Customer");
 
 module.exports = {
     list: (req, res) => {
-        Clients.find({}, function (err, result) {
+        Customers.find({}, function (err, result) {
             if (err) {
                 console.log(err);
                 return res.json({ message: "Error" });
@@ -14,7 +14,7 @@ module.exports = {
     },
 
     create: (req, res) => {
-        Clients.create(
+        Customers.create(
             {
                 id: "USR" + (new Date().getTime() % 10000),
                 name: req.body.name,
@@ -37,7 +37,7 @@ module.exports = {
         );
     },
     infoById: (req, res) => {
-        Clients.findOne({ id: req.params.id }, function (err, result) {
+        Customers.findOne({ id: req.params.id }, function (err, result) {
             if (err) {
                 console.log(err);
                 return res.json({ message: "Error" });
@@ -48,7 +48,7 @@ module.exports = {
         });
     },
     infoByEmail: (req, res) => {
-        Clients.findOne({ email: req.params.email }, function (err, result) {
+        Customers.findOne({ email: req.params.email }, function (err, result) {
             if (err) {
                 console.log(err);
                 return res.json({ message: "Error" });
@@ -59,7 +59,7 @@ module.exports = {
         });
     },
     updateInfo: (req, res) => {
-        Staffs.findOneAndUpdate(
+        Customers.findOneAndUpdate(
             { id: req.body.id },
             {
                 name: req.body.name,
@@ -80,7 +80,7 @@ module.exports = {
     },
 
     updatePassword: (req, res) => {
-        Clients.findOneAndUpdate(
+        Customers.findOneAndUpdate(
             { id: req.body.id },
             {
                 password: req.body.password,
