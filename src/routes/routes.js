@@ -8,9 +8,7 @@ const {
   getProductById,
   updateProductStatus,
   updateMarketPrice,
-} = require("../controller/ProductController");
-const { getListProduct } = require("../controller/BillController");
-
+} = require("../controller/FabricRollController");
 const {
   list,
   create,
@@ -18,7 +16,8 @@ const {
   updateInfo,
   updateStatus,
 } = require("../controller/OrderController");
-const { listBill } = require("../controller/BillController");
+const { getListBill } = require("../controller/BillController");
+const { getListFabricType } = require("../controller/FabricTypeController");
 
 /*----order route------*/
 router.get("/order", list);
@@ -29,19 +28,20 @@ router.put("/order/update_status", updateStatus);
 /*---------------------*/
 
 /*----bill route-------*/
-router.get("/bill", listBill);
-
-
+router.get("/api/bill", getListBill);
+// router.post("/api/bill/create")
 
 /*---------------------*/
-
-/*-----product route------*/
-//for product
+/*-----FabricType route------*/
+router.get("/api/fabrictype", getListFabricType);
+/*-----Fabric Roll route------*/
 router.get("/api/product", getProductList);
 router.get("/api/product/:id", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
 /*------------------------*/
 
+// for bill
+// router.get("/api/orders", getListProduct);
 
 module.exports = router;

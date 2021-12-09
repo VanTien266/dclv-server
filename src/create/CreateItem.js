@@ -1,6 +1,8 @@
 const { Item } = require("../models/Item");
 const _ = require("lodash");
 const mongoose = require("mongoose");
+const { FabricType } = require("../models/FabricType");
+const { MarketPrice } = require("../models/MarketPrice");
 
 const listColor = [
   { code: "01", name: "Cam lợt" },
@@ -29,45 +31,50 @@ const listColor = [
   { code: "24", name: "Xanh rêu" },
 ];
 
-const listType = [
-  { id: "co", name: "cotton" },
-  { id: "ka", name: "kaki" },
-  { id: "je", name: "jeans" },
-  { id: "kt", name: "kate" },
-  { id: "ni", name: "nỉ" },
-  { id: "le", name: "len" },
-  { id: "th", name: "thô" },
-  { id: "vo", name: "voan" },
-  { id: "la", name: "lanh" },
-  { id: "du", name: "dũi" },
-  { id: "lu", name: "lụa tự nhiên" },
-  { id: "re", name: "ren" },
-  { id: "nl", name: "ni lông" },
-  { id: "tm", name: "tuyết mưa" },
-  { id: "ch", name: "chiffon" },
-];
+// const listType = [
+//   { id: "co", name: "cotton" },
+//   { id: "ka", name: "kaki" },
+//   { id: "je", name: "jeans" },
+//   { id: "kt", name: "kate" },
+//   { id: "ni", name: "nỉ" },
+//   { id: "le", name: "len" },
+//   { id: "th", name: "thô" },
+//   { id: "vo", name: "voan" },
+//   { id: "la", name: "lanh" },
+//   { id: "du", name: "dũi" },
+//   { id: "lu", name: "lụa tự nhiên" },
+//   { id: "re", name: "ren" },
+//   { id: "nl", name: "ni lông" },
+//   { id: "tm", name: "tuyết mưa" },
+//   { id: "ch", name: "chiffon" },
+// ];
 
-const marketPreceIdList = [
-  "61a8fe7f6d8debe25d1d92e0",
-  "61a8fe7f6d8debe25d1d92de",
-  "61a8fe7f6d8debe25d1d92e2",
-  "61a8fe7f6d8debe25d1d92dd",
-  "61a8fe7f6d8debe25d1d92df",
-  "61a8fe7f6d8debe25d1d92e3",
-  "61a8fe7f6d8debe25d1d92e1",
-];
-function InsertToItem() {
+async function getListFabricType() {
+  let result = await FabricType.find({}).exec();
+  return result;
+}
+
+async function getMarketPriceList() {
+  let result = await MarketPrice.find({}).exec();
+  return result;
+}
+
+async function InsertToItem() {
+  const listFabricType = await getListFabricType();
+  const listMarketPrice = await getMarketPriceList();
+
   for (let i = 0; i < listColor.length; i++)
-    for (let j = 0; j < listType.length; j++) {
+    for (let j = 0; j < listFabricType.length; j++) {
       Item.create(
         {
-          colorCode: listType[j].id + listColor[i].code,
-          typeId: listType[j].id,
-          marketPriceId: mongoose.Types.ObjectId(
-            marketPreceIdList[Math.floor(Math.random() * 7)]
-          ),
+          colorCode: listFabricType[j].id + listColor[i].code,
+          typeId: listFabricType[j]._id,
+          marketPriceId: [
+            listMarketPrice[Math.floor(Math.random() * 7)],
+            listMarketPrice[Math.floor(Math.random() * 7)],
+          ],
           name:
-            _.capitalize(listType[j].name) +
+            _.capitalize(listFabricType[j].name) +
             " " +
             _.capitalize(listColor[i].name),
         },
