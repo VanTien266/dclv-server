@@ -11,7 +11,7 @@ const ItemSchema = new Schema(
       required: true,
       ref: "FabricType",
     },
-    marketPriceId: [{ type: mongoose.Types.ObjectId }],
+    marketPriceId: [{ type: mongoose.Types.ObjectId, ref: "MarketPrice" }],
     name: { type: String, default: "" },
   },
   { collection: "Item" }
