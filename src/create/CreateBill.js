@@ -2,12 +2,13 @@ const { Bills } = require("../models/Bills");
 const mongoose = require("mongoose");
 
 const listBillStatus = ["exported", "shipping", "completed", "failed"];
+const listOrderId = [];
 
 function InsertToBill() {
-  for (let i = 0; i < 10; i++)
+  for (let i = 0; i <= 30; i++)
     Bills.create(
       {
-        billID: i,
+        billID: i + 1,
         billStatus: listBillStatus[Math.floor(Math.random() * 4)],
         exportBillTime: Date.now(),
         address: "268 LTK, P14, Q10, TPHCM",

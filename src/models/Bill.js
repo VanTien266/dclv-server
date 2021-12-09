@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const BillSchema = new Schema(
   {
     billID: {
-      type: Number,
+      type: Schema.Types.ObjectId,
       default: "",
       required: true,
     },
@@ -23,16 +23,16 @@ const BillSchema = new Schema(
       required: true,
     },
     shipperID: {
-      type: String,
+      type: Schema.Types.ObjectId,
       default: "",
-      required: false,
     },
     orderID: {
-      type: Number,
+      type: Schema.Types.ObjectId,
+      default: "",
       required: true,
     },
     clientID: {
-      type: String,
+      type: Schema.Types.ObjectId,
       default: "",
       required: true,
     },
@@ -41,11 +41,11 @@ const BillSchema = new Schema(
       default: "",
       required: true,
     },
-    fabrics: [
+    fabricRoll: [
       {
         type: Schema.Types.ObjectId,
-        required: false,
-        ref: "FabricRoll"
+        require: true,
+        ref: "FabricRoll",
       },
     ],
   },
