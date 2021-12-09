@@ -36,36 +36,39 @@ module.exports = {
   },
   create: async (req, res) => {
     const id = await getNextSequenceValue("orderId");
-    let a = await Order.create(
-      {
-        orderId: id,
-        orderStatus: req.body.orderStatus,
-        // orderTime: req.body.orderTime,
-        note: req.body.note,
-        receiverName: req.body.receiverName,
-        receiverPhone: req.body.receiverPhone,
-        receiverAddress: req.body.receiverAddress,
-        deposit: req.body.deposit,
-        clientID: req.body.clientID,
-        detailBill: req.body.detailBill,
-        products: Array(),
-      }); 
+    let hasArr = Array();
     req.body.products.map(async (item, idx) => {
-      let colorId = await Items.findOne({colorCode: item}).exec();
-      Has.create({
+      let colorId = await Items.findOne({ colorCode: item }).exec();
+      console.log(colorId);
+      let a = await Has.create({
         orderId: id,
         colorCode: colorId._id,
         length: 2000,
-        shippedLength: 0
-      }, async(err, result) => {
-        await Order.findOneAndUpdate({orderId: id}, {$push: {products:result._id}});
-      })
-    });   
-    res.send(a);
+        shippedLength: 0,
+      });
+      hasArr.push(a._id);
+      if ((hasArr.length = req.body.products.length)) {
+        let a = await Order.create({
+          orderId: id,
+          orderStatus: req.body.orderStatus,
+          // orderTime: req.body.orderTime,
+          note: req.body.note,
+          receiverName: req.body.receiverName,
+          receiverPhone: req.body.receiverPhone,
+          receiverAddress: req.body.receiverAddress,
+          deposit: req.body.deposit,
+          clientID: req.body.clientID,
+          detailBill: req.body.detailBill,
+          products: hasArr,
+        });
+        res.send(a);
+      }
+    });
   },
   detail: (req, res) => {
-    Order.findOne({ orderId: req.params.id }).populate({
-      path: "products",
+    Order.findOne({ orderId: req.params.id })
+      .populate({
+        path: "products",
         populate: {
           path: "colorCode",
           populate: {
@@ -75,10 +78,11 @@ module.exports = {
           select: "colorCode typeId name -_id",
         },
         select: "colorCode length shippedLength -_id",
-    }).exec(function (err, result) {
-      if (err) res.json(err);
-      else res.json(result);
-    });
+      })
+      .exec(function (err, result) {
+        if (err) res.json(err);
+        else res.json(result);
+      });
   },
 
   updateInfo: (req, res) => {
