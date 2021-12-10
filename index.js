@@ -16,16 +16,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(router);
 
-// let StaffRoute = require("./src/routes/StaffRoute");
-// let ClientRoute = require("./src/routes/ClientRoute");
-// let FabricRollRoute = require("./src/routes/FabricRollRoute");
-// let OrderRoute = require("./src/routes/OrderRoute");
-
-// StaffRoute(app);
-// ClientRoute(app);
-// FabricRollRoute(app);
-// OrderRoute(app);
-
 mongoose
   .connect(mongodb_url, { useNewUrlParser: true })
   .then(() => {
@@ -33,11 +23,10 @@ mongoose
     app.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
-    // const { InsertToItem } = require("./src/create/CreateItem");
-    // InsertToItem();
-    // const { InsertToFabricRoll } = require("./src/create/CreateFabricRoll");
-    // InsertToFabricRoll();
-    // const { InsertToHas } = require("./src/create/CreateHas");
+
+    // const { updateProduct } = require("./src/create/CreateOrder");
+    // updateProduct();
+    // const { InsertToHas } = require("./src/create/Createhas");
     // InsertToHas();
     // const { InsertToUser } = require("./src/create/CreateUser");
     // InsertToUser();

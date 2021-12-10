@@ -1,45 +1,118 @@
-const express = require("express");
+const { Schema } = require("mongoose");
+const { Bill } = require("../models/Bill");
+const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
 
-const router = express.Router();
+async function getNextSequenceValue(sequenceName) {
+  let seq = await Counters.findOneAndUpdate(
+    { _id: sequenceName },
+    { $inc: { sequence_value: 1 } }
+  ).exec();
+  return seq.sequence_value;
+}
 
-const { Orders } = require("../models/Orders");
-
-const getListProduct = async (req, res) => {
-  try {
-    const bills = await Orders.aggregate([
-      { $unwind: "$products" },
-      { $unwind: "$detailBill" },
-      {
-        $lookup: {
-          from: "Has",
-          let: { products: "$products" },
-          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$products"] } } }],
-          as: "has",
-        },
-      },
-      {
-        $group: {
-          _id: "$_id",
-          orderId: { $first: "$orderId" },
-          orderStatus: { $first: "$orderStatus" },
-          note: { $first: "$note" },
-          orderTime: { $first: "$orderTime" },
-          receiverName: { $first: "$receiverName" },
-          receiverPhone: { $first: "$receiverPhone" },
-          receiverAddress: { $first: "$receiverAddress" },
-          deposit: { $first: "$deposit" },
-          clientID: { $first: "$clientID" },
-          detailBill: { $push: "$detailBill" },
-          has: { $push: "$has" },
-        },
-      },
-    ]);
-    res.status(200).json(bills);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
+const getListBill = async (req, res) => {
+  Bill.find({}, function (err, result) {
+    if (err) {
+      console.log(err);
+      return res.json({ message: "Error" });
+    } else {
+      console.log(result);
+      return res.json(result);
+    }
+  });
 };
 
-module.exports = { getListProduct };
+const createListBill = async (req, res) => {
+  Bill.create({}, function (err, bill) {
+    if (err) console.log(err);
+    else console.log(bill);
+  });
+};
+
+const getListBillByOrderId = async (req, res) => {
+  const _id = mongoose.Types.ObjectId(req.params.id);
+  Bill.find({ orderID: _id }).exec(function (err, result) {
+    if (err) {
+      console.log(err);
+      res.json(err);
+    } else {
+      console.log(`Get list bill of ${_id} success!`);
+      res.json(result);
+    }
+  });
+};
+
+module.exports = { getListBill, getListBillByOrderId };
+// create: async (req, res) => {
+//     const id = await getNextSequenceValue("orderId");
+//     Orders.create(
+//         {
+//             orderId: id,
+//             orderStatus: req.body.orderStatus,
+//             // orderTime: req.body.orderTime,
+//             note: req.body.note,
+//             receiverName: req.body.receiverName,
+//             receiverPhone: req.body.receiverPhone,
+//             receiverAddress: req.body.receiverAddress,
+//             deposit: req.body.deposit,
+//             clientID: req.body.clientID,
+//             detailBill: req.body.detailBill,
+//             products: req.body.products,
+//         },
+//         function (err, result) {
+//             if (err) {
+//                 console.log(err);
+//                 return res.json({ message: "Error" });
+//             } else {
+//                 console.log(result);
+//                 return res.json(result);
+//             }
+//         }
+//     );
+// },
+// detail: (req, res) => {
+//     Orders.find({ id: req.params.id }, function (err, result) {
+//         if (err) {
+//             console.log(err);
+//             return res.json({ message: "Error" });
+//         } else {
+//             console.log(result);
+//             return res.json(result);
+//         }
+//     });
+// },
+// updateInfo: (req, res) => {
+//     Orders.findOneAndUpdate(
+//         { id: req.body.id },
+//         {
+//             note: req.body.note,
+//             receiverName: req.body.receiverName,
+//             receiverPhone: req.body.receiverPhone,
+//         },
+//         function (err, result) {
+//             if (err) {
+//                 console.log(err);
+//                 return res.json({ message: "Error" });
+//             } else {
+//                 console.log(result);
+//                 return res.json(result);
+//             }
+//         }
+//     );
+// },
+// updateStatus: (req, res) => {
+//     Orders.findOneAndUpdate(
+//         { id: req.body.id },
+//         { status: req.body.status },
+//         function (err, result) {
+//             if (err) {
+//                 console.log(err);
+//                 return res.json({ message: "Error" });
+//             } else {
+//                 console.log(result);
+//                 return res.json(result);
+//             }
+//         }
+//     );
+// },
