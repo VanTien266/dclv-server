@@ -23,29 +23,33 @@ const BillSchema = new Schema(
       required: true,
     },
     shipperID: {
-      type: String,
-      default: "",
-      required: false,
+      type: Schema.Types.ObjectId,
+      default: null,
+      ref: "Staff",
     },
     orderID: {
-      type: Number,
+      type: Schema.Types.ObjectId,
+      default: null,
       required: true,
+      ref: "Order",
     },
     clientID: {
-      type: String,
-      default: "",
-      required: true,
+      type: Schema.Types.ObjectId,
+      default: null,
+      // required: true,
+      ref: "Customer",
     },
     salesmanID: {
       type: String,
       default: "",
       required: true,
+      ref: "Staff",
     },
-    fabrics: [
+    fabricRoll: [
       {
         type: Schema.Types.ObjectId,
-        required: false,
-        ref: "FabricRoll"
+        require: true,
+        ref: "FabricRoll",
       },
     ],
   },

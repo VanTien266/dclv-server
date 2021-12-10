@@ -1,65 +1,65 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const OrderSchema = new Schema(
-    {
-        orderId: {
-            type: Number,
-            default: 0,
-            required: true,
-        },
-        orderStatus: {
-            type: String,
-            default: "",
-            required: true,
-        },
-        note: {
-            type: String,
-            default: "",
-            required: false,
-        },
-        orderTime: {
-            type: Date,
-            default: Date.now(),
-            required: true,
-        },
-        receiverName: {
-            type: String,
-            default: "",
-            required: false,
-        },
-        receiverPhone: {
-            type: String,
-            default: "",
-            required: false,
-        },
-        receiverAddress: {
-            type: String,
-            default: "",
-            required: true,
-        },
-        deposit: {
-            type: Number,
-            default: 0,
-            required: false,
-        },
-        clientID: {
-            type: String,
-            default: "",
-            required: true,
-        },
-        detailBill: [{
-            type: Schema.Types.ObjectId,
-            required: false,
-            ref: "Bill"
-        }],
-        products: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "Has"
-            }
-        ]
+  {
+    orderId: {
+      type: Number,
+      default: 0,
+      required: true,
     },
-    { collection: "Order" }
+    orderStatus: {
+      type: String,
+      default: "",
+      required: true,
+    },
+    note: {
+      type: String,
+      default: "",
+      required: false,
+    },
+    orderTime: {
+      type: Date,
+      default: Date.now(),
+      required: true,
+    },
+    receiverName: {
+      type: String,
+      default: "",
+      required: false,
+    },
+    receiverPhone: {
+      type: String,
+      default: "",
+      required: false,
+    },
+    receiverAddress: {
+      type: String,
+      default: "",
+      required: true,
+    },
+    deposit: {
+      type: Number,
+      default: 0,
+      required: false,
+    },
+    clientID: {
+      type: Schema.Types.ObjectId,
+      default: null,
+    },
+    detailBill: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Bill",
+      },
+    ],
+    products: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Has",
+      },
+    ],
+  },
+  { collection: "Order" }
 );
 const Order = mongoose.model("Order", OrderSchema);
 module.exports = { Order };

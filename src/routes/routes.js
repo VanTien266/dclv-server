@@ -16,19 +16,25 @@ const {
   updateInfo,
   updateStatus,
 } = require("../controller/OrderController");
-const { getListBill } = require("../controller/BillController");
+
 const { getListFabricType } = require("../controller/FabricTypeController");
 
 /*----order route------*/
-router.get("/order", list);
-router.post("/order/create", create);
-router.get("/order/:id", detail);
-router.put("/order/update_info", updateInfo);
-router.put("/order/update_status", updateStatus);
+router.get("/api/order", list);
+router.post("/api/order/create", create);
+router.get("/api/order/:id", detail);
+router.put("/api/order/update_info", updateInfo);
+router.put("/api/order/update_status", updateStatus);
 /*---------------------*/
 
 /*----bill route-------*/
+const {
+  getListBill,
+  getListBillByOrderId,
+} = require("../controller/BillController");
+
 router.get("/api/bill", getListBill);
+router.get("/api/bill/:id", getListBillByOrderId);
 // router.post("/api/bill/create")
 
 /*---------------------*/

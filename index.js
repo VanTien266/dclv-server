@@ -6,7 +6,6 @@ const cors = require("cors");
 
 const port = process.env.PORT || 5000;
 const mongodb_url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority`;
-// const mongodb_url = `mongodb+srv://nguyenvantinh06:Nguyenvantinh2625@cluster0.5t3jj.mongodb.net/LVTN?retryWrites=true&w=majority`;
 
 const router = require("./src/routes/routes");
 
@@ -25,8 +24,10 @@ mongoose
       console.log(`Server is running at http://localhost:${port}`);
     });
 
-    // const { InsertToItem } = require("./src/create/CreateItem");
-    // InsertToItem();
+    // const { updateProduct } = require("./src/create/CreateOrder");
+    // updateProduct();
+    // const { InsertToHas } = require("./src/create/Createhas");
+    // InsertToHas();
   })
   .catch((error) => {
     console.log("Connect to MongoDB failed!" + error);

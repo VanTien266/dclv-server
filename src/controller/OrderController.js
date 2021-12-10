@@ -19,16 +19,17 @@ module.exports = {
     Order.find()
       .populate({
         path: "products",
-        populate: {
-          path: "colorCode",
-          populate: {
-            path: "typeId",
-            select: "name -_id",
-          },
-          select: "colorCode typeId name -_id",
-        },
+        // populate: {
+        //   path: "colorCode",
+        //   populate: {
+        //     path: "typeId",
+        //     select: "name -_id",
+        //   },
+        //   select: "colorCode typeId name -_id",
+        // },
         select: "colorCode length shippedLength -_id",
       })
+      .populate({ path: "detailBill" })
       .exec(function (err, result) {
         if (err) res.json(err);
         else res.json(result);
@@ -36,17 +37,19 @@ module.exports = {
   },
   create: async (req, res) => {
     const id = await getNextSequenceValue("orderId");
-    const asyncRes = await Promise.all(req.body.products.map(async (item, idx) => {
-      let colorId = await Item.findOne({ colorCode: item }).exec();
-      console.log(colorId);
-      let a = await Has.create({
-        orderId: id,
-        colorCode: colorId._id,
-        length: 2000,
-        shippedLength: 0,
-      });
-      return a._id;
-    }));
+    const asyncRes = await Promise.all(
+      req.body.products.map(async (item, idx) => {
+        let colorId = await Item.findOne({ colorCode: item }).exec();
+        console.log(colorId);
+        let a = await Has.create({
+          orderId: id,
+          colorCode: colorId._id,
+          length: 2000,
+          shippedLength: 0,
+        });
+        return a._id;
+      })
+    );
     let result = await Order.create({
       orderId: id,
       orderStatus: req.body.orderStatus,
