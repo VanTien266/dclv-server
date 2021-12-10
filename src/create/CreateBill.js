@@ -1,27 +1,52 @@
-const { Bills } = require("../models/Bills");
+const { Bill } = require("../models/Bill");
 const mongoose = require("mongoose");
+const { getListOrderId } = require("../services/OrderService");
+const { getListFabricRollUsedId } = require("../services/FabricRollService");
+const {
+  getListSalesmanId,
+  getListCustomerId,
+  getListShipperId,
+} = require("../services/UserService");
 
 const listBillStatus = ["exported", "shipping", "completed", "failed"];
-const listOrderId = [];
 
-function InsertToBill() {
-  for (let i = 0; i <= 30; i++)
-    Bills.create(
+async function InsertToBill() {
+  const listOrderId = await getListOrderId();
+  // console.log(listOrderId);
+  const listFabicRollUsedId = await getListFabricRollUsedId();
+  // console.log(listFabicRollUsedId);
+  const listSalesmanId = await getListSalesmanId();
+  // console.log(listSalesmanId);
+  const listCustomerId = await getListCustomerId();
+  // console.log(listCustomerId);
+  const listShipperId = await getListShipperId();
+  // console.log(listShipperId);
+
+  for (let i = 0; i <= 5; i++)
+    Bill.create(
       {
         billID: i + 1,
         billStatus: listBillStatus[Math.floor(Math.random() * 4)],
         exportBillTime: Date.now(),
         address: "268 LTK, P14, Q10, TPHCM",
-        valueBill: 20000000,
-        clientID: "USR6576",
-        shipperID: "IDBH2635",
-        orderID: 25,
-        salesmanID: "IDBH1111",
-        fabrics: [
-          mongoose.Types.ObjectId("61a8fe7f6d8debe25d1d9206"),
-          mongoose.Types.ObjectId("61a8fe7f6d8debe25d1d9208"),
-          mongoose.Types.ObjectId("61a8fe7f6d8debe25d1d920c"),
-          mongoose.Types.ObjectId("61a8fe7f6d8debe25d1d920b"),
+        valueBill: 0,
+        // clientID:
+        //   listCustomerId[Math.floor(Math.random() * listCustomerId.length)],
+        shipperID:
+          listShipperId[Math.floor(Math.random() * listShipperId.length)],
+        orderID: listOrderId[Math.floor(Math.random() * listOrderId.length)],
+        salesmanID:
+          listSalesmanId[Math.floor(Math.random() * listSalesmanId.length)],
+        fabricRoll: [
+          listFabicRollUsedId[i * 10],
+          listFabicRollUsedId[i * 10 + 1],
+          listFabicRollUsedId[i * 10 + 2],
+          listFabicRollUsedId[i * 10 + 3],
+          listFabicRollUsedId[i * 10 + 4],
+          listFabicRollUsedId[i * 10 + 5],
+          listFabicRollUsedId[i * 10 + 7],
+          listFabicRollUsedId[i * 10 + 8],
+          listFabicRollUsedId[i * 10 + 9],
         ],
       },
       function (err, data) {
@@ -29,5 +54,89 @@ function InsertToBill() {
         else console.log(data);
       }
     );
+  for (let i = 6; i <= 10; i++)
+    Bill.create(
+      {
+        billID: i + 1,
+        billStatus: listBillStatus[Math.floor(Math.random() * 4)],
+        exportBillTime: Date.now(),
+        address: "268 LTK, P14, Q10, TPHCM",
+        valueBill: 0,
+        // clientID:
+        //   listCustomerId[Math.floor(Math.random() * listCustomerId.length)],
+        // clientID: "",
+        shipperID:
+          listShipperId[Math.floor(Math.random() * listShipperId.length)],
+        orderID: listOrderId[Math.floor(Math.random() * listOrderId.length)],
+        salesmanID:
+          listSalesmanId[Math.floor(Math.random() * listSalesmanId.length)],
+        fabricRoll: [
+          listFabicRollUsedId[i * 10],
+          listFabicRollUsedId[i * 10 + 1],
+          listFabicRollUsedId[i * 10 + 2],
+          listFabicRollUsedId[i * 10 + 3],
+          listFabicRollUsedId[i * 10 + 4],
+        ],
+      },
+      function (err, data) {
+        if (err) console.log(err);
+        else console.log(data);
+      }
+    );
+  Bill.create(
+    {
+      billID: 12,
+      billStatus: listBillStatus[Math.floor(Math.random() * 4)],
+      exportBillTime: Date.now(),
+      address: "268 LTK, P14, Q10, TPHCM",
+      valueBill: 0,
+      // clientID:
+      //   listCustomerId[Math.floor(Math.random() * listCustomerId.length)],
+      shipperID:
+        listShipperId[Math.floor(Math.random() * listShipperId.length)],
+      orderID: listOrderId[Math.floor(Math.random() * listOrderId.length)],
+      salesmanID:
+        listSalesmanId[Math.floor(Math.random() * listSalesmanId.length)],
+      fabricRoll: [
+        listFabicRollUsedId[110],
+        listFabicRollUsedId[111],
+        listFabicRollUsedId[112],
+        listFabicRollUsedId[113],
+        listFabicRollUsedId[114],
+        listFabicRollUsedId[115],
+        listFabicRollUsedId[116],
+        listFabicRollUsedId[117],
+        listFabicRollUsedId[118],
+        listFabicRollUsedId[119],
+        listFabicRollUsedId[120],
+        listFabicRollUsedId[121],
+        listFabicRollUsedId[122],
+        listFabicRollUsedId[123],
+        listFabicRollUsedId[124],
+        listFabicRollUsedId[125],
+        listFabicRollUsedId[126],
+        listFabicRollUsedId[127],
+        listFabicRollUsedId[128],
+        listFabicRollUsedId[129],
+        listFabicRollUsedId[130],
+        listFabicRollUsedId[131],
+        listFabicRollUsedId[132],
+        listFabicRollUsedId[133],
+        listFabicRollUsedId[134],
+        listFabicRollUsedId[135],
+        listFabicRollUsedId[136],
+        listFabicRollUsedId[137],
+        listFabicRollUsedId[138],
+        listFabicRollUsedId[139],
+        listFabicRollUsedId[140],
+        listFabicRollUsedId[141],
+      ],
+    },
+    function (err, data) {
+      if (err) console.log(err);
+      else console.log(data);
+    }
+  );
 }
+
 module.exports = { InsertToBill };

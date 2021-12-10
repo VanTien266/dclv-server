@@ -1,5 +1,7 @@
+const { Schema } = require("mongoose");
 const { Bill } = require("../models/Bill");
 const { Counter } = require("../models/Counter");
+const mongoose = require("mongoose");
 
 async function getNextSequenceValue(sequenceName) {
   let seq = await Counters.findOneAndUpdate(
@@ -28,7 +30,20 @@ const createListBill = async (req, res) => {
   });
 };
 
-module.exports = { getListBill };
+const getListBillByOrderId = async (req, res) => {
+  const _id = mongoose.Types.ObjectId(req.params.id);
+  Bill.find({ orderID: _id }).exec(function (err, result) {
+    if (err) {
+      console.log(err);
+      res.json(err);
+    } else {
+      console.log(`Get list bill of ${_id} success!`);
+      res.json(result);
+    }
+  });
+};
+
+module.exports = { getListBill, getListBillByOrderId };
 // create: async (req, res) => {
 //     const id = await getNextSequenceValue("orderId");
 //     Orders.create(

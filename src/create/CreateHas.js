@@ -1,20 +1,31 @@
+const mongoose = require("mongoose");
 const { Has } = require("../models/Has");
+const { getOneProduct } = require("../services/FabricRollService");
+const { getOneOrder, getListOrderId } = require("../services/OrderService");
 
-function InsertToHas() {
-  //FOR CREATE FABRIC ROLL WITH STATUS TRUE
-  let product = ["le01", "nl01", "kt02", "ch01", "le02"];
-  for (let i = 0; i < 5; i++)
-    Has.create(
-      {
-        orderID: 1,
-        colorCode: product[i],
-        length: 1000,
-        shippedLength: 0
-      },
-      function (err, data) {
-        if (err) console.log(err);
-        else console.log(data);
-      }
-    );
+async function InsertToHas() {
+  const listOrderId = await getListOrderId();
+  // console.log(listOrderId);
+  listOrderId.forEach(async (item) => {
+    const order = await getOneOrder(item);
+    // console.log(item);
+    order.products.forEach(async (element) => {
+      const fabricRoll = await getOneProduct(element);
+      // console.log(fabricRoll.item);
+      //   Has.create(
+      //     {
+      //       orderId: item,
+      //       colorCode: fabricRoll.item._id,
+      //       length: fabricRoll.length,
+      //       shippedLength: fabricRoll.length,
+      //     },
+      //     function (err, data) {
+      //       if (err) console.log(err);
+      //       else console.log(data);
+      //     }
+      //   );
+    });
+  });
 }
+
 module.exports = { InsertToHas };
