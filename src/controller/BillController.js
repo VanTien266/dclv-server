@@ -1,4 +1,3 @@
-const { Schema } = require("mongoose");
 const { Bill } = require("../models/Bill");
 const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
@@ -23,13 +22,6 @@ const getListBill = async (req, res) => {
   });
 };
 
-const createListBill = async (req, res) => {
-  Bill.create({}, function (err, bill) {
-    if (err) console.log(err);
-    else console.log(bill);
-  });
-};
-
 const getListBillByOrderId = async (req, res) => {
   const _id = mongoose.Types.ObjectId(req.params.id);
   Bill.find({ orderID: _id }).exec(function (err, result) {
@@ -43,7 +35,20 @@ const getListBillByOrderId = async (req, res) => {
   });
 };
 
-module.exports = { getListBill, getListBillByOrderId };
+const getBillDetail = async (req, res) => {
+  const _id = mongoose.Types.ObjectId(req.query._id);
+  Bill.findOne({ _id: _id }).exec(function (err, result) {
+    if (err) {
+      console.log(err);
+      return res.json(err);
+    } else {
+      console.log(result);
+      return res.json(result);
+    }
+  });
+};
+
+module.exports = { getListBill, getListBillByOrderId, getBillDetail };
 // create: async (req, res) => {
 //     const id = await getNextSequenceValue("orderId");
 //     Orders.create(
@@ -71,17 +76,7 @@ module.exports = { getListBill, getListBillByOrderId };
 //         }
 //     );
 // },
-// detail: (req, res) => {
-//     Orders.find({ id: req.params.id }, function (err, result) {
-//         if (err) {
-//             console.log(err);
-//             return res.json({ message: "Error" });
-//         } else {
-//             console.log(result);
-//             return res.json(result);
-//         }
-//     });
-// },
+
 // updateInfo: (req, res) => {
 //     Orders.findOneAndUpdate(
 //         { id: req.body.id },
