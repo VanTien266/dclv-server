@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
 const CustomerSchema = new Schema({
-    // id: {
-    //     type: String,
-    //     required: true
-    // },
+    id: {
+        type: String,
+        required: true
+    },
     name: {
         type: String,
         required: true

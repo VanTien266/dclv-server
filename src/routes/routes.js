@@ -16,6 +16,9 @@ const {
   detail,
   updateInfo,
   updateStatus,
+  countAllOrder,
+  countAllOrderComplete,
+  deposit,
 } = require("../controller/OrderController");
 
 const { getListFabricType } = require("../controller/FabricTypeController");
@@ -26,6 +29,9 @@ router.post("/api/order/create", create);
 router.get("/api/order/:id", detail);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/update_status", updateStatus);
+router.get("/api/countallorder",countAllOrder);
+router.get("/api/countallordercomplete",countAllOrderComplete);
+router.get("/api/deposit",deposit);
 /*---------------------*/
 
 /*----bill route-------*/
@@ -59,7 +65,7 @@ router.post("/api/createstaff", createNewStaff);
 
 //for admin
 router.get("/api/admin/liststaff", listStaff);
-router.get("/api/admin/liststaff/:id", infoStaffById);
+router.get("/api/admin/liststaff/info/:id", infoStaffById);
 
 
 //for product

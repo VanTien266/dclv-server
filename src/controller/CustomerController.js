@@ -22,6 +22,7 @@ const createNewCustomer = async (req, res) => {
     const hashPass = await bcrypt.hash(req.body.password, salt)
 
     const newCustomer = new Customer();
+    newStaff.id = "KH" + new Date().getTime() % 10000
     newCustomer.name = req.body.name
     newCustomer.email = req.body.email
     newCustomer.password = hashPass

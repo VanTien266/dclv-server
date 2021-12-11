@@ -5,6 +5,7 @@ const { FabricType } = require("../models/FabricType");
 const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const {Bill} = require("../models/Bill");
 
 async function getNextSequenceValue(sequenceName) {
   let seq = await Counter.findOneAndUpdate(
@@ -121,5 +122,107 @@ module.exports = {
         }
       }
     );
+  },
+
+  countAllOrder: (req, res) => {
+    Order.count(
+    function (err, result) {
+      if (err) {
+        console.log(err);
+        return res.json({ message: "Error" });
+      } else {
+        console.log(result);
+        return res.json(result);
+      }
+    }
+    );
+  },
+
+  countAllOrderComplete: async (req, res) => {
+    // Order.aggregate([
+    //   { $match : { orderStatus : "Chờ xử lý" } },
+    //   { $count: "total"},
+    // ],
+    //   function (err, result) {
+    //     if (err) {
+    //       console.log(err);
+    //       return res.json({ message: "Error" });
+    //     } else {
+    //       console.log(result);
+    //       return res.json(result);
+    //     }
+    //   }
+    // );
+    const query = {orderStatus : "Chờ xử lý"};
+    try {
+      const countship = await Order.countDocuments(query);
+      console.log(countship);
+      return res.json(countship);
+    } catch {
+      console.log(err);
+      return res.json({ message: "Error" });
+    }
+    
+  },
+
+  countAllOrderByDate: (req, res) => {
+    // db.orders.countDocuments( { ord_dt: { $gt: new Date('01/01/2012') } }, { limit: 100 } )
+  },
+
+  // deposit: (req, res) => {
+  //   Order.aggregate(
+  //     [
+  //         {
+  //             $group : {
+  //                 _id : null,
+  //                 totalDeposit: { $sum: "$deposit" }
+  //             }
+  //         }
+  //     ]
+  // ).exec(function (err, result) {
+  //   if (err) res.json(err);
+  //   // else res.json(result);
+  //   else {
+  //     result.map((item) => (
+  //       res.json(item.totalDeposit)
+  //     ))
+  //   }
+  // });
+  // },
+
+  deposit: async (req, res) => {
+    try {
+      const depositBillTotal = await Bill.aggregate([
+        { $match : { billStatus : "completed" } },
+        // { $project : { _id : 0, name : 1 } },
+        // { $lookup : {
+        //     from : 'Bill',
+        //     localField : 'billStatus',
+        //     foreignField : '',
+        //     as : 'Bill'
+        // } }
+        {$group: {
+          _id: null,
+          depositBill: {$sum: "$valueBill"}
+        }}
+      ]);
+      const resultBill = depositBillTotal.map((item) => (item.depositBill));
+      const depositOrderTotal = await Order.aggregate(
+        [
+            {
+                $group : {
+                    _id : null,
+                    totalDeposit: { $sum: "$deposit" }
+                }
+            }
+        ]);
+        const resultOrder = depositOrderTotal.map((item) => (item.totalDeposit));
+        const result = resultBill[0] + resultOrder[0];
+    console.log("Get Total Deposit successfully");
+    res.status(200).json(result);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
+    }
   },
 };
