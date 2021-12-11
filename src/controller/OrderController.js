@@ -19,17 +19,20 @@ module.exports = {
     Order.find()
       .populate({
         path: "products",
-        // populate: {
-        //   path: "colorCode",
-        //   populate: {
-        //     path: "typeId",
-        //     select: "name -_id",
-        //   },
-        //   select: "colorCode typeId name -_id",
-        // },
+        populate: {
+          path: "colorCode",
+          //   populate: {
+          //     path: "typeId",
+          //     select: "name -_id",
+          //   },
+          select: "colorCode typeId name -_id",
+        },
         select: "colorCode length shippedLength -_id",
       })
-      .populate({ path: "detailBill" })
+      .populate({
+        path: "detailBill",
+        // populate: { path: "salesmanID", select: "name -_id" },
+      })
       .exec(function (err, result) {
         if (err) res.json(err);
         else res.json(result);
@@ -67,7 +70,8 @@ module.exports = {
     res.send(result);
   },
   detail: (req, res) => {
-    Order.findOne({ orderId: req.params.id })
+    console.log(req.params.id);
+    Order.findOne({ _id: mongoose.Types.ObjectId(req.params.id) })
       .populate({
         path: "products",
         populate: {
