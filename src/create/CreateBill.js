@@ -155,4 +155,24 @@ async function updateClient() {
     });
   });
 }
-module.exports = { InsertToBill, updateClient };
+
+async function updateSatusField() {
+  // Bill.updateMany(
+  //   {},
+  //   { $push: { status: { name: "failed", date: Date.now() } } },
+  //   { multi: true },
+  //   function (err, response) {
+  //     if (err) {
+  //       throw err;
+  //     }
+  //     console.log("done!");
+  //   }
+  // );
+  Bill.updateMany({}, { $unset: { billStatus: 1 } }, function (err, response) {
+    if (err) {
+      throw err;
+    }
+    console.log("done!");
+  });
+}
+module.exports = { InsertToBill, updateClient, updateSatusField };
