@@ -7,6 +7,12 @@ const BillSchema = new Schema(
       default: "",
       required: true,
     },
+    status: [
+      {
+        name: { type: String, default: "exported" },
+        date: { type: Date, default: Date.now() },
+      },
+    ],
     billStatus: {
       type: String,
       default: "",
@@ -40,8 +46,8 @@ const BillSchema = new Schema(
       ref: "Customer",
     },
     salesmanID: {
-      type: String,
-      default: "",
+      type: Schema.Types.ObjectId,
+      default: null,
       required: true,
       ref: "Staff",
     },

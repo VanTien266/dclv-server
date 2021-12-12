@@ -31,8 +31,25 @@ const {
 router.get("/api/bill", getListBill);
 router.get("/api/bill/detail", getBillDetail);
 // router.post("/api/bill/create")
-
 /*---------------------*/
+
+/*----Customer route-------*/
+const {
+  listCustomer,
+  createCustomer,
+  infoById,
+  infoByEmail,
+  updateCustomerInfo,
+  updatePassword,
+} = require("../controller/CustomerController");
+router.get("/api/customer", listCustomer);
+router.post("/api/customer/create", createCustomer);
+router.get("/api/customer/:id", infoById);
+router.get("/api/customer/:email", infoByEmail);
+router.post("/api/customer/update_info", updateCustomerInfo);
+router.post("/api/customer/update_password", updatePassword);
+/*---------------------*/
+
 /*-----FabricType route------*/
 router.get("/api/fabrictype", getListFabricType);
 /*-----Fabric Roll route------*/
@@ -50,8 +67,5 @@ router.get("/api/product/:id", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
 /*------------------------*/
-
-// for bill
-// router.get("/api/orders", getListProduct);
 
 module.exports = router;

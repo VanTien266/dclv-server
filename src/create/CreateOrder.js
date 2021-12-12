@@ -6,6 +6,7 @@ const {
 
 const { getListOrderId } = require("../services/OrderService");
 const { getListHasOfOrder } = require("../services/HasService");
+const { getListCustomerId } = require("../services/UserService");
 
 async function InsertToOrder() {
   const listOrderid = await getListOrderId();
@@ -60,4 +61,21 @@ async function updateProduct() {
   });
 }
 
-module.exports = { InsertToOrder, updateProduct };
+async function updateClient() {
+  const listCustomerId = await getListCustomerId();
+  console.log(listCustomerId);
+  Order.updateMany(
+    {},
+    {
+      $set: {
+        clientID:
+          listCustomerId[Math.floor(Math.random() * listCustomerId.length)],
+      },
+    }
+  ).exec(function (err, response) {
+    if (err) console.log(err);
+    else console.log(response);
+  });
+}
+
+module.exports = { InsertToOrder, updateProduct, updateClient };
