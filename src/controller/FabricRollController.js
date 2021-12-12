@@ -1,5 +1,7 @@
+const { json } = require("body-parser");
 const express = require("express");
 const mongoose = require("mongoose");
+const qs = require("qs");
 
 const { FabricRoll } = require("../models/FabricRoll");
 const { Item } = require("../models/Item");
@@ -130,6 +132,74 @@ const getProductById = async (req, res) => {
   }
 };
 
+//Get list fabric with ids
+const getListFabricRollWithIds = async (req, res) => {
+  const ids = [];
+  const body = qs.parse(req.body);
+  // console.log(body);
+  body.ids.forEach((item) => ids.push(mongoose.Types.ObjectId(item)));
+  console.log(req, ids);
+  try {
+    const result = await FabricRoll.aggregate([
+      { $match: { _id: { $in: ids } } },
+      {
+        $lookup: {
+          from: "Item",
+          let: { color_code: "$colorCode" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
+            { $unwind: { path: "$marketPriceId" } },
+            {
+              $lookup: {
+                from: "MarketPrice",
+                let: { market_price_id: "$marketPriceId" },
+                pipeline: [
+                  {
+                    $match: { $expr: { $eq: ["$_id", "$$market_price_id"] } },
+                  },
+                ],
+                as: "marketPrice",
+              },
+            },
+
+            { $unwind: "$marketPrice" },
+
+            {
+              $lookup: {
+                from: "FabricType",
+                let: { type_id: "$typeId" },
+                pipeline: [
+                  {
+                    $match: { $expr: { $eq: ["$_id", "$$type_id"] } },
+                  },
+                ],
+                as: "fabricType",
+              },
+            },
+            { $unwind: "$fabricType" },
+            {
+              $group: {
+                _id: "$_id",
+                colorCode: { $first: "$colorCode" },
+                name: { $first: "$name" },
+                marketPrice: { $push: "$marketPrice" },
+                fabricType: { $first: "$fabricType" },
+              },
+            },
+          ],
+          as: "item",
+        },
+      },
+      { $unwind: "$item" },
+    ]);
+    console.log("Get List Fabric Roll successfully");
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+};
+
 //Update product status
 const updateProductStatus = async (req, res) => {
   try {
@@ -180,4 +250,5 @@ module.exports = {
   getProductById,
   updateProductStatus,
   updateMarketPrice,
+  getListFabricRollWithIds,
 };

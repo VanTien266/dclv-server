@@ -20,17 +20,20 @@ module.exports = {
     Order.find()
       .populate({
         path: "products",
-        // populate: {
-        //   path: "colorCode",
-        //   populate: {
-        //     path: "typeId",
-        //     select: "name -_id",
-        //   },
-        //   select: "colorCode typeId name -_id",
-        // },
+        populate: {
+          path: "colorCode",
+          //   populate: {
+          //     path: "typeId",
+          //     select: "name -_id",
+          //   },
+          select: "colorCode typeId name -_id",
+        },
         select: "colorCode length shippedLength -_id",
       })
-      .populate({ path: "detailBill" })
+      .populate({
+        path: "detailBill",
+        // populate: { path: "salesmanID", select: "name -_id" },
+      })
       .exec(function (err, result) {
         if (err) res.json(err);
         else res.json(result);
@@ -68,7 +71,8 @@ module.exports = {
     res.send(result);
   },
   detail: (req, res) => {
-    Order.findOne({ orderId: req.params.id })
+    console.log(req.params.id);
+    Order.findOne({ _id: mongoose.Types.ObjectId(req.params.id) })
       .populate({
         path: "products",
         populate: {
@@ -193,7 +197,8 @@ module.exports = {
   deposit: async (req, res) => {
     try {
       const depositBillTotal = await Bill.aggregate([
-        { $match : { billStatus : "completed" } },
+        {$unwind: "$status"},
+        { $match : { "status.name" : "completed" } },
         // { $project : { _id : 0, name : 1 } },
         // { $lookup : {
         //     from : 'Bill',
@@ -219,6 +224,7 @@ module.exports = {
         const resultOrder = depositOrderTotal.map((item) => (item.totalDeposit));
         const result = resultBill[0] + resultOrder[0];
     console.log("Get Total Deposit successfully");
+    console.log(result);
     res.status(200).json(result);
     } catch (err) {
       console.log(err);

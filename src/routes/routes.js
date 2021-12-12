@@ -5,12 +5,6 @@ const router = express.Router();
 const verify = require("../auth/checkToken")
 
 const {
-  getProductList,
-  getProductById,
-  updateProductStatus,
-  updateMarketPrice,
-} = require("../controller/FabricRollController");
-const {
   list,
   create,
   detail,
@@ -38,10 +32,13 @@ router.get("/api/deposit",deposit);
 const {
   getListBill,
   getListBillByOrderId,
+  getBillDetail,
+  getFabricRollBillComplete
 } = require("../controller/BillController");
 
 router.get("/api/bill", getListBill);
-router.get("/api/bill/:id", getListBillByOrderId);
+router.get("/api/bill/detail", getBillDetail);
+router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 // router.post("/api/bill/create")
 
 const {
@@ -73,7 +70,16 @@ router.get("/api/admin/liststaff/info/:id", infoStaffById);
 /*-----FabricType route------*/
 router.get("/api/fabrictype", getListFabricType);
 /*-----Fabric Roll route------*/
+const {
+  getProductList,
+  getProductById,
+  updateProductStatus,
+  updateMarketPrice,
+  getListFabricRollWithIds,
+} = require("../controller/FabricRollController");
+
 router.get("/api/product", getProductList);
+router.post("/api/product/list", getListFabricRollWithIds);
 router.get("/api/product/:id", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
