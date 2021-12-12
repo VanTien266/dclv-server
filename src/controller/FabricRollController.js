@@ -134,11 +134,9 @@ const getProductById = async (req, res) => {
 
 //Get list fabric with ids
 const getListFabricRollWithIds = async (req, res) => {
-  const ids = [];
   const body = qs.parse(req.body);
-  // console.log(body);
-  body.ids.forEach((item) => ids.push(mongoose.Types.ObjectId(item)));
-  console.log(req, ids);
+  const ids = body.ids || [];
+  ids.forEach((item) => ids.push(mongoose.Types.ObjectId(item)));
   try {
     const result = await FabricRoll.aggregate([
       { $match: { _id: { $in: ids } } },

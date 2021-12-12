@@ -7,6 +7,7 @@ const {
   getListCustomerId,
   getListShipperId,
 } = require("../services/UserService");
+const { getListBillId, getClientId } = require("../services/BillService");
 
 const listBillStatus = ["exported", "shipping", "completed", "failed"];
 
@@ -139,4 +140,39 @@ async function InsertToBill() {
   );
 }
 
-module.exports = { InsertToBill };
+async function updateClient() {
+  const listBillId = (await getListBillId()) || [];
+  console.log("list bill", listBillId);
+  listBillId.forEach(async (item) => {
+    const clientID = await getClientId(item);
+    console.log(clientID.orderID.clientID);
+    Bill.findOneAndUpdate(
+      { _id: item },
+      { $set: { clientID: clientID.orderID.clientID } }
+    ).exec(function (err, response) {
+      if (err) console.log(err);
+      else console.log(response);
+    });
+  });
+}
+
+async function updateSatusField() {
+  // Bill.updateMany(
+  //   {},
+  //   { $push: { status: { name: "failed", date: Date.now() } } },
+  //   { multi: true },
+  //   function (err, response) {
+  //     if (err) {
+  //       throw err;
+  //     }
+  //     console.log("done!");
+  //   }
+  // );
+  Bill.updateMany({}, { $unset: { billStatus: 1 } }, function (err, response) {
+    if (err) {
+      throw err;
+    }
+    console.log("done!");
+  });
+}
+module.exports = { InsertToBill, updateClient, updateSatusField };
