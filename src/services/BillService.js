@@ -23,8 +23,22 @@ async function getListBillOfOrder(orderId) {
   return result;
 }
 
+async function getListBillId() {
+  const result = await Bill.find({}).distinct("_id").exec();
+  return result;
+}
+
+async function getClientId(billId) {
+  const result = await Bill.findOne({ _id: billId })
+    .populate({ path: "orderID", select: "clientID" })
+    .exec();
+  return result;
+}
+
 module.exports = {
   getListOrderId,
   getListProductOfOrder,
   getListBillOfOrder,
+  getListBillId,
+  getClientId,
 };
