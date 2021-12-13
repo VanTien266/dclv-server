@@ -11,6 +11,7 @@ const BillSchema = new Schema(
       {
         name: { type: String, default: "exported" },
         date: { type: Date, default: Date.now() },
+        reason: { type: String, default: "" },
       },
     ],
     billStatus: {
