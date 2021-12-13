@@ -61,7 +61,12 @@ module.exports = {
     );
     let result = await Order.create({
       orderId: id,
-      orderStatus: req.body.orderStatus,
+      orderStatus: [
+		{
+			name: req.body.orderStatus,
+			date: Date.now()
+		}
+	  ],
       // orderTime: req.body.orderTime,
       note: req.body.note,
       receiverName: req.body.receiverName,
