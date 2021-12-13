@@ -2,6 +2,7 @@ const { Order } = require("../models/Order");
 const { Has } = require("../models/Has");
 const { Item } = require("../models/Item");
 const { FabricType } = require("../models/FabricType");
+const { Customer } = require("../models/Customer");
 const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
@@ -33,6 +34,10 @@ module.exports = {
       .populate({
         path: "detailBill",
         // populate: { path: "salesmanID", select: "name -_id" },
+      })
+      .populate({
+        path: "clientID",
+        select: "name -_id"
       })
       .exec(function (err, result) {
         if (err) res.json(err);
