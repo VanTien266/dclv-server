@@ -95,6 +95,10 @@ module.exports = {
         },
         select: "colorCode length shippedLength -_id",
       })
+	  .populate({
+		  path: "clientID",
+		  select: "name email address phone -_id"
+	  })
       .exec(function (err, result) {
         if (err) res.json(err);
         else res.json(result);
