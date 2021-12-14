@@ -242,6 +242,32 @@ const updateMarketPrice = async (req, res) => {
     res.status(500).json({ err });
   }
 };
+const getChartWarehouseTrue = async (req, res) => {
+  try {
+    const result = await FabricRoll.aggregate([
+      // {$unwind: "$status"},
+      // // {$unwind: "$status.name"},
+      {$match: {"status": true}},
+      // {$project: {status: 1}},
+      // {$unwind: "$fabricRoll"},
+      {$group: {
+        _id: "$warehouseId",
+        countFabric : {$sum: 1},
+      }},
+      {$sort: {_id:1}},
+      // }}
+      // { $count: "warehouseId" }
+    ])
+    console.log("Get Chart Warehouse successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+  
+};
+
 
 module.exports = {
   getProductList,
@@ -249,4 +275,5 @@ module.exports = {
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
+  getChartWarehouseTrue,
 };
