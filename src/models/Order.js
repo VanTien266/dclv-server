@@ -9,11 +9,10 @@ const OrderSchema = new Schema(
     },
     orderStatus: [
       {
-        name: { type: String, default: "" },
+        name: { type: String, default: "pending" },
         date: { type: Date, default: Date.now() },
       },
     ],
-
     note: {
       type: String,
       default: "",
@@ -47,7 +46,7 @@ const OrderSchema = new Schema(
     clientID: {
       type: Schema.Types.ObjectId,
       default: null,
-      ref: "Customer",
+      ref: "Customer"
     },
     detailBill: [
       {
