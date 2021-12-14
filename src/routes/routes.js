@@ -95,6 +95,7 @@ const {
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
+  getChartWarehouseTrue,
 } = require("../controller/FabricRollController");
 
 router.get("/api/product", getProductList);
@@ -102,6 +103,8 @@ router.post("/api/product/list", getListFabricRollWithIds);
 router.get("/api/product/:id", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
+router.get("/api/chartwarehouse", getChartWarehouseTrue);
+
 /*------------------------*/
 
 module.exports = router;
