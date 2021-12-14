@@ -34,10 +34,12 @@ const {
   getListBillByOrderId,
   getBillDetail,
   getFabricRollBillComplete,
+  getListBillByIds,
 } = require("../controller/BillController");
 
 router.get("/api/bill", getListBill);
-router.get("/api/bill/detail", getBillDetail);
+router.post("/api/bill/list", getListBillByIds);
+router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 // router.post("/api/bill/create")
 /*---------------------*/

@@ -87,7 +87,10 @@ module.exports = {
       .populate({ path: "clientID", select: "name address phone email" })
       .exec(function (err, result) {
         if (err) res.json(err);
-        else res.json(result);
+        else {
+          console.log(result);
+          res.json(result);
+        }
       });
   },
 

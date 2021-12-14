@@ -15,11 +15,6 @@ const BillSchema = new Schema(
       },
     ],
     note: { type: String, default: "" },
-    billStatus: {
-      type: String,
-      default: "",
-      required: true,
-    },
     valueBill: {
       type: Number,
       default: 0,

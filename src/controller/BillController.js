@@ -2,6 +2,7 @@ const { Bill } = require("../models/Bill");
 const { Staff } = require("../models/Staff");
 const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
+const qs = require("qs");
 
 async function getNextSequenceValue(sequenceName) {
   let seq = await Counter.findOneAndUpdate(
@@ -23,6 +24,18 @@ const getListBill = async (req, res) => {
   });
 };
 
+const getListBillByIds = async (req, res) => {
+  const body = qs.parse(req.body);
+  const ids = body.ids || [];
+  console.log(body.ids);
+  Bill.find({ _id: { $in: ids } })
+    .populate({ path: "salesmanID", select: "name" })
+    .exec(function (err, result) {
+      if (err) res.json(err);
+      else res.json(result);
+    });
+};
+
 const getListBillByOrderId = async (req, res) => {
   const _id = mongoose.Types.ObjectId(req.params.id);
   Bill.find({ orderID: _id }).exec(function (err, result) {
@@ -37,8 +50,8 @@ const getListBillByOrderId = async (req, res) => {
 };
 
 const getBillDetail = async (req, res) => {
-  const _id = mongoose.Types.ObjectId(req.query._id);
-  Bill.findOne({ _id: _id })
+  const id = mongoose.Types.ObjectId(req.params.id);
+  Bill.findOne({ _id: id })
     .populate({ path: "clientID", select: "name email phone address" })
     .populate({ path: "salesmanID", select: "name phone" })
     .populate({ path: "shipperID", select: "name phone" })
@@ -93,4 +106,5 @@ module.exports = {
   getListBillByOrderId,
   getBillDetail,
   getFabricRollBillComplete,
+  getListBillByIds,
 };
