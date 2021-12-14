@@ -87,10 +87,15 @@ module.exports = {
         path: "products",
         populate: {
           path: "colorCode",
-          populate: {
+          populate: [{
             path: "typeId",
             select: "name -_id",
           },
+		  {
+			  path: "marketPriceId",
+			  options: { sort: {"dayApplied": "desc" }, limit: 1},			  
+			  select: "price -_id"
+		  }],
           select: "colorCode typeId name -_id",
         },
         select: "colorCode length shippedLength -_id",
