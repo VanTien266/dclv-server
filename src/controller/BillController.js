@@ -88,5 +88,83 @@ const getFabricRollBillComplete = async (req, res) => {
   }
 };
 
+// const getFabricTypeSell = (req, res) => {
+//   // Order.find()
+//   //   .populate({
+//   //     path: "products",
+//   //     populate: {
+//   //       path: "colorCode",
+//   //       //   populate: {
+//   //       //     path: "typeId",
+//   //       //     select: "name -_id",
+//   //       //   },
+//   //       select: "colorCode typeId name -_id",
+//   //     },
+//   //     select: "colorCode length shippedLength -_id",
+//   //   })
+//   //   .populate({
+//   //     path: "detailBill",
+//   //     // populate: { path: "salesmanID", select: "name -_id" },
+//   //   })
+//   Bill
+//     .find({"status.name": "completed"})
+//     .select('fabricRoll')
+//     .populate({
+//       path:'fabricRoll',
+//       select:'colorCode',
+//       populate:{
+//         path: 'colorCode',
+//         // collection: 'Item',
+//         //   populate: {
+//         //     path: "name",
+//         //     // select: "name -_id",
+//         //   },
+//       },
+//     })
+//     .exec(function (err, result) {
+//       if (err) {
+//         console.log(err);
+//         res.json(err);
+//       }
+//       else {
+//         console.log("Get Fabric Type Sell Success");
+//         console.log(result);
+//         res.json(result);
+//       }
+//     });
+// };
+// const getFabricTypeSell = async (req, res) => {
+//   try {
+//     // Bill.find(
+//     //   { "status.name": "completed" }
+//     // );
+//     const result = await Bill.aggregate([
+//       {$unwind: "$status"},
+//       {$unwind: "$status.name"},
+//       {$match: {"status.name": "completed"}},
+//       {$project: {fabricRoll: 1}},
+//       {$unwind: "$fabricRoll"},
+//       // {$group: {
+//       //   _id: null,
+//       //   totalFabric : {$sum: 1}
+//       // }}
+//       // }}
+//       // { $count: "fabricRoll" }
+//     ])
+
+//     console.log("Get Total Fabric Roll Bill Completed successfully");
+//     console.log(result);
+//     res.status(200).json(result);
+//     // {result.map((item) => (
+//     //   res.status(200).json(item.fabricRoll)
+//     // ))}
+//   } catch (err) {
+//       console.log(err);
+//       res.status(500).json({ err });
+//   }
+// };
+
+
+
 module.exports = { getListBill, getListBillByOrderId, getBillDetail, getFabricRollBillComplete };
 
