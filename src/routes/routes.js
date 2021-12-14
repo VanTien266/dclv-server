@@ -20,7 +20,7 @@ const { getListFabricType } = require("../controller/FabricTypeController");
 /*----order route------*/
 router.get("/api/order", list);
 router.post("/api/order/create", create);
-router.get("/api/order/detail", detail);
+router.get("/api/order/:id", detail);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/update_status", updateStatus);
 router.get("/api/countallorder", countAllOrder);

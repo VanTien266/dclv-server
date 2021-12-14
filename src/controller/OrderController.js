@@ -71,7 +71,7 @@ module.exports = {
     res.send(result);
   },
   detail: (req, res) => {
-    Order.findOne({ _id: mongoose.Types.ObjectId(req.query._id) })
+    Order.findOne({ _id: mongoose.Types.ObjectId(req.params.id) })
       .populate({
         path: "products",
         populate: {
