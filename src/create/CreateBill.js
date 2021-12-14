@@ -156,22 +156,25 @@ async function updateClient() {
   });
 }
 const reasonList = ["Khách đi vắng", "Khách boom hàng", "Hàng bị lỗi"];
+// const noteList=[""]
 async function updateSatusField() {
-  // Bill.updateMany(
-  //   { "status.name": "failed" },
-  //   {
-  //     $set: {
-  //       "status.$.reason":
-  //         reasonList[Math.floor(Math.random() * reasonList.length)],
-  //     },
-  //   },
-  //   function (err, response) {
-  //     if (err) {
-  //       throw err;
-  //     }
-  //     console.log("done!");
-  //   }
-  // );
+  Bill.updateMany(
+    // { "status.name": "failed" },
+    // {
+    //   $set: {
+    //     "status.$.reason":
+    //       reasonList[Math.floor(Math.random() * reasonList.length)],
+    //   },
+    // },
+    {},
+    { note: "" },
+    function (err, response) {
+      if (err) {
+        throw err;
+      }
+      console.log("done!");
+    }
+  );
   // Bill.updateMany({}, { $unset: { billStatus: 1 } }, function (err, response) {
   //   if (err) {
   //     throw err;

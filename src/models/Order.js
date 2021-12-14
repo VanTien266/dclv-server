@@ -45,6 +45,7 @@ const OrderSchema = new Schema(
     clientID: {
       type: Schema.Types.ObjectId,
       default: null,
+      ref: "Customer",
     },
     detailBill: [
       {

@@ -63,30 +63,34 @@ const getFabricRollBillComplete = async (req, res) => {
     //   { "status.name": "completed" }
     // );
     const result = await Bill.aggregate([
-      {$unwind: "$status"},
+      { $unwind: "$status" },
       // // {$unwind: "$status.name"},
-      {$match: {"status.name": "completed"}},
-      {$project: {fabricRoll: 1}},
-      {$unwind: "$fabricRoll"},
+      { $match: { "status.name": "completed" } },
+      { $project: { fabricRoll: 1 } },
+      { $unwind: "$fabricRoll" },
       // {$group: {
       //   _id: null,
       //   totalFabric : {$sum: 1}
       // }}
       // }}
-      { $count: "fabricRoll" }
-    ])
+      { $count: "fabricRoll" },
+    ]);
 
     console.log("Get Total Fabric Roll Bill Completed successfully");
     console.log(result);
     // res.status(200).json(result);
-    {result.map((item) => (
-      res.status(200).json(item.fabricRoll)
-    ))}
+    {
+      result.map((item) => res.status(200).json(item.fabricRoll));
+    }
   } catch (err) {
-      console.log(err);
-      res.status(500).json({ err });
+    console.log(err);
+    res.status(500).json({ err });
   }
 };
 
-module.exports = { getListBill, getListBillByOrderId, getBillDetail, getFabricRollBillComplete };
-
+module.exports = {
+  getListBill,
+  getListBillByOrderId,
+  getBillDetail,
+  getFabricRollBillComplete,
+};

@@ -2,7 +2,7 @@
 const express = require("express");
 
 const router = express.Router();
-const verify = require("../auth/checkToken")
+const verify = require("../auth/checkToken");
 
 const {
   list,
@@ -20,12 +20,12 @@ const { getListFabricType } = require("../controller/FabricTypeController");
 /*----order route------*/
 router.get("/api/order", list);
 router.post("/api/order/create", create);
-router.get("/api/order/:id", detail);
+router.get("/api/order/detail", detail);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/update_status", updateStatus);
-router.get("/api/countallorder",countAllOrder);
-router.get("/api/countallordercomplete",countAllOrderComplete);
-router.get("/api/deposit",deposit);
+router.get("/api/countallorder", countAllOrder);
+router.get("/api/countallordercomplete", countAllOrderComplete);
+router.get("/api/deposit", deposit);
 /*---------------------*/
 
 /*----bill route-------*/
@@ -33,7 +33,7 @@ const {
   getListBill,
   getListBillByOrderId,
   getBillDetail,
-  getFabricRollBillComplete
+  getFabricRollBillComplete,
 } = require("../controller/BillController");
 
 router.get("/api/bill", getListBill);
@@ -43,16 +43,19 @@ router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 /*---------------------*/
 
 const {
-  createNewCustomer ,
-  login
+  createNewCustomer,
+  login,
 } = require("../controller/CustomerController");
 
-const { createNewStaff, listStaff, infoStaffById} = require("../controller/StaffController");
-
+const {
+  createNewStaff,
+  listStaff,
+  infoStaffById,
+} = require("../controller/StaffController");
 
 //for customer
 router.post("/api/register", createNewCustomer);
-router.post("/api/login", login)
+router.post("/api/login", login);
 // router.get('/dashboard', verify, function(req, res){
 //   res.send("Chào mừng bạn đến với BK Fabric")
 // })
@@ -64,7 +67,6 @@ router.post("/api/createstaff", createNewStaff);
 //for admin
 router.get("/api/admin/liststaff", listStaff);
 router.get("/api/admin/liststaff/info/:id", infoStaffById);
-
 
 //for product
 /*----Customer route-------*/

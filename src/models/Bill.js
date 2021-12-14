@@ -14,6 +14,7 @@ const BillSchema = new Schema(
         reason: { type: String, default: "" },
       },
     ],
+    note: { type: String, default: "" },
     billStatus: {
       type: String,
       default: "",
