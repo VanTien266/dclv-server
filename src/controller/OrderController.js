@@ -104,6 +104,10 @@ module.exports = {
 		  path: "clientID",
 		  select: "name email address phone -_id"
 	  })
+	  .populate({
+        path: "detailBill",
+        populate: { path: "salesmanID", select: "name -_id" },
+      })
       .exec(function (err, result) {
         if (err) res.json(err);
         else res.json(result);
