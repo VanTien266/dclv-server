@@ -327,4 +327,38 @@ module.exports = {
     });
 },
 
+  getOrderStatus: async (req, res) => {
+    try {
+      const result = await Order.aggregate([
+        // { $unwind: "$orderStatus" },
+        // { $match: { "orderStatus.name": "completed" } },
+        { $project : { _id : 1, orderStatus: 1 } },
+        // { $lookup : {
+        //     from : 'Bill',
+        //     localField : 'billStatus',
+        //     foreignField : '',
+        //     as : 'Bill'
+        // } }
+        // {
+        //   $group: {
+        //     _id: "$orderStatus.name",
+        //     orderComplete: { $sum: 1 },
+        //   },
+        // },
+        { $addFields: { lastStatus: { $last: "$orderStatus" } } },
+        { $group: {
+            _id: "$lastStatus.name",
+            lastStatusOrder: { $sum: 1 },
+          },
+        },
+      ]);
+      console.log("Get Order Status successfully");
+      console.log(result);
+      res.status(200).json(result);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
+    }
+  },
+
 };

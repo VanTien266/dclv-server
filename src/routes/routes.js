@@ -14,7 +14,8 @@ const {
   countAllOrderComplete,
   deposit,
   getOrderbyDateRange,
-  getFabricTypeOrder
+  getFabricTypeOrder,
+  getOrderStatus
 } = require("../controller/OrderController");
 
 const { getListFabricType } = require("../controller/FabricTypeController");
@@ -30,6 +31,7 @@ router.get("/api/countallordercomplete",countAllOrderComplete);
 router.get("/api/deposit",deposit);
 router.get("/api/getorderrange", getOrderbyDateRange);
 router.get("/api/getfabrictypeorder", getFabricTypeOrder);
+router.get("/api/getorderstatus", getOrderStatus);
 
 /*---------------------*/
 
@@ -40,12 +42,14 @@ const {
   getBillDetail,
   getFabricRollBillComplete,
   getListBillByIds,
+  getBillComplete,
 } = require("../controller/BillController");
 
 router.get("/api/bill", getListBill);
 router.post("/api/bill/list", getListBillByIds);
 router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
+router.get("/api/bill/completed", getBillComplete);
 
 // router.post("/api/bill/create")
 /*---------------------*/
