@@ -242,6 +242,93 @@ const updateMarketPrice = async (req, res) => {
     res.status(500).json({ err });
   }
 };
+const getChartWarehouseTrue = async (req, res) => {
+  try {
+    const result = await FabricRoll.aggregate([
+      // {$unwind: "$status"},
+      // // {$unwind: "$status.name"},
+      {$match: {"status": true}},
+      // {$project: {status: 1}},
+      // {$unwind: "$fabricRoll"},
+      {$group: {
+        _id: "$warehouseId",
+        countFabric : {$sum: 1},
+      }},
+      {$sort: {_id:1}},
+      // }}
+      // { $count: "warehouseId" }
+    ])
+    console.log("Get Chart Warehouse successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+  
+};
+
+const getFabricTypeSell = async (req, res) => {
+  try {
+    const result = await FabricRoll.aggregate([
+      // {$unwind: "$status"},
+      // // {$unwind: "$status.name"},
+      {$match: {"status": false}},
+      {$project: {colorCode: 1}},
+      // {$unwind: "$fabricRoll"},
+      // {$group: {
+      //   _id: "$warehouseId",
+      //   countFabric : {$sum: 1},
+      // }},
+      // {$sort: {_id:1}},
+      // }}
+      // { $count: "colorCode" }
+      {
+        $lookup: {
+          from: "Item",
+          let: { color_code: "$colorCode" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
+            {
+              $lookup: {
+                from: "FabricType",
+                let: { type_id: "$typeId" },
+                pipeline: [
+                  {
+                    $match: { $expr: { $eq: ["$_id", "$$type_id"] } },
+                  },
+                ],
+                as: "fabricType",
+              },
+            },
+            { $unwind: "$fabricType" },
+            {
+              $group: {
+                _id: "$fabricType.name",
+              },
+            },
+          ],
+          as: "item",
+        },
+      },
+      { $unwind: "$item" },
+      {$group: {
+        _id: "$item._id",
+        countFabrictype: {$sum: 1}
+      }},
+      {$sort: {countFabrictype: -1}},
+      {$limit: 8}
+    ])
+    console.log("Get Fabric Type Sell successfully");
+    // console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+  
+};
+
 
 module.exports = {
   getProductList,
@@ -249,4 +336,6 @@ module.exports = {
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
+  getChartWarehouseTrue,
+  getFabricTypeSell
 };

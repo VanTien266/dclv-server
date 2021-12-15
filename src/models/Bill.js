@@ -11,13 +11,10 @@ const BillSchema = new Schema(
       {
         name: { type: String, default: "exported" },
         date: { type: Date, default: Date.now() },
+        reason: { type: String, default: "" },
       },
     ],
-    billStatus: {
-      type: String,
-      default: "",
-      required: true,
-    },
+    note: { type: String, default: "" },
     valueBill: {
       type: Number,
       default: 0,
