@@ -33,7 +33,7 @@ module.exports = {
       })
       .populate({
         path: "detailBill",
-        // populate: { path: "salesmanID", select: "name -_id" },
+        populate: [{ path: "salesmanID", select: "name -_id" }, { path: "clientID", select: "name -_id" }],
       })
       .populate({
         path: "clientID",
@@ -202,11 +202,7 @@ module.exports = {
     //     }
     //   }
     // );
-<<<<<<< HEAD
-    const query = { orderStatus: "Chờ xử lý" };
-=======
     const query = {"orderStatus.name" : "completed"};
->>>>>>> 3da83ed90478905c79533e3062893bcd082dbd39
     try {
       const countship = await Order.countDocuments(query);
       console.log(countship);
@@ -275,8 +271,6 @@ module.exports = {
       console.log("Get Total Deposit successfully");
       console.log(result);
       res.status(200).json(result);
-<<<<<<< HEAD
-=======
     } catch (err) {
       console.log(err);
       res.status(500).json({ err });
@@ -305,7 +299,6 @@ module.exports = {
     console.log("Get Order By Range successfully");
     console.log(rangeDateOrder);
     res.status(200).json(rangeDateOrder);
->>>>>>> 3da83ed90478905c79533e3062893bcd082dbd39
     } catch (err) {
       console.log(err);
       res.status(500).json({ err });
