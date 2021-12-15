@@ -14,7 +14,7 @@ const {
   countAllOrderComplete,
   deposit,
   getOrderbyDateRange,
-  getFabricTypeOrder
+  getFabricTypeOrder,
 } = require("../controller/OrderController");
 
 const { getListFabricType } = require("../controller/FabricTypeController");
@@ -25,13 +25,11 @@ router.post("/api/order/create", create);
 router.get("/api/order/:id", detail);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/update_status", updateStatus);
-router.get("/api/countallorder",countAllOrder);
-router.get("/api/countallordercomplete",countAllOrderComplete);
-router.get("/api/deposit",deposit);
+router.get("/api/countallorder", countAllOrder);
+router.get("/api/countallordercomplete", countAllOrderComplete);
+router.get("/api/deposit", deposit);
 router.get("/api/getorderrange", getOrderbyDateRange);
 router.get("/api/getfabrictypeorder", getFabricTypeOrder);
-
-/*---------------------*/
 
 /*----bill route-------*/
 const {
@@ -46,7 +44,6 @@ router.get("/api/bill", getListBill);
 router.post("/api/bill/list", getListBillByIds);
 router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
-
 // router.post("/api/bill/create")
 /*---------------------*/
 
@@ -54,7 +51,6 @@ const {
   createNewCustomer,
   login,
 } = require("../controller/CustomerController");
-
 const {
   createNewStaff,
   listStaff,
@@ -96,6 +92,8 @@ router.get("/api/admin/liststaff/info/:id", infoStaffById);
 
 /*-----FabricType route------*/
 router.get("/api/fabrictype", getListFabricType);
+/*---------------------*/
+
 /*-----Fabric Roll route------*/
 const {
   getProductList,
@@ -104,18 +102,16 @@ const {
   updateMarketPrice,
   getListFabricRollWithIds,
   getChartWarehouseTrue,
-  getFabricTypeSell
+  getFabricTypeSell,
 } = require("../controller/FabricRollController");
 
 router.get("/api/product", getProductList);
 router.post("/api/product/list", getListFabricRollWithIds);
-router.get("/api/product/:id", getProductById);
+router.get("/api/product/detail", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
 router.get("/api/chartwarehouse", getChartWarehouseTrue);
 router.get("/api/getfabrictypesell", getFabricTypeSell);
-
-
 /*------------------------*/
 
 module.exports = router;
