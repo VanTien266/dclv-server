@@ -16,7 +16,7 @@ async function getNextSequenceValue(sequenceName) {
 }
 
 module.exports = {
-  list: (req, res) => {
+  list: async (req, res) => {
     Order.find()
       .populate({
         path: "products",
@@ -102,7 +102,7 @@ module.exports = {
       })
       .populate({
         path: "clientID",
-        select: "name email address phone -_id",
+        select: "name email address phone",
       })
       .populate({
         path: "detailBill",

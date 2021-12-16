@@ -38,6 +38,7 @@ router.get("/api/getorderstatus", getOrderStatus);
 /*----bill route-------*/
 const {
   getListBill,
+  createBill,
   getListBillByOrderId,
   getBillDetail,
   getFabricRollBillComplete,
@@ -47,6 +48,7 @@ const {
 } = require("../controller/BillController");
 
 router.get("/api/bill", getListBill);
+router.post("/api/bill/create", createBill);
 router.post("/api/bill/list", getListBillByIds);
 router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
