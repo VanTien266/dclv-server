@@ -18,7 +18,6 @@ const getListBill = async (req, res) => {
       console.log(err);
       return res.json({ message: "Error" });
     } else {
-      console.log(result);
       return res.json(result);
     }
   });
@@ -64,10 +63,40 @@ const getBillDetail = async (req, res) => {
         console.log(err);
         return res.json(err);
       } else {
-        console.log(result);
         return res.json(result);
       }
     });
+};
+
+const getBillComplete = async (req, res) => {
+  try {
+    // Bill.find(
+    //   { "status.name": "completed" }
+    // );
+    const result = await Bill.aggregate([
+      { $unwind: "$status" },
+      // // {$unwind: "$status.name"},
+      { $match: { "status.name": "completed" } },
+      { $project: { _id: 1 } },
+      // { $unwind: "$fabricRoll" },
+      {$group: {
+        _id: null,
+        billcompleted : {$sum: 1}
+      }}
+      // // }}
+      // { $count: "fabricRoll" },
+    ]);
+
+    console.log("Get Bill Completed successfully");
+    console.log(result);
+    // res.status(200).json(result);
+    {
+      result.map((item) => res.status(200).json(item.billcompleted));
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
 };
 
 const getFabricRollBillComplete = async (req, res) => {
@@ -183,4 +212,5 @@ module.exports = {
   getBillDetail,
   getFabricRollBillComplete,
   getListBillByIds,
+  getBillComplete,
 };

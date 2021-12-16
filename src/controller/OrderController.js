@@ -5,7 +5,6 @@ const { FabricType } = require("../models/FabricType");
 const { Customer } = require("../models/Customer");
 const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
 const { Bill } = require("../models/Bill");
 
 async function getNextSequenceValue(sequenceName) {
@@ -112,7 +111,6 @@ module.exports = {
       .exec(function (err, result) {
         if (err) res.json(err);
         else {
-          console.log(result);
           res.json(result);
         }
       });
@@ -152,7 +150,6 @@ module.exports = {
           console.log(err);
           return res.json({ message: "Error" });
         } else {
-          console.log(result);
           return res.json(result);
         }
       }
@@ -202,7 +199,7 @@ module.exports = {
     //     }
     //   }
     // );
-    const query = {"orderStatus.name" : "completed"};
+    const query = { "orderStatus.name": "completed" };
     try {
       const countship = await Order.countDocuments(query);
       console.log(countship);
@@ -283,70 +280,100 @@ module.exports = {
       // // "2021-12-013T00:00:00.00
       // let tomorrow = moment(today).endOf('day');
       // // "2021-12-13T23:59:59.999
-    
+
       let from_date = new Date("2021-12-6").toISOString();
       let to_date = new Date("2021-12-8").toISOString();
-      const rangeDateOrder = await Order.find(
-        { orderTime : { $gte:from_date, $lte:to_date}},
-        
-      )
-      .count();  
+      const rangeDateOrder = await Order.find({
+        orderTime: { $gte: from_date, $lte: to_date },
+      }).count();
       // const rangeDateOrder = await Order.aggregate([
       //   {$match: {orderTime: {$gte: from_date, $lte:to_date}}},
       //   // {$count: "countOrder"}
       //   ]
-      // );  
-    console.log("Get Order By Range successfully");
-    console.log(rangeDateOrder);
-    res.status(200).json(rangeDateOrder);
+      // );
+      console.log("Get Order By Range successfully");
+      console.log(rangeDateOrder);
+      res.status(200).json(rangeDateOrder);
     } catch (err) {
       console.log(err);
       res.status(500).json({ err });
     }
   },
-  
+
   getFabricTypeOrder: (req, res) => {
-  Order.find()
-    .select('products')
-    .populate({
-      path: "products",
-      populate: {
-        path: "colorCode",
-        //   populate: {
-        //     path: "typeId",
-        //     select: "name -_id",
+    Order.find()
+      .select("products")
+      .populate({
+        path: "products",
+        populate: {
+          path: "colorCode",
+          //   populate: {
+          //     path: "typeId",
+          //     select: "name -_id",
+          //   },
+          select: "colorCode typeId name -_id",
+        },
+        select: "colorCode length shippedLength -_id",
+      })
+      // Bill
+      //   .find({"status.name": "completed"})
+      //   .select('fabricRoll')
+      //   .populate({
+      //     path:'fabricRoll',
+      //     select:'colorCode',
+      //     populate:{
+      //       path: 'colorCode',
+      //       collection: 'Item',
+      //         populate: {
+      //           path: "name",
+      //           // select: "name -_id",
+      //         },
+      //     },
+      //   })
+      .exec(function (err, result) {
+        if (err) {
+          console.log(err);
+          res.json(err);
+        } else {
+          console.log("Get Fabric Type Order Success");
+          console.log(result);
+          res.json(result);
+        }
+      });
+  },
+
+  getOrderStatus: async (req, res) => {
+    try {
+      const result = await Order.aggregate([
+        // { $unwind: "$orderStatus" },
+        // { $match: { "orderStatus.name": "completed" } },
+        { $project : { _id : 1, orderStatus: 1 } },
+        // { $lookup : {
+        //     from : 'Bill',
+        //     localField : 'billStatus',
+        //     foreignField : '',
+        //     as : 'Bill'
+        // } }
+        // {
+        //   $group: {
+        //     _id: "$orderStatus.name",
+        //     orderComplete: { $sum: 1 },
         //   },
-        select: "colorCode typeId name -_id",
-      },
-      select: "colorCode length shippedLength -_id",
-    })
-    
-  // Bill
-  //   .find({"status.name": "completed"})
-  //   .select('fabricRoll')
-  //   .populate({
-  //     path:'fabricRoll',
-  //     select:'colorCode',
-  //     populate:{
-  //       path: 'colorCode',
-  //       collection: 'Item',
-  //         populate: {
-  //           path: "name",
-  //           // select: "name -_id",
-  //         },
-  //     },
-  //   })
-    .exec(function (err, result) {
-      if (err) {
-        console.log(err);
-        res.json(err);
-      }
-      else {
-        console.log("Get Fabric Type Order Success");
-        console.log(result);
-        res.json(result);
-      }
-    });
-},
+        // },
+        { $addFields: { lastStatus: { $last: "$orderStatus" } } },
+        { $group: {
+            _id: "$lastStatus.name",
+            lastStatusOrder: { $sum: 1 },
+          },
+        },
+      ]);
+      console.log("Get Order Status successfully");
+      console.log(result);
+      res.status(200).json(result);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
+    }
+  },
 
 };
