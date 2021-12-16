@@ -43,6 +43,7 @@ const {
   getFabricRollBillComplete,
   getListBillByIds,
   getBillComplete,
+  getBillStatus
 } = require("../controller/BillController");
 
 router.get("/api/bill", getListBill);
@@ -50,6 +51,7 @@ router.post("/api/bill/list", getListBillByIds);
 router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 router.get("/api/bill/completed", getBillComplete);
+router.get("/api/bill/status", getBillStatus);
 
 // router.post("/api/bill/create")
 /*---------------------*/
@@ -110,6 +112,7 @@ const {
   getListFabricRollWithIds,
   getChartWarehouseTrue,
   getFabricTypeSell,
+  getFabricTypeWarehouse
 } = require("../controller/FabricRollController");
 
 router.get("/api/product", getProductList);
@@ -119,6 +122,7 @@ router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
 router.get("/api/chartwarehouse", getChartWarehouseTrue);
 router.get("/api/getfabrictypesell", getFabricTypeSell);
+router.get("/api/getfabricwarehouse", getFabricTypeWarehouse);
 /*------------------------*/
 
 module.exports = router;
