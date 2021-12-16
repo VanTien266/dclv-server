@@ -18,7 +18,6 @@ const getListBill = async (req, res) => {
       console.log(err);
       return res.json({ message: "Error" });
     } else {
-      console.log(result);
       return res.json(result);
     }
   });
@@ -64,7 +63,6 @@ const getBillDetail = async (req, res) => {
         console.log(err);
         return res.json(err);
       } else {
-        console.log(result);
         return res.json(result);
       }
     });
@@ -89,7 +87,7 @@ const getBillComplete = async (req, res) => {
       // { $count: "fabricRoll" },
     ]);
 
-    console.log("Get Total Fabric Roll Bill Completed successfully");
+    console.log("Get Bill Completed successfully");
     console.log(result);
     // res.status(200).json(result);
     {

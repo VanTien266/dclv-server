@@ -73,7 +73,7 @@ const getProductList = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const product = await FabricRoll.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(req.params.id) } },
+      { $match: { _id: mongoose.Types.ObjectId(req.query.id) } },
       {
         $lookup: {
           from: "Item",
@@ -125,10 +125,10 @@ const getProductById = async (req, res) => {
       { $unwind: "$item" },
     ]);
     console.log("Get Fabric Roll successfully");
-    res.status(200).json(product);
+    if (product.length > 0) res.status(200).json(product[0]);
+    elseres.status(200).json(product);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ err });
+    res.status(500).json(err);
   }
 };
 
@@ -193,7 +193,6 @@ const getListFabricRollWithIds = async (req, res) => {
     console.log("Get List Fabric Roll successfully");
     res.status(200).json(result);
   } catch (err) {
-    console.log(err);
     res.status(500).json(err);
   }
 };
@@ -247,17 +246,19 @@ const getChartWarehouseTrue = async (req, res) => {
     const result = await FabricRoll.aggregate([
       // {$unwind: "$status"},
       // // {$unwind: "$status.name"},
-      {$match: {"status": true}},
+      { $match: { status: true } },
       // {$project: {status: 1}},
       // {$unwind: "$fabricRoll"},
-      {$group: {
-        _id: "$warehouseId",
-        countFabric : {$sum: 1},
-      }},
-      {$sort: {_id:1}},
+      {
+        $group: {
+          _id: "$warehouseId",
+          countFabric: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
       // }}
       // { $count: "warehouseId" }
-    ])
+    ]);
     console.log("Get Chart Warehouse successfully");
     console.log(result);
     res.status(200).json(result);
@@ -265,7 +266,6 @@ const getChartWarehouseTrue = async (req, res) => {
     console.log(err);
     res.status(500).json({ err });
   }
-  
 };
 
 const getFabricTypeSell = async (req, res) => {
@@ -273,8 +273,8 @@ const getFabricTypeSell = async (req, res) => {
     const result = await FabricRoll.aggregate([
       // {$unwind: "$status"},
       // // {$unwind: "$status.name"},
-      {$match: {"status": false}},
-      {$project: {colorCode: 1}},
+      { $match: { status: false } },
+      { $project: { colorCode: 1 } },
       // {$unwind: "$fabricRoll"},
       // {$group: {
       //   _id: "$warehouseId",
@@ -312,13 +312,15 @@ const getFabricTypeSell = async (req, res) => {
         },
       },
       { $unwind: "$item" },
-      {$group: {
-        _id: "$item._id",
-        countFabrictype: {$sum: 1}
-      }},
-      {$sort: {countFabrictype: -1}},
-      {$limit: 8}
-    ])
+      {
+        $group: {
+          _id: "$item._id",
+          countFabrictype: { $sum: 1 },
+        },
+      },
+      { $sort: { countFabrictype: -1 } },
+      { $limit: 8 },
+    ]);
     console.log("Get Fabric Type Sell successfully");
     // console.log(result);
     res.status(200).json(result);
@@ -326,9 +328,7 @@ const getFabricTypeSell = async (req, res) => {
     console.log(err);
     res.status(500).json({ err });
   }
-  
 };
-
 
 module.exports = {
   getProductList,
@@ -337,5 +337,5 @@ module.exports = {
   updateMarketPrice,
   getListFabricRollWithIds,
   getChartWarehouseTrue,
-  getFabricTypeSell
+  getFabricTypeSell,
 };
