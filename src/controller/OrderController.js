@@ -32,7 +32,7 @@ module.exports = {
       })
       .populate({
         path: "detailBill",
-        // populate: { path: "salesmanID", select: "name -_id" },
+        populate: [{ path: "salesmanID", select: "name -_id" }, { path: "clientID", select: "name -_id" }],
       })
       .populate({
         path: "clientID",
@@ -113,6 +113,26 @@ module.exports = {
         else {
           res.json(result);
         }
+      });
+  },
+
+  getListProductsById: (req, res) => {
+    Order.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, "products")
+      .populate({
+        path: "products",
+        populate: {
+          path: "colorCode",
+          populate: {
+            path: "typeId",
+            select: "name -_id",
+          },
+          select: "colorCode typeId name -_id",
+        },
+        select: "colorCode length shippedLength -_id",
+      })
+      .exec(function (err, result) {
+        if (err) res.json(err);
+        else res.json(result);
       });
   },
 
