@@ -206,6 +206,40 @@ const getFabricRollBillComplete = async (req, res) => {
 //   }
 // };
 
+const getBillStatus = async (req, res) => {
+  try {
+    const result = await Bill.aggregate([
+      // { $unwind: "$orderStatus" },
+      // { $match: { "orderStatus.name": "completed" } },
+      { $project : { _id : 1, status: 1 } },
+      // { $lookup : {
+      //     from : 'Bill',
+      //     localField : 'billStatus',
+      //     foreignField : '',
+      //     as : 'Bill'
+      // } }
+      // {
+      //   $group: {
+      //     _id: "$orderStatus.name",
+      //     orderComplete: { $sum: 1 },
+      //   },
+      // },
+      { $addFields: { lastStatus: { $last: "$status" } } },
+      { $group: {
+          _id: "$lastStatus.name",
+          lastStatusOrder: { $sum: 1 },
+        },
+      },
+    ]);
+    console.log("Get Bill Status successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
+
 module.exports = {
   getListBill,
   getListBillByOrderId,
@@ -213,4 +247,5 @@ module.exports = {
   getFabricRollBillComplete,
   getListBillByIds,
   getBillComplete,
+  getBillStatus
 };
