@@ -11,6 +11,7 @@ const OrderSchema = new Schema(
       {
         name: { type: String, default: "pending" },
         date: { type: Date, default: Date.now() },
+		reason: { type: String, default: "" },
       },
     ],
     note: {

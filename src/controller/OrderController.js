@@ -161,8 +161,8 @@ module.exports = {
 
   updateStatus: (req, res) => {
     Order.findOneAndUpdate(
-      { orderId: req.body.id },
-      { status: req.body.status },
+      { _id: mongoose.Types.ObjectId(req.params.id) },
+      { $push: {orderStatus: {name: req.body.status, reason: req.body.reason}}},
       function (err, result) {
         if (err) {
           console.log(err);

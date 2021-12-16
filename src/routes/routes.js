@@ -26,7 +26,7 @@ router.post("/api/order/create", create);
 router.get("/api/order/:id", detail);
 router.get("/api/order/:id/products", getListProductsById);
 router.put("/api/order/update_info", updateInfo);
-router.put("/api/order/update_status", updateStatus);
+router.put("/api/order/:id/update_status", updateStatus);
 router.get("/api/countallorder",countAllOrder);
 router.get("/api/countallordercomplete",countAllOrderComplete);
 router.get("/api/deposit",deposit);
