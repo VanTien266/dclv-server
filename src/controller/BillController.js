@@ -1,5 +1,8 @@
 const { Bill } = require("../models/Bill");
+const { Order } = require("../models/Order");
 const { Staff } = require("../models/Staff");
+const { Has } = require("../models/Has");
+const { FabricRoll } = require("../models/FabricRoll");
 const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
 const qs = require("qs");
@@ -11,6 +14,51 @@ async function getNextSequenceValue(sequenceName) {
   ).exec();
   return seq.sequence_value;
 }
+
+const createBill = async (req, res) => {
+    const id = await getNextSequenceValue("billId");
+	const listFabricRoll = await Promise.all(
+      req.body.fabricRoll.map(async (item, idx) => {
+        let fabricRollId = await FabricRoll.findOneAndUpdate({_id: item}, {status: false});
+        return fabricRollId;
+      })
+    );
+	console.log(listFabricRoll);
+	const hasList = await Has.find({orderId: mongoose.Types.ObjectId(req.body.orderID)}).populate("colorCode", "colorCode -_id").exec();
+	console.log(hasList);
+	const hasUpdate = await Promise.all(
+	  listFabricRoll.map(async (item, idx) => {
+		for (let i = 0; i < hasList.length; i++) {
+			if (item.colorCode === hasList[i].colorCode.colorCode) {
+				const changeShippedLength = await Has.findOneAndUpdate({_id: mongoose.Types.ObjectId(hasList[i]._id)}, { $inc: { shippedLength: item.length } });
+				console.log(changeShippedLength);
+				return 1;
+			}
+		}
+		return 0;
+	}));
+	const billObjId = new mongoose.Types.ObjectId();
+    await Order.findOneAndUpdate({_id: req.body.orderID}, { $push: { detailBill: billObjId } });
+    let result = await Bill.create({
+	  _id: billObjId,
+      billID: id,
+	  valueBill: 0,
+	  orderID: mongoose.Types.ObjectId(req.body.orderID),
+	  clientID: req.body.clientID,
+	  salesmanID: mongoose.Types.ObjectId("61b1d9600f59311316f228ea"),
+	  fabricRoll: req.body.fabricRoll,
+	  note: req.body.note,
+      status: [
+        {
+          name: "exported",
+          date: Date.now(),
+		  reason: ""
+        },
+      ],
+    });
+    console.log(result);
+    res.send(result);
+  };
 
 const getListBill = async (req, res) => {
   Bill.find({}, function (err, result) {
@@ -242,6 +290,7 @@ const getBillStatus = async (req, res) => {
 
 module.exports = {
   getListBill,
+  createBill,
   getListBillByOrderId,
   getBillDetail,
   getFabricRollBillComplete,
