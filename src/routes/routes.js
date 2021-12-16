@@ -9,6 +9,7 @@ const {
   create,
   detail,
   updateInfo,
+  getListProductsById,
   updateStatus,
   countAllOrder,
   countAllOrderComplete,
@@ -24,6 +25,7 @@ const { getListFabricType } = require("../controller/FabricTypeController");
 router.get("/api/order", list);
 router.post("/api/order/create", create);
 router.get("/api/order/:id", detail);
+router.get("/api/order/:id/products", getListProductsById);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/update_status", updateStatus);
 router.get("/api/countallorder", countAllOrder);
