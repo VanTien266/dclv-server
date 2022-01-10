@@ -7,11 +7,13 @@ const OrderSchema = new Schema(
       default: 0,
       required: true,
     },
-    orderStatus: {
-      type: String,
-      default: "",
-      required: true,
-    },
+    orderStatus: [
+      {
+        name: { type: String, default: "pending" },
+        date: { type: Date, default: Date.now() },
+		reason: { type: String, default: "" },
+      },
+    ],
     note: {
       type: String,
       default: "",
@@ -45,6 +47,7 @@ const OrderSchema = new Schema(
     clientID: {
       type: Schema.Types.ObjectId,
       default: null,
+      ref: "Customer"
     },
     detailBill: [
       {

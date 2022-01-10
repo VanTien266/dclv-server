@@ -1,7 +1,9 @@
 const { FabricRoll } = require("../models/FabricRoll");
+const { getListDistinctColorCode } = require("../services/FabricRollService");
 //Insert 50 documents of FabricRolls collection
 // const colorCodeList=["ffff",];
-const lotList = ["L1", "L2", "L3", "L4", "L5", "L6"];
+const lotList = [];
+
 const warehouseList = ["K1", "K2", "K3", "K4", "K5", "K6", "K7"];
 const listColor = [
   { code: "01", name: "Cam lợt" },
@@ -54,7 +56,36 @@ for (let i = 0; i < listType.length; i++)
     colorListCode.push(`${listType[i].id}${listColor[j].code}`);
   }
 
-function InsertToFabricRoll() {
+function randomDate(start, end) {
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime())
+  );
+}
+
+async function InsertToFabricRoll() {
+  const listColorCode = await getListDistinctColorCode();
+
+  listColorCode.forEach((item) => {
+    const date = randomDate(new Date(2018, 0, 1), new Date());
+    for (let i = 1; i < Math.random() * 3 + 3; i++) {
+      FabricRoll.create(
+        {
+          status: true,
+          dayAdded: date, //pick a random day
+          length: Math.floor(Math.random() * 295) + 5, //random length from 5-300
+          lot: item + "L2",
+          warehouseId: warehouseList[Math.floor(Math.random() * 7)],
+          billId: "",
+          colorCode: item,
+        },
+        function (err, data) {
+          if (err) console.log(err);
+          else console.log(data);
+        }
+      );
+    }
+  });
+
   //FOR CREATE FABRIC ROLL WITH STATUS TRUE
   // for (let i = 0; i < 200; i++)
   //   FabricRoll.create(
@@ -73,24 +104,38 @@ function InsertToFabricRoll() {
   //       else console.log(data);
   //     }
   //   );
-
   // FOR CREATE FABRIC ROLL WITH STATUS FALSE
-  for (let i = 0; i < 200; i++)
-    FabricRoll.create(
-      {
-        status: false,
-        dayApplied: new Date().setDate(Math.floor(Math.random() * 30)),
-        length: Math.floor(Math.random() * 9 + 1) * 100,
-        lot: lotList[Math.floor(Math.random() * 6)],
-        warehouseId: warehouseList[Math.floor(Math.random() * 7)],
-        billId: Math.floor(Math.random() * 100),
-        colorCode:
-          colorListCode[Math.floor(Math.random() * colorListCode.length)],
-      },
-      function (err, data) {
-        if (err) console.log(err);
-        else console.log(data);
-      }
-    );
+  // for (let i = 0; i < 200; i++)
+  //   FabricRoll.create(
+  //     {
+  //       status: false,
+  //       dayApplied: new Date().setDate(Math.floor(Math.random() * 30)),
+  //       length: Math.floor(Math.random() * 9 + 1) * 100,
+  //       lot: lotList[Math.floor(Math.random() * 6)],
+  //       warehouseId: warehouseList[Math.floor(Math.random() * 7)],
+  //       billId: Math.floor(Math.random() * 100),
+  //       colorCode:
+  //         colorListCode[Math.floor(Math.random() * colorListCode.length)],
+  //     },
+  //     function (err, data) {
+  //       if (err) console.log(err);
+  //       else console.log(data);
+  //     }
+  //   );
 }
-module.exports = { InsertToFabricRoll };
+
+async function UpdateLot() {
+  // FabricRoll.updateMany({}, { lot: "" }, function (err) {
+  //   if (err) console.log("Update failed!", err);
+  //   else console.log("Update success!");
+  // });
+  const listColorCode = await getListDistinctColorCode();
+  listColorCode.forEach((item) => {
+    const l = Math.floor(Math.random() * 300);
+    FabricRoll.updateMany({ colorCode: item }, { length: l }, function (err) {
+      if (err) console.log(err);
+      else console.log("Update success!");
+    });
+  });
+}
+module.exports = { InsertToFabricRoll, UpdateLot };
