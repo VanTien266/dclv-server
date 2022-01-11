@@ -108,6 +108,7 @@ router.get("/api/fabrictype", getListFabricType);
 /*-----Fabric Roll route------*/
 const {
   getProductList,
+  getProductList1,
   getProductById,
   updateProductStatus,
   updateMarketPrice,
@@ -118,6 +119,7 @@ const {
 } = require("../controller/FabricRollController");
 
 router.get("/api/product", getProductList);
+router.get("/api/product1", getProductList1);
 router.post("/api/product/list", getListFabricRollWithIds);
 router.get("/api/product/detail", getProductById);
 router.put("/api/product/:id", updateProductStatus);
