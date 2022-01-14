@@ -18,24 +18,24 @@ const getProductList1 = async (req, res) => {
           pipeline: [
             {
               $match: {
-                // $and: [
-                //   {
-                //     $expr: {
-                //       $eq: ["$$type_id", { $substr: ["$colorCode", 0, 2] }],
-                //     },
-                //   },
-                //   { $expr: { $eq: ["$status", true] } },
-                // ],
-                $expr: {
-                  $eq: ["$$type_id", { $substr: ["$colorCode", 0, 2] }],
-                },
+                $and: [
+                  {
+                    $expr: {
+                      $eq: ["$$type_id", { $substr: ["$colorCode", 0, 2] }],
+                    },
+                  },
+                  { $expr: { $eq: ["$status", true] } },
+                ],
+                // $expr: {
+                //   $eq: ["$$type_id", { $substr: ["$colorCode", 0, 2] }],
+                // },
               },
             },
             {
               $group: {
                 _id: "$lot",
                 count: { $sum: 1 },
-                remaining: {$sum: {$cond: [{$eq: ["$status", true]}, 1, 0]}},
+                // remaining: {$sum: {$cond: [{$eq: ["$status", true]}, 1, 0]}},
                 colorCode: { $first: "$colorCode" },
               },
             },
