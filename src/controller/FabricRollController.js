@@ -268,7 +268,7 @@ const getChartWarehouseTrue = async (req, res) => {
   }
 };
 
-//chưa test xong
+
 const getFabricTypeSell = async (req, res) => {
   try {
     const result = await FabricRoll.aggregate([
@@ -331,6 +331,7 @@ const getFabricTypeSell = async (req, res) => {
   }
 };
 
+//chưa test xong
 const getFabricTypeWarehouse = async (req, res) => {
   try {
     const result = await FabricRoll.aggregate([

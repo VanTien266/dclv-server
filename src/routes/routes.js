@@ -16,7 +16,9 @@ const {
   deposit,
   getOrderbyDateRange,
   getFabricTypeOrder,
-  getOrderStatus
+  getOrderStatus,
+  getOrderDaily,
+  getTotalOrderbyMonth
 } = require("../controller/OrderController");
 
 const { getListFabricType } = require("../controller/FabricTypeController");
@@ -34,6 +36,8 @@ router.get("/api/deposit", deposit);
 router.get("/api/getorderrange", getOrderbyDateRange);
 router.get("/api/getfabrictypeorder", getFabricTypeOrder);
 router.get("/api/getorderstatus", getOrderStatus);
+router.get("/api/getorderdaily", getOrderDaily);
+router.get("/api/getorderbymonth", getTotalOrderbyMonth);
 
 /*----bill route-------*/
 const {

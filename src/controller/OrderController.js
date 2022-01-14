@@ -300,6 +300,54 @@ module.exports = {
     }
   },
 
+  getTotalOrderbyMonth: async (req, res) => {
+    try {
+      const result = await Order.aggregate([
+        // { $unwind: "$orderStatus" },
+        // { $match: { "orderStatus.name": "completed" } },
+        
+        // { $lookup : {
+        //     from : 'Bill',
+        //     localField : 'billStatus',
+        //     foreignField : '',
+        //     as : 'Bill'
+        // } }
+        // {
+        //   $group: {
+        //     _id: "$orderStatus.name",
+        //     orderComplete: { $sum: 1 },
+        //   },
+        // },
+        
+        { $project : { _id:1, orderTime:1} },
+        { $addFields: { month: { $month: "$orderTime" } } },
+        // { $group: {
+        //     _id: "$lastStatus.name",
+        //     lastStatusOrder: { $sum: 1 },
+        //   },
+        // },
+        //đổi month theo dạng input đầu vào
+        {$match: {month:12}},
+        {
+          $group: {
+            _id: null,
+            monthlyorder: { $sum: 1 },
+          },
+        },
+
+      ]);
+      console.log("Get Total Order By Month successfully");
+      console.log(result);
+      {
+        result.map((item) => res.status(200).json(item.monthlyorder));
+      }
+      res.status(200).json(result);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
+    }
+  },
+
   getFabricTypeOrder: (req, res) => {
     Order.find()
       .select("products")
@@ -375,5 +423,29 @@ module.exports = {
       res.status(500).json({ err });
     }
   },
+
+  //query order hàng tháng (mỗi ngày trong 1 tháng)
+  getOrderDaily: async (req, res) => {   
+  try {
+    const result = await Order.aggregate([
+      {
+        $group: {
+            _id: {
+                year: { $year: "$orderTime" },
+                month: { $month: "$orderTime" },
+                day: { $dayOfMonth: "$orderTime" }
+            },
+            Total: { $sum: 1 }
+        }
+    }
+    ]);
+    console.log("Get Order Monthly successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+  }
 
 };
