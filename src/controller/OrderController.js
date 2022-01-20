@@ -395,7 +395,7 @@ module.exports = {
       const result = await Order.aggregate([
         // { $unwind: "$orderStatus" },
         // { $match: { "orderStatus.name": "completed" } },
-        { $project : { _id : 1, orderStatus: 1 } },
+        // { $project : { _id : 1, orderStatus: 1 } },
         // { $lookup : {
         //     from : 'Bill',
         //     localField : 'billStatus',
@@ -408,12 +408,18 @@ module.exports = {
         //     orderComplete: { $sum: 1 },
         //   },
         // },
+        { $project : { _id:1, orderTime: 1, orderStatus: 1} },
+        { $addFields: { month: { $month: "$orderTime" } } },
         { $addFields: { lastStatus: { $last: "$orderStatus" } } },
+        // { $addFields: { lastStatusMonth: { $month: "$lastStatus.date" } } },
+        //đổi lại month khi set date time picker
+        { $match: {month: 12}},
         { $group: {
             _id: "$lastStatus.name",
             lastStatusOrder: { $sum: 1 },
           },
         },
+        { $sort: { _id: 1 } }
       ]);
       console.log("Get Order Status successfully");
       console.log(result);
@@ -428,16 +434,25 @@ module.exports = {
   getOrderDaily: async (req, res) => {   
   try {
     const result = await Order.aggregate([
+      // {$project: { _id: 1, orderTime: 1}},
+      // { $addFields: { monthOrder: { $month: "$orderTime" } } },
+      // { $addFields: { year: { $year: "$orderTime" } } },
       {
         $group: {
             _id: {
                 year: { $year: "$orderTime" },
                 month: { $month: "$orderTime" },
-                day: { $dayOfMonth: "$orderTime" }
+                date: { $dayOfMonth: "$orderTime" }
             },
             Total: { $sum: 1 }
         }
-    }
+    },
+    { $match: { "_id.year": 2021}},
+    { $match: { "_id.month": 12}},
+    { $sort: { "_id.date": 1 }}
+    // { $addFields: { monthOrder: { $month: "$orderTime" } } },
+    // { $addFields: { year: { $year: "$orderTime" } } },
+    // { $addFields: { month: { $month: "$_id.month" } } },
     ]);
     console.log("Get Order Monthly successfully");
     console.log(result);

@@ -211,7 +211,7 @@ const getBillStatus = async (req, res) => {
     const result = await Bill.aggregate([
       // { $unwind: "$orderStatus" },
       // { $match: { "orderStatus.name": "completed" } },
-      { $project : { _id : 1, status: 1 } },
+      // { $project : { _id : 1, status: 1 } },
       // { $lookup : {
       //     from : 'Bill',
       //     localField : 'billStatus',
@@ -224,12 +224,17 @@ const getBillStatus = async (req, res) => {
       //     orderComplete: { $sum: 1 },
       //   },
       // },
+      { $project : { _id:1, status: 1, exportBillTime: 1} },
+      { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { lastStatus: { $last: "$status" } } },
+      // { $addFields: { lastStatus: { $last: "$status" } } },
+      { $match: {month: 12}},
       { $group: {
           _id: "$lastStatus.name",
-          lastStatusOrder: { $sum: 1 },
+          lastStatusBill: { $sum: 1 },
         },
       },
+      { $sort: { _id: 1 } }
     ]);
     console.log("Get Bill Status successfully");
     console.log(result);
@@ -240,6 +245,38 @@ const getBillStatus = async (req, res) => {
   }
 };
 
+// const getBillCompleteMonthly = async (req, res) => {
+//   try {
+//     // Bill.find(
+//     //   { "status.name": "completed" }
+//     // );
+//     const result = await Bill.aggregate([
+//       { $unwind: "$status" },
+//       // // {$unwind: "$status.name"},
+//       { $match: { "status.name": "completed" } },
+//       // { $project: { _id: 1 } },
+//       // { $unwind: "$fabricRoll" },
+//       // {$group: {
+//       //   _id: null,
+//       //   billcompleted : {$sum: 1}
+//       }}
+//       // // }}
+//       // { $count: "fabricRoll" },
+//     ]);
+
+//     console.log("Get Bill Completed successfully");
+//     console.log(result);
+//     // res.status(200).json(result);
+//     {
+//       result.map((item) => res.status(200).json(item.billcompleted));
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ err });
+//   }
+// };
+
+
 module.exports = {
   getListBill,
   getListBillByOrderId,
@@ -247,5 +284,6 @@ module.exports = {
   getFabricRollBillComplete,
   getListBillByIds,
   getBillComplete,
-  getBillStatus
+  getBillStatus,
+  // getBillCompleteMonthly
 };

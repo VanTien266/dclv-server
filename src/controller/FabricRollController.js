@@ -320,7 +320,7 @@ const getFabricTypeSell = async (req, res) => {
         },
       },
       { $sort: { countFabrictype: -1 } },
-      // { $limit: 8 },
+      { $limit: 5 },
     ]);
     console.log("Get Fabric Type Sell successfully");
     // console.log(result);
@@ -383,7 +383,7 @@ const getFabricTypeWarehouse = async (req, res) => {
       //   },
       // },
       // { $sort: { countFabrictype: -1 } },
-      // { $limit: 8 },
+      // { $limit: 7 },
     ]);
     console.log("Get Fabric Type Warehouse successfully");
     // console.log(result);

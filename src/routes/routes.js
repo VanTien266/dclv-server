@@ -47,7 +47,8 @@ const {
   getFabricRollBillComplete,
   getListBillByIds,
   getBillComplete,
-  getBillStatus
+  getBillStatus,
+  // getBillCompleteMonthly
 } = require("../controller/BillController");
 
 router.get("/api/bill", getListBill);
@@ -56,6 +57,7 @@ router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 router.get("/api/bill/completed", getBillComplete);
 router.get("/api/bill/status", getBillStatus);
+// router.get("/api/bill/completedbymonth", getBillCompleteMonthly);
 
 // router.post("/api/bill/create")
 /*---------------------*/
