@@ -29,10 +29,10 @@ router.post("/api/order/create", create);
 router.get("/api/order/:id", detail);
 router.get("/api/order/:id/products", getListProductsById);
 router.put("/api/order/update_info", updateInfo);
-router.put("/api/order/update_status", updateStatus);
-router.get("/api/countallorder", countAllOrder);
-router.get("/api/countallordercomplete", countAllOrderComplete);
-router.get("/api/deposit", deposit);
+router.put("/api/order/:id/update_status", updateStatus);
+router.get("/api/countallorder",countAllOrder);
+router.get("/api/countallordercomplete",countAllOrderComplete);
+router.get("/api/deposit",deposit);
 router.get("/api/getorderrange", getOrderbyDateRange);
 router.get("/api/getfabrictypeorder", getFabricTypeOrder);
 router.get("/api/getorderstatus", getOrderStatus);
@@ -42,6 +42,7 @@ router.get("/api/getorderbymonth", getTotalOrderbyMonth);
 /*----bill route-------*/
 const {
   getListBill,
+  createBill,
   getListBillByOrderId,
   getBillDetail,
   getFabricRollBillComplete,
@@ -52,6 +53,7 @@ const {
 } = require("../controller/BillController");
 
 router.get("/api/bill", getListBill);
+router.post("/api/bill/create", createBill);
 router.post("/api/bill/list", getListBillByIds);
 router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
@@ -112,6 +114,7 @@ router.get("/api/fabrictype", getListFabricType);
 /*-----Fabric Roll route------*/
 const {
   getProductList,
+  getProductList1,
   getProductById,
   updateProductStatus,
   updateMarketPrice,
@@ -122,6 +125,7 @@ const {
 } = require("../controller/FabricRollController");
 
 router.get("/api/product", getProductList);
+router.get("/api/product1", getProductList1);
 router.post("/api/product/list", getListFabricRollWithIds);
 router.get("/api/product/detail", getProductById);
 router.put("/api/product/:id", updateProductStatus);

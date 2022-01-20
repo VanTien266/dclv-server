@@ -4,8 +4,73 @@ const mongoose = require("mongoose");
 const qs = require("qs");
 
 const { FabricRoll } = require("../models/FabricRoll");
+const { FabricType } = require("../models/FabricType");
 const { Item } = require("../models/Item");
 const { MarketPrice } = require("../models/MarketPrice");
+
+const getProductList1 = async (req, res) => {
+  try {
+    const products = await FabricType.aggregate([
+      {
+        $lookup: {
+          from: "FabricRoll",
+          let: { type_id: "$id" },
+          pipeline: [
+            {
+              $match: {
+                $and: [
+                  {
+                    $expr: {
+                      $eq: ["$$type_id", { $substr: ["$colorCode", 0, 2] }],
+                    },
+                  },
+                  { $expr: { $eq: ["$status", true] } },
+                ],
+                // $expr: {
+                //   $eq: ["$$type_id", { $substr: ["$colorCode", 0, 2] }],
+                // },
+              },
+            },
+            {
+              $group: {
+                _id: "$lot",
+                count: { $sum: 1 },
+                // remaining: {$sum: {$cond: [{$eq: ["$status", true]}, 1, 0]}},
+                colorCode: { $first: "$colorCode" },
+              },
+            },
+            {
+              $lookup: {
+                from: "Item",
+                let: { color_code: "$colorCode" },
+                pipeline: [
+                  {
+                    $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } },
+                  },
+                  {
+                    $group: {
+                      _id: null,
+                      name: { $first: "$name" },
+                    },
+                  },
+                ],
+                as: "itemName",
+              },
+            },
+            { $unwind: "$itemName" },
+          ],
+          as: "fabricRoll",
+        },
+      },
+    ]);
+    console.log("Get all Fabric Roll successfully!");
+
+    res.status(200).json(products);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
 
 //Get all product in db
 const getProductList = async (req, res) => {
@@ -338,7 +403,7 @@ const getFabricTypeWarehouse = async (req, res) => {
       // {$unwind: "$status"},
       // // {$unwind: "$status.name"},
       // { $match: { status: false } },
-      { $project: { warehouseId: 1, status: 1} },
+      { $project: { warehouseId: 1, status: 1 } },
       // {$unwind: "$fabricRoll"},
       // {$group: {
       //   _id: "$warehouseId",
@@ -396,11 +461,12 @@ const getFabricTypeWarehouse = async (req, res) => {
 
 module.exports = {
   getProductList,
+  getProductList1,
   getProductById,
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
   getChartWarehouseTrue,
   getFabricTypeSell,
-  getFabricTypeWarehouse
+  getFabricTypeWarehouse,
 };

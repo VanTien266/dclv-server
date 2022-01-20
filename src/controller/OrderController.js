@@ -16,7 +16,7 @@ async function getNextSequenceValue(sequenceName) {
 }
 
 module.exports = {
-  list: (req, res) => {
+  list: async (req, res) => {
     Order.find()
       .populate({
         path: "products",
@@ -102,7 +102,7 @@ module.exports = {
       })
       .populate({
         path: "clientID",
-        select: "name email address phone -_id",
+        select: "name email address phone",
       })
       .populate({
         path: "detailBill",
@@ -158,8 +158,8 @@ module.exports = {
 
   updateStatus: (req, res) => {
     Order.findOneAndUpdate(
-      { orderId: req.body.id },
-      { status: req.body.status },
+      { _id: mongoose.Types.ObjectId(req.params.id) },
+      { $push: {orderStatus: {name: req.body.status, reason: req.body.reason}}},
       function (err, result) {
         if (err) {
           console.log(err);

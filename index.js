@@ -23,8 +23,12 @@ mongoose
     app.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
-    const { IncreaseHas } = require("./src/create/CreateHas");
-    // IncreaseHas();
+    const {
+      UpdateLot,
+      InsertToFabricRoll,
+    } = require("./src/create/CreateFabricRoll");
+    // UpdateLot();
+    // InsertToFabricRoll();
   })
   .catch((error) => {
     console.log("Connect to MongoDB failed!" + error);

@@ -63,4 +63,12 @@ async function getOneProduct(id) {
   return result[0];
 }
 
-module.exports = { getListFabricRollUsedId, getOneProduct };
+async function getListDistinctColorCode() {
+  const listColorCode = await FabricRoll.find().distinct("colorCode").exec();
+  return listColorCode;
+}
+module.exports = {
+  getListFabricRollUsedId,
+  getOneProduct,
+  getListDistinctColorCode,
+};
