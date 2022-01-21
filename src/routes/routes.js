@@ -49,6 +49,7 @@ const {
   getListBillByIds,
   getBillComplete,
   getBillStatus,
+  getBillFabricTypeSell
   // getBillCompleteMonthly
 } = require("../controller/BillController");
 
@@ -59,6 +60,7 @@ router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 router.get("/api/bill/completed", getBillComplete);
 router.get("/api/bill/status", getBillStatus);
+router.get("/api/bill/fabrictypesell", getBillFabricTypeSell);
 // router.get("/api/bill/completedbymonth", getBillCompleteMonthly);
 
 // router.post("/api/bill/create")
@@ -120,7 +122,7 @@ const {
   updateMarketPrice,
   getListFabricRollWithIds,
   getChartWarehouseTrue,
-  getFabricTypeSell,
+  // getFabricTypeSell,
   getFabricTypeWarehouse
 } = require("../controller/FabricRollController");
 
@@ -131,7 +133,7 @@ router.get("/api/product/detail", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
 router.get("/api/chartwarehouse", getChartWarehouseTrue);
-router.get("/api/getfabrictypesell", getFabricTypeSell);
+// router.get("/api/getfabrictypesell", getFabricTypeSell);
 router.get("/api/getfabricwarehouse", getFabricTypeWarehouse);
 /*------------------------*/
 
