@@ -461,6 +461,74 @@ module.exports = {
     console.log(err);
     res.status(500).json({ err });
   }
-  }
+  },
+
+  getOrderFabricType: async (req, res) => {
+    try {
+      const result = await Order.aggregate([
+        { $project: { _id: 1, orderTime: 1, products: 1}},
+        { $addFields: { month: { $month: "$orderTime" } } },
+        { $addFields: { year: { $year: "$orderTime" } } },
+        { $unwind: "$products" },
+        { 
+          $lookup: {
+            from: "FabricRoll",
+            let: { bill_fabricRoll: "$fabricRoll"},
+            pipeline: [
+              { $match: {$expr: {$eq: ["$_id", "$$bill_fabricRoll"]}}},
+              {
+                $lookup: {
+                  from: "Item",
+                  let: { color_code: "$colorCode" },
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
+                    {
+                      $lookup: {
+                        from: "FabricType",
+                        let: { type_id: "$typeId" },
+                        pipeline: [
+                          {
+                            $match: { $expr: { $eq: ["$_id", "$$type_id"] } },
+                          },
+                        ],
+                        as: "fabricType",
+                      },
+                    },
+                    { $unwind: "$fabricType" },
+                    {
+                      $group: {
+                        _id: "$fabricType.name",
+                      },
+                    },
+                  ],
+                  as: "item",
+                },
+              },
+              { $unwind: "$item" },
+            ],
+            as: "fabricTypeSell",
+          }, 
+        },
+        // { $unwind: "$fabricTypeSell" },
+        // {
+        //   $group: {
+        //     _id: "$fabricTypeSell.item._id",
+        //     countFabrictype: { $sum: 1 },
+        //   },
+        // },
+        // { $sort: { countFabrictype: -1 } },
+        // { $limit: 5 },
+      ])
+      console.log("Get Order Fabric Type successfully");
+      console.log(result);
+      res.status(200).json(result);
+      // {result.map((item) => (
+      //   res.status(200).json(item.fabricRoll)
+      // ))}
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ err });
+    }
+  },
 
 };
