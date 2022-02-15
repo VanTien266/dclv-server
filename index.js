@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(router);
 
 app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   next();
 });
 
