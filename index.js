@@ -11,7 +11,7 @@ const router = require("./src/routes/routes");
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(router);
@@ -23,12 +23,9 @@ mongoose
     app.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
-    const {
-      UpdateLot,
-      InsertToFabricRoll,
-    } = require("./src/create/CreateFabricRoll");
-    // UpdateLot();
-    // InsertToFabricRoll();
+
+    const { CheckOrderStatus } = require("./src/services/Order/ValidateOrder");
+    // CheckOrderStatus("61b22ad91531f293e8eb7545");
   })
   .catch((error) => {
     console.log("Connect to MongoDB failed!" + error);
