@@ -16,6 +16,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(router);
 
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  next();
+});
+
 mongoose
   .connect(mongodb_url, { useNewUrlParser: true })
   .then(() => {
