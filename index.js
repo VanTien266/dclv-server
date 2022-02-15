@@ -11,10 +11,15 @@ const router = require("./src/routes/routes");
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(router);
+
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
 
 mongoose
   .connect(mongodb_url, { useNewUrlParser: true })
