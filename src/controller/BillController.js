@@ -7,6 +7,8 @@ const { Counter } = require("../models/Counter");
 const mongoose = require("mongoose");
 const qs = require("qs");
 
+const { ValidateOrder } = require("../services/Order/ValidateOrder");
+
 async function getNextSequenceValue(sequenceName) {
   let seq = await Counter.findOneAndUpdate(
     { _id: sequenceName },
@@ -16,49 +18,66 @@ async function getNextSequenceValue(sequenceName) {
 }
 
 const createBill = async (req, res) => {
-    const id = await getNextSequenceValue("billId");
-	const listFabricRoll = await Promise.all(
-      req.body.fabricRoll.map(async (item, idx) => {
-        let fabricRollId = await FabricRoll.findOneAndUpdate({_id: item}, {status: false});
-        return fabricRollId;
-      })
-    );
-	console.log(listFabricRoll);
-	const hasList = await Has.find({orderId: mongoose.Types.ObjectId(req.body.orderID)}).populate("colorCode", "colorCode -_id").exec();
-	console.log(hasList);
-	const hasUpdate = await Promise.all(
-	  listFabricRoll.map(async (item, idx) => {
-		for (let i = 0; i < hasList.length; i++) {
-			if (item.colorCode === hasList[i].colorCode.colorCode) {
-				const changeShippedLength = await Has.findOneAndUpdate({_id: mongoose.Types.ObjectId(hasList[i]._id)}, { $inc: { shippedLength: item.length } });
-				console.log(changeShippedLength);
-				return 1;
-			}
-		}
-		return 0;
-	}));
-	const billObjId = new mongoose.Types.ObjectId();
-    await Order.findOneAndUpdate({_id: req.body.orderID}, { $push: { detailBill: billObjId } });
-    let result = await Bill.create({
-	  _id: billObjId,
-      billID: id,
-	  valueBill: 0,
-	  orderID: mongoose.Types.ObjectId(req.body.orderID),
-	  clientID: req.body.clientID,
-	  salesmanID: mongoose.Types.ObjectId("61b1d9600f59311316f228ea"),
-	  fabricRoll: req.body.fabricRoll,
-	  note: req.body.note,
-      status: [
-        {
-          name: "exported",
-          date: Date.now(),
-		  reason: ""
-        },
-      ],
-    });
-    console.log(result);
-    res.send(result);
-  };
+  const id = await getNextSequenceValue("billId");
+  const listFabricRoll = await Promise.all(
+    req.body.fabricRoll.map(async (item, idx) => {
+      let fabricRollId = await FabricRoll.findOneAndUpdate(
+        { _id: item },
+        { status: false }
+      );
+      return fabricRollId;
+    })
+  );
+  console.log(listFabricRoll);
+  const hasList = await Has.find({
+    orderId: mongoose.Types.ObjectId(req.body.orderID),
+  })
+    .populate("colorCode", "colorCode -_id")
+    .exec();
+  console.log(hasList);
+  const hasUpdate = await Promise.all(
+    listFabricRoll.map(async (item, idx) => {
+      for (let i = 0; i < hasList.length; i++) {
+        if (item.colorCode === hasList[i].colorCode.colorCode) {
+          const changeShippedLength = await Has.findOneAndUpdate(
+            { _id: mongoose.Types.ObjectId(hasList[i]._id) },
+            { $inc: { shippedLength: item.length } }
+          );
+          console.log(changeShippedLength);
+          return 1;
+        }
+      }
+      return 0;
+    })
+  );
+  const billObjId = new mongoose.Types.ObjectId();
+  await Order.findOneAndUpdate(
+    { _id: req.body.orderID },
+    { $push: { detailBill: billObjId } }
+  );
+  let result = await Bill.create({
+    _id: billObjId,
+    billID: id,
+    valueBill: 0,
+    orderID: mongoose.Types.ObjectId(req.body.orderID),
+    clientID: req.body.clientID,
+    salesmanID: mongoose.Types.ObjectId("61b1d9600f59311316f228ea"),
+    fabricRoll: req.body.fabricRoll,
+    note: req.body.note,
+    status: [
+      {
+        name: "exported",
+        date: Date.now(),
+        reason: "",
+      },
+    ],
+  });
+
+  ValidateOrder(req.body.orderID);
+
+  console.log(result);
+  res.send(result);
+};
 
 const getListBill = async (req, res) => {
   Bill.find({}, function (err, result) {
@@ -127,10 +146,12 @@ const getBillComplete = async (req, res) => {
       { $match: { "status.name": "completed" } },
       { $project: { _id: 1 } },
       // { $unwind: "$fabricRoll" },
-      {$group: {
-        _id: null,
-        billcompleted : {$sum: 1}
-      }}
+      {
+        $group: {
+          _id: null,
+          billcompleted: { $sum: 1 },
+        },
+      },
       // // }}
       // { $count: "fabricRoll" },
     ]);
@@ -272,17 +293,18 @@ const getBillStatus = async (req, res) => {
       //     orderComplete: { $sum: 1 },
       //   },
       // },
-      { $project : { _id:1, status: 1, exportBillTime: 1} },
+      { $project: { _id: 1, status: 1, exportBillTime: 1 } },
       { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { lastStatus: { $last: "$status" } } },
       // { $addFields: { lastStatus: { $last: "$status" } } },
-      { $match: {month: 12}},
-      { $group: {
+      { $match: { month: 12 } },
+      {
+        $group: {
           _id: "$lastStatus.name",
           lastStatusBill: { $sum: 1 },
         },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
     console.log("Get Bill Status successfully");
     console.log(result);
@@ -323,7 +345,6 @@ const getBillStatus = async (req, res) => {
 //     res.status(500).json({ err });
 //   }
 // };
-
 
 module.exports = {
   getListBill,

@@ -29,33 +29,37 @@ async function CheckOrderStatus(order_id) {
     // console.log(bill);
     listBillInfo.push(bill);
   }
-  for (let i = 0; i < listBillInfo.length; i++) {
-    listBillInfo[i].fabricRoll.forEach((item) => {
-      const value = orderProductMap.get(item.colorCode);
-      orderProductMap.set(item.colorCode, {
-        ...value,
-        shippedLength: (value.shippedLength += item.length),
+  if (listBillInfo.length !== 0)
+    for (let i = 0; i < listBillInfo.length; i++) {
+      listBillInfo[i].fabricRoll.forEach((item) => {
+        const value = orderProductMap.get(item.colorCode);
+        orderProductMap.set(item.colorCode, {
+          ...value,
+          shippedLength: (value.shippedLength += item.length),
+        });
       });
-    });
-  }
+    }
   //Check status and update
   let status = "completed";
   for (const [key, value] of orderProductMap.entries()) {
     if (value.length <= 50) {
-      if (Math.abs(value.shippedLength - value.length) > 0.5 * value.length) {
+      if (value.length - value.shippedLength > 5) {
         status = "pending";
         break;
       }
     }
     if (value.length > 50) {
-      if (Math.abs(value.shippedLength - value.length) > 20) {
+      if (value.length - value.shippedLength > 0.05 * value.length) {
         status = "pending";
         break;
       }
     }
   }
   // console.log(status);
-  if (order.orderStatus[order.orderStatus.length - 1].name !== status) {
+  if (
+    order.orderStatus[order.orderStatus.length - 1].name !== status &&
+    order.orderStatus[order.orderStatus.length - 1].name !== "cancel"
+  ) {
     Order.findOneAndUpdate(
       { _id: mongoose.Types.ObjectId(order_id) },
       { $push: { orderStatus: { name: status } } },
@@ -69,7 +73,7 @@ async function CheckOrderStatus(order_id) {
     );
   }
   //Update ShippedLength
-  console.log(order.products);
+  // console.log(order.products);
   order.products.forEach((item) => {
     Has.findOneAndUpdate(
       { _id: mongoose.Types.ObjectId(item._id) },
@@ -84,7 +88,7 @@ async function CheckOrderStatus(order_id) {
       }
     );
   });
-  // console.log(orderProductMap);
+  console.log(orderProductMap);
 }
 
 module.exports = { CheckOrderStatus };
