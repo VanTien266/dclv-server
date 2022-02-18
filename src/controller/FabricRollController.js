@@ -2,6 +2,7 @@ const { json } = require("body-parser");
 const express = require("express");
 const mongoose = require("mongoose");
 const qs = require("qs");
+var _ = require("lodash");
 
 const { FabricRoll } = require("../models/FabricRoll");
 const { FabricType } = require("../models/FabricType");
@@ -256,7 +257,11 @@ const getListFabricRollWithIds = async (req, res) => {
       { $unwind: "$item" },
     ]);
     console.log("Get List Fabric Roll successfully");
-    res.status(200).json(result);
+    var lastResult = _.mapValues(_.groupBy(result, "colorCode"), (clist) =>
+      clist.map((item) => _.omit(item, "colorCode"))
+    );
+    res.status(200).json(lastResult);
+    // res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -332,7 +337,6 @@ const getChartWarehouseTrue = async (req, res) => {
     res.status(500).json({ err });
   }
 };
-
 
 const getFabricTypeSell = async (req, res) => {
   try {
