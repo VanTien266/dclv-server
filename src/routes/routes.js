@@ -18,7 +18,8 @@ const {
   getFabricTypeOrder,
   getOrderStatus,
   getOrderDaily,
-  getTotalOrderbyMonth
+  getTotalOrderbyMonth,
+  getOrderFabricType,
 } = require("../controller/OrderController");
 
 const { getListFabricType } = require("../controller/FabricTypeController");
@@ -30,14 +31,15 @@ router.get("/api/order/:id", detail);
 router.get("/api/order/:id/products", getListProductsById);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/:id/update_status", updateStatus);
-router.get("/api/countallorder",countAllOrder);
-router.get("/api/countallordercomplete",countAllOrderComplete);
-router.get("/api/deposit",deposit);
+router.get("/api/countallorder", countAllOrder);
+router.get("/api/countallordercomplete", countAllOrderComplete);
+router.get("/api/deposit", deposit);
 router.get("/api/getorderrange", getOrderbyDateRange);
 router.get("/api/getfabrictypeorder", getFabricTypeOrder);
 router.get("/api/getorderstatus", getOrderStatus);
 router.get("/api/getorderdaily", getOrderDaily);
 router.get("/api/getorderbymonth", getTotalOrderbyMonth);
+router.get("/api/getorderfabrictype", getOrderFabricType);
 
 /*----bill route-------*/
 const {
@@ -49,6 +51,7 @@ const {
   getListBillByIds,
   getBillComplete,
   getBillStatus,
+  getBillFabricTypeSell,
   // getBillCompleteMonthly
 } = require("../controller/BillController");
 
@@ -59,6 +62,7 @@ router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 router.get("/api/bill/completed", getBillComplete);
 router.get("/api/bill/status", getBillStatus);
+router.get("/api/bill/fabrictypesell", getBillFabricTypeSell);
 // router.get("/api/bill/completedbymonth", getBillCompleteMonthly);
 
 // router.post("/api/bill/create")
@@ -119,19 +123,21 @@ const {
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
+  getSortListFabricRollWithIds,
   getChartWarehouseTrue,
-  getFabricTypeSell,
-  getFabricTypeWarehouse
+  // getFabricTypeSell,
+  getFabricTypeWarehouse,
 } = require("../controller/FabricRollController");
 
 router.get("/api/product", getProductList);
 router.get("/api/product1", getProductList1);
 router.post("/api/product/list", getListFabricRollWithIds);
+router.post("/api/product/sort-list", getSortListFabricRollWithIds);
 router.get("/api/product/detail", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
 router.get("/api/chartwarehouse", getChartWarehouseTrue);
-router.get("/api/getfabrictypesell", getFabricTypeSell);
+// router.get("/api/getfabrictypesell", getFabricTypeSell);
 router.get("/api/getfabricwarehouse", getFabricTypeWarehouse);
 /*------------------------*/
 

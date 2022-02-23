@@ -244,36 +244,88 @@ const getFabricRollBillComplete = async (req, res) => {
 //       }
 //     });
 // };
-// const getFabricTypeSell = async (req, res) => {
-//   try {
-//     // Bill.find(
-//     //   { "status.name": "completed" }
-//     // );
-//     const result = await Bill.aggregate([
-//       {$unwind: "$status"},
-//       {$unwind: "$status.name"},
-//       {$match: {"status.name": "completed"}},
-//       {$project: {fabricRoll: 1}},
-//       {$unwind: "$fabricRoll"},
-//       // {$group: {
-//       //   _id: null,
-//       //   totalFabric : {$sum: 1}
-//       // }}
-//       // }}
-//       // { $count: "fabricRoll" }
-//     ])
+const getBillFabricTypeSell = async (req, res) => {
+  try {
+    // Bill.find(
+    //   { "status.name": "completed" }
+    // );
+    const result = await Bill.aggregate([
+      { $project: { _id: 1, exportBillTime: 1, fabricRoll: 1}},
+      { $addFields: { month: { $month: "$exportBillTime" } } },
+      { $addFields: { year: { $year: "$exportBillTime" } } },
+      { $unwind: "$fabricRoll" },
+      { 
+        $lookup: {
+          from: "FabricRoll",
+          let: { bill_fabricRoll: "$fabricRoll"},
+          pipeline: [
+            { $match: {$expr: {$eq: ["$_id", "$$bill_fabricRoll"]}}},
+            {
+              $lookup: {
+                from: "Item",
+                let: { color_code: "$colorCode" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
+                  {
+                    $lookup: {
+                      from: "FabricType",
+                      let: { type_id: "$typeId" },
+                      pipeline: [
+                        {
+                          $match: { $expr: { $eq: ["$_id", "$$type_id"] } },
+                        },
+                      ],
+                      as: "fabricType",
+                    },
+                  },
+                  { $unwind: "$fabricType" },
+                  {
+                    $group: {
+                      _id: "$fabricType.name",
+                    },
+                  },
+                ],
+                as: "item",
+              },
+            },
+            { $unwind: "$item" },
+          ],
+          as: "fabricTypeSell",
+        }, 
+      },
+      { $unwind: "$fabricTypeSell" },
+      {
+        $group: {
+          _id: "$fabricTypeSell.item._id",
+          countFabrictype: { $sum: 1 },
+        },
+      },
+      { $sort: { countFabrictype: -1 } },
+      { $limit: 5 },
+      // {$unwind: "$status"},
+      // {$unwind: "$status.name"},
+      // {$match: {"status.name": "completed"}},
+      // {$project: {fabricRoll: 1}},
+      // {$unwind: "$fabricRoll"},
+      // {$group: {
+      //   _id: null,
+      //   totalFabric : {$sum: 1}
+      // }}
+      // }}
+      // { $count: "fabricRoll" }
+    ])
 
-//     console.log("Get Total Fabric Roll Bill Completed successfully");
-//     console.log(result);
-//     res.status(200).json(result);
-//     // {result.map((item) => (
-//     //   res.status(200).json(item.fabricRoll)
-//     // ))}
-//   } catch (err) {
-//       console.log(err);
-//       res.status(500).json({ err });
-//   }
-// };
+    console.log("Get Bill Fabric Type Sell successfully");
+    console.log(result);
+    res.status(200).json(result);
+    // {result.map((item) => (
+    //   res.status(200).json(item.fabricRoll)
+    // ))}
+  } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
+  }
+};
 
 const getBillStatus = async (req, res) => {
   try {
@@ -355,5 +407,6 @@ module.exports = {
   getListBillByIds,
   getBillComplete,
   getBillStatus,
+  getBillFabricTypeSell
   // getBillCompleteMonthly
 };
