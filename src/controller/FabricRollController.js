@@ -2,6 +2,7 @@ const { json } = require("body-parser");
 const express = require("express");
 const mongoose = require("mongoose");
 const qs = require("qs");
+var _ = require("lodash");
 
 const { FabricRoll } = require("../models/FabricRoll");
 const { FabricType } = require("../models/FabricType");
@@ -257,6 +258,77 @@ const getListFabricRollWithIds = async (req, res) => {
     ]);
     console.log("Get List Fabric Roll successfully");
     res.status(200).json(result);
+    // res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+//Get sort list fabric roll with ids
+const getFabricRollOfBill = async (req, res) => {
+  const body = qs.parse(req.body);
+  // console.log(body);
+  const ids = body.ids || [];
+  ids.forEach((item) => ids.push(mongoose.Types.ObjectId(item)));
+  try {
+    const result = await FabricRoll.aggregate([
+      { $match: { _id: { $in: ids } } },
+      {
+        $lookup: {
+          from: "Item",
+          let: { color_code: "$colorCode" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
+            { $unwind: { path: "$marketPriceId" } },
+            {
+              $lookup: {
+                from: "MarketPrice",
+                let: { market_price_id: "$marketPriceId" },
+                pipeline: [
+                  {
+                    $match: { $expr: { $eq: ["$_id", "$$market_price_id"] } },
+                  },
+                ],
+                as: "marketPrice",
+              },
+            },
+
+            { $unwind: "$marketPrice" },
+
+            {
+              $lookup: {
+                from: "FabricType",
+                let: { type_id: "$typeId" },
+                pipeline: [
+                  {
+                    $match: { $expr: { $eq: ["$_id", "$$type_id"] } },
+                  },
+                ],
+                as: "fabricType",
+              },
+            },
+            { $unwind: "$fabricType" },
+            {
+              $group: {
+                _id: "$_id",
+                colorCode: { $first: "$colorCode" },
+                name: { $first: "$name" },
+                marketPrice: { $push: "$marketPrice" },
+                fabricType: { $first: "$fabricType" },
+              },
+            },
+          ],
+          as: "item",
+        },
+      },
+      { $unwind: "$item" },
+    ]);
+    console.log("Get List Fabric Roll of Bill successfully");
+    var lastResult = _.mapValues(_.groupBy(result, "colorCode"), (clist) =>
+      clist.map((item) => _.omit(item, "colorCode"))
+    );
+    res.status(200).json(Object.values(lastResult));
+    // res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -332,7 +404,6 @@ const getChartWarehouseTrue = async (req, res) => {
     res.status(500).json({ err });
   }
 };
-
 
 // const getFabricTypeSell = async (req, res) => {
 //   try {
@@ -458,6 +529,7 @@ module.exports = {
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
+  getFabricRollOfBill,
   getChartWarehouseTrue,
   // getFabricTypeSell,
   getFabricTypeWarehouse,
