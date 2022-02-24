@@ -123,7 +123,7 @@ const {
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
-  getSortListFabricRollWithIds,
+  getFabricRollOfBill,
   getChartWarehouseTrue,
   // getFabricTypeSell,
   getFabricTypeWarehouse,
@@ -132,7 +132,7 @@ const {
 router.get("/api/product", getProductList);
 router.get("/api/product1", getProductList1);
 router.post("/api/product/list", getListFabricRollWithIds);
-router.post("/api/product/sort-list", getSortListFabricRollWithIds);
+router.post("/api/product/fabricroll-bill", getFabricRollOfBill);
 router.get("/api/product/detail", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);

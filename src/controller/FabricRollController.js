@@ -265,8 +265,9 @@ const getListFabricRollWithIds = async (req, res) => {
 };
 
 //Get sort list fabric roll with ids
-const getSortListFabricRollWithIds = async (req, res) => {
+const getFabricRollOfBill = async (req, res) => {
   const body = qs.parse(req.body);
+  // console.log(body);
   const ids = body.ids || [];
   ids.forEach((item) => ids.push(mongoose.Types.ObjectId(item)));
   try {
@@ -322,11 +323,11 @@ const getSortListFabricRollWithIds = async (req, res) => {
       },
       { $unwind: "$item" },
     ]);
-    console.log("Get List Fabric Roll successfully");
+    console.log("Get List Fabric Roll of Bill successfully");
     var lastResult = _.mapValues(_.groupBy(result, "colorCode"), (clist) =>
       clist.map((item) => _.omit(item, "colorCode"))
     );
-    res.status(200).json(lastResult);
+    res.status(200).json(Object.values(lastResult));
     // res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);
@@ -528,7 +529,7 @@ module.exports = {
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
-  getSortListFabricRollWithIds,
+  getFabricRollOfBill,
   getChartWarehouseTrue,
   // getFabricTypeSell,
   getFabricTypeWarehouse,
