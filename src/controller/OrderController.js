@@ -301,6 +301,7 @@ module.exports = {
   },
 
   getTotalOrderbyMonth: async (req, res) => {
+    const monthReq = 12;
     try {
       const result = await Order.aggregate([
         // { $unwind: "$orderStatus" },
@@ -327,7 +328,7 @@ module.exports = {
         //   },
         // },
         //đổi month theo dạng input đầu vào
-        {$match: {month:12}},
+        {$match: {month:monthReq}},
         {
           $group: {
             _id: null,
