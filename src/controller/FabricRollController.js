@@ -137,6 +137,7 @@ const getProductList = async (req, res) => {
 
 //Get specific product with its id
 const getProductById = async (req, res) => {
+  console.log(mongoose.Types.ObjectId(req.query.id));
   try {
     const product = await FabricRoll.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(req.query.id) } },
@@ -190,9 +191,9 @@ const getProductById = async (req, res) => {
       },
       { $unwind: "$item" },
     ]);
-    console.log("Get Fabric Roll successfully");
-    if (product.length > 0) res.status(200).json(product[0]);
-    elseres.status(200).json(product);
+    console.log(product);
+    console.log("Get Fabric Roll successfully", product);
+    res.status(200).json(product[0]);
   } catch (err) {
     res.status(500).json(err);
   }

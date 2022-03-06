@@ -19,8 +19,10 @@ async function getNextSequenceValue(sequenceName) {
 
 const createBill = async (req, res) => {
   const id = await getNextSequenceValue("billId");
+  console.log(req.body);
+  // Change status of FabricRoll from true->false
   const listFabricRoll = await Promise.all(
-    req.body.fabricRoll.map(async (item, idx) => {
+    req.body.ids?.map(async (item, idx) => {
       let fabricRollId = await FabricRoll.findOneAndUpdate(
         { _id: item },
         { status: false }
@@ -29,41 +31,44 @@ const createBill = async (req, res) => {
     })
   );
   console.log(listFabricRoll);
-  const hasList = await Has.find({
-    orderId: mongoose.Types.ObjectId(req.body.orderID),
-  })
-    .populate("colorCode", "colorCode -_id")
-    .exec();
-  console.log(hasList);
-  const hasUpdate = await Promise.all(
-    listFabricRoll.map(async (item, idx) => {
-      for (let i = 0; i < hasList.length; i++) {
-        if (item.colorCode === hasList[i].colorCode.colorCode) {
-          const changeShippedLength = await Has.findOneAndUpdate(
-            { _id: mongoose.Types.ObjectId(hasList[i]._id) },
-            { $inc: { shippedLength: item.length } }
-          );
-          console.log(changeShippedLength);
-          return 1;
-        }
-      }
-      return 0;
-    })
-  );
+  // Update Has-> Already have in validate
+  // const hasList = await Has.find({
+  //   orderId: mongoose.Types.ObjectId(req.body.orderID),
+  // })
+  //   .populate("colorCode", "colorCode -_id")
+  //   .exec();
+  // console.log(hasList);
+  // const hasUpdate = await Promise.all(
+  //   listFabricRoll.map(async (item, idx) => {
+  //     for (let i = 0; i < hasList.length; i++) {
+  //       if (item.colorCode === hasList[i].colorCode.colorCode) {
+  //         const changeShippedLength = await Has.findOneAndUpdate(
+  //           { _id: mongoose.Types.ObjectId(hasList[i]._id) },
+  //           { $inc: { shippedLength: item.length } }
+  //         );
+  //         console.log(changeShippedLength);
+  //         return 1;
+  //       }
+  //     }
+  //     return 0;
+  //   })
+  // );
+
+  // Create Bill and add to list bill of Order
   const billObjId = new mongoose.Types.ObjectId();
   await Order.findOneAndUpdate(
-    { _id: req.body.orderID },
+    { _id: req.body.orderId },
     { $push: { detailBill: billObjId } }
   );
   let result = await Bill.create({
     _id: billObjId,
     billID: id,
     valueBill: 0,
-    orderID: mongoose.Types.ObjectId(req.body.orderID),
-    clientID: req.body.clientID,
+    orderID: mongoose.Types.ObjectId(req.body.orderId),
+    clientID: req.body?.clientID,
     salesmanID: mongoose.Types.ObjectId("61b1d9600f59311316f228ea"),
-    fabricRoll: req.body.fabricRoll,
-    note: req.body.note,
+    fabricRoll: req.body.ids,
+    note: req.body?.note,
     status: [
       {
         name: "exported",
@@ -73,10 +78,10 @@ const createBill = async (req, res) => {
     ],
   });
 
-  ValidateOrder(req.body.orderID);
+  ValidateOrder(req.body.orderId);
 
   console.log(result);
-  res.send(result);
+  res.send("Ok");
 };
 
 const getListBill = async (req, res) => {
@@ -250,22 +255,24 @@ const getBillFabricTypeSell = async (req, res) => {
     //   { "status.name": "completed" }
     // );
     const result = await Bill.aggregate([
-      { $project: { _id: 1, exportBillTime: 1, fabricRoll: 1}},
+      { $project: { _id: 1, exportBillTime: 1, fabricRoll: 1 } },
       { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { year: { $year: "$exportBillTime" } } },
       { $unwind: "$fabricRoll" },
-      { 
+      {
         $lookup: {
           from: "FabricRoll",
-          let: { bill_fabricRoll: "$fabricRoll"},
+          let: { bill_fabricRoll: "$fabricRoll" },
           pipeline: [
-            { $match: {$expr: {$eq: ["$_id", "$$bill_fabricRoll"]}}},
+            { $match: { $expr: { $eq: ["$_id", "$$bill_fabricRoll"] } } },
             {
               $lookup: {
                 from: "Item",
                 let: { color_code: "$colorCode" },
                 pipeline: [
-                  { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
+                  {
+                    $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } },
+                  },
                   {
                     $lookup: {
                       from: "FabricType",
@@ -291,7 +298,7 @@ const getBillFabricTypeSell = async (req, res) => {
             { $unwind: "$item" },
           ],
           as: "fabricTypeSell",
-        }, 
+        },
       },
       { $unwind: "$fabricTypeSell" },
       {
@@ -313,7 +320,7 @@ const getBillFabricTypeSell = async (req, res) => {
       // }}
       // }}
       // { $count: "fabricRoll" }
-    ])
+    ]);
 
     console.log("Get Bill Fabric Type Sell successfully");
     console.log(result);
@@ -322,8 +329,8 @@ const getBillFabricTypeSell = async (req, res) => {
     //   res.status(200).json(item.fabricRoll)
     // ))}
   } catch (err) {
-      console.log(err);
-      res.status(500).json({ err });
+    console.log(err);
+    res.status(500).json({ err });
   }
 };
 
@@ -407,6 +414,6 @@ module.exports = {
   getListBillByIds,
   getBillComplete,
   getBillStatus,
-  getBillFabricTypeSell
+  getBillFabricTypeSell,
   // getBillCompleteMonthly
 };
