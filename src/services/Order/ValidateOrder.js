@@ -3,7 +3,7 @@ const { Bill } = require("../../models/Bill");
 const { Has } = require("../../models/Has");
 const { Order } = require("../../models/Order");
 
-async function CheckOrderStatus(order_id) {
+async function ValidateOrder(order_id) {
   //Flow: Get list Bill of Order -->Check length
   const order = await Order.findById(mongoose.Types.ObjectId(order_id))
     .populate({ path: "products", populate: { path: "colorCode" } })
@@ -43,13 +43,25 @@ async function CheckOrderStatus(order_id) {
   let status = "completed";
   for (const [key, value] of orderProductMap.entries()) {
     if (value.length <= 50) {
-      if (value.length - value.shippedLength > 5) {
+      if (value.length - value.shippedLength > 10) {
         status = "pending";
         break;
       }
     }
-    if (value.length > 50) {
-      if (value.length - value.shippedLength > 0.05 * value.length) {
+    if (value.length > 100) {
+      if (value.length - value.shippedLength > 0.08 * value.length) {
+        status = "pending";
+        break;
+      }
+    }
+    if (value.length > 500) {
+      if (value.length - value.shippedLength > 0.01 * value.length) {
+        status = "pending";
+        break;
+      }
+    }
+    if (value.length > 1000) {
+      if (value.length - value.shippedLength > 0.15 * value.length) {
         status = "pending";
         break;
       }
@@ -91,4 +103,4 @@ async function CheckOrderStatus(order_id) {
   console.log(orderProductMap);
 }
 
-module.exports = { CheckOrderStatus };
+module.exports = { ValidateOrder };
