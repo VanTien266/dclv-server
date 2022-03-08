@@ -251,9 +251,6 @@ const getFabricRollBillComplete = async (req, res) => {
 // };
 const getBillFabricTypeSell = async (req, res) => {
   try {
-    // Bill.find(
-    //   { "status.name": "completed" }
-    // );
     const result = await Bill.aggregate([
       { $project: { _id: 1, exportBillTime: 1, fabricRoll: 1 } },
       { $addFields: { month: { $month: "$exportBillTime" } } },
@@ -309,25 +306,11 @@ const getBillFabricTypeSell = async (req, res) => {
       },
       { $sort: { countFabrictype: -1 } },
       { $limit: 5 },
-      // {$unwind: "$status"},
-      // {$unwind: "$status.name"},
-      // {$match: {"status.name": "completed"}},
-      // {$project: {fabricRoll: 1}},
-      // {$unwind: "$fabricRoll"},
-      // {$group: {
-      //   _id: null,
-      //   totalFabric : {$sum: 1}
-      // }}
-      // }}
-      // { $count: "fabricRoll" }
     ]);
 
     console.log("Get Bill Fabric Type Sell successfully");
     console.log(result);
     res.status(200).json(result);
-    // {result.map((item) => (
-    //   res.status(200).json(item.fabricRoll)
-    // ))}
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
