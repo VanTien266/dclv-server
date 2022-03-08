@@ -47,41 +47,53 @@ module.exports = {
       });
   },
   create: async (req, res) => {
-    const id = await getNextSequenceValue("orderId");
-    const asyncRes = await Promise.all(
-      req.body.products.map(async (item, idx) => {
-        let colorId = await Item.findOne({ colorCode: item }).exec();
-        console.log(colorId);
-        let a = await Has.create({
-          orderId: id,
-          colorCode: colorId._id,
-          length: 2000,
-          shippedLength: 0,
-        });
-        return a._id;
-      })
-    );
-    let result = await Order.create({
-      orderId: id,
-      orderStatus: [
-        {
-          name: req.body.orderStatus,
-          date: Date.now(),
-        },
-      ],
-      // orderTime: req.body.orderTime,
-      note: req.body.note,
-      receiverName: req.body.receiverName,
-      receiverPhone: req.body.receiverPhone,
-      receiverAddress: req.body.receiverAddress,
-      deposit: req.body.deposit,
-      clientID: req.body.clientID,
-      detailBill: req.body.detailBill,
-      products: asyncRes,
-    });
-    console.log(result);
-    res.send(result);
+    try {
+      const id = await getNextSequenceValue("orderId");
+      const asyncRes = await Promise.all(
+        req.body.products.map(async (item, idx) => {
+          let colorId = await Item.findOne({
+            colorCode: item.colorCode,
+          }).exec();
+          console.log(colorId);
+          let a = await Has.create({
+            // orderId: id,
+            colorCode: colorId._id,
+            length: item.length,
+            shippedLength: 0,
+          });
+          return a._id;
+        })
+      );
+      let result = await Order.create({
+        orderId: id,
+        orderStatus: [
+          {
+            name: "pending",
+            date: Date.now(),
+          },
+        ],
+        note: req.body.note,
+        receiverName: req.body.receiverName,
+        receiverPhone: req.body.receiverPhone,
+        receiverAddress: req.body.receiverAddress,
+        deposit: req.body.deposit,
+        clientID: mongoose.Types.ObjectId(req.body.clientID),
+        detailBill: [],
+        products: asyncRes,
+      });
+      asyncRes.forEach((item) => {
+        Has.findOneAndUpdate({ _id: item }, { orderId: result._id }).exec();
+      });
+      //Update Has order id
+
+      console.log(result);
+      console.log("Create order successfully!");
+      res.send(result);
+    } catch (err) {
+      console.log(err);
+    }
   },
+
   detail: (req, res) => {
     Order.findOne({ _id: mongoose.Types.ObjectId(req.params.id) })
       .populate({

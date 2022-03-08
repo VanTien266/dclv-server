@@ -5,7 +5,6 @@ const HasSchema = new Schema(
     orderId: {
       type: Schema.Types.ObjectId,
       default: null,
-      required: true,
     },
     colorCode: {
       type: Schema.Types.ObjectId,
