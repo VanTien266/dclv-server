@@ -32,7 +32,10 @@ module.exports = {
       })
       .populate({
         path: "detailBill",
-        populate: [{ path: "salesmanID", select: "name -_id" }, { path: "clientID", select: "name -_id" }],
+        populate: [
+          { path: "salesmanID", select: "name -_id" },
+          { path: "clientID", select: "name -_id" },
+        ],
       })
       .populate({
         path: "clientID",
@@ -44,41 +47,53 @@ module.exports = {
       });
   },
   create: async (req, res) => {
-    const id = await getNextSequenceValue("orderId");
-    const asyncRes = await Promise.all(
-      req.body.products.map(async (item, idx) => {
-        let colorId = await Item.findOne({ colorCode: item }).exec();
-        console.log(colorId);
-        let a = await Has.create({
-          orderId: id,
-          colorCode: colorId._id,
-          length: 2000,
-          shippedLength: 0,
-        });
-        return a._id;
-      })
-    );
-    let result = await Order.create({
-      orderId: id,
-      orderStatus: [
-        {
-          name: req.body.orderStatus,
-          date: Date.now(),
-        },
-      ],
-      // orderTime: req.body.orderTime,
-      note: req.body.note,
-      receiverName: req.body.receiverName,
-      receiverPhone: req.body.receiverPhone,
-      receiverAddress: req.body.receiverAddress,
-      deposit: req.body.deposit,
-      clientID: req.body.clientID,
-      detailBill: req.body.detailBill,
-      products: asyncRes,
-    });
-    console.log(result);
-    res.send(result);
+    try {
+      const id = await getNextSequenceValue("orderId");
+      const asyncRes = await Promise.all(
+        req.body.products.map(async (item, idx) => {
+          let colorId = await Item.findOne({
+            colorCode: item.colorCode,
+          }).exec();
+          console.log(colorId);
+          let a = await Has.create({
+            // orderId: id,
+            colorCode: colorId._id,
+            length: item.length,
+            shippedLength: 0,
+          });
+          return a._id;
+        })
+      );
+      let result = await Order.create({
+        orderId: id,
+        orderStatus: [
+          {
+            name: "pending",
+            date: Date.now(),
+          },
+        ],
+        note: req.body.note,
+        receiverName: req.body.receiverName,
+        receiverPhone: req.body.receiverPhone,
+        receiverAddress: req.body.receiverAddress,
+        deposit: req.body.deposit,
+        clientID: mongoose.Types.ObjectId(req.body.clientID),
+        detailBill: [],
+        products: asyncRes,
+      });
+      asyncRes.forEach((item) => {
+        Has.findOneAndUpdate({ _id: item }, { orderId: result._id }).exec();
+      });
+      //Update Has order id
+
+      console.log(result);
+      console.log("Create order successfully!");
+      res.send(result);
+    } catch (err) {
+      console.log(err);
+    }
   },
+
   detail: (req, res) => {
     Order.findOne({ _id: mongoose.Types.ObjectId(req.params.id) })
       .populate({
@@ -156,20 +171,56 @@ module.exports = {
     );
   },
 
-  updateStatus: (req, res) => {
-    Order.findOneAndUpdate(
+  updateStatus: async (req, res) => {
+    const status = await Order.findOne(
       { _id: mongoose.Types.ObjectId(req.params.id) },
-      { $push: {orderStatus: {name: req.body.status, reason: req.body.reason}}},
-      function (err, result) {
-        if (err) {
-          console.log(err);
-          return res.json({ message: "Error" });
-        } else {
-          console.log(result);
-          return res.json(result);
+      "orderStatus"
+    ).exec();
+    console.log("Update", status.orderStatus);
+    if (status.orderStatus[status.orderStatus.length - 1].name !== "processing")
+      Order.findOneAndUpdate(
+        { _id: mongoose.Types.ObjectId(req.params.id) },
+        {
+          $push: {
+            orderStatus: { name: req.body.status, reason: req.body.reason },
+          },
+        },
+        function (err, result) {
+          if (err) {
+            console.log(err);
+            return res.json({ message: "Error" });
+          } else {
+            console.log(result);
+            return res.json(result);
+          }
         }
-      }
-    );
+      );
+  },
+
+  cancleExportBill: async (req, res) => {
+    const status = await Order.findOne(
+      { _id: mongoose.Types.ObjectId(req.params.id) },
+      "orderStatus"
+    ).exec();
+    console.log("Cancle ", status);
+    if (status.orderStatus[status.orderStatus.length - 1].name === "processing")
+      Order.findOneAndUpdate(
+        { _id: mongoose.Types.ObjectId(req.params.id) },
+        {
+          $pop: {
+            orderStatus: 1,
+          },
+        },
+        function (err, result) {
+          if (err) {
+            console.log(err);
+            return res.json({ message: "Error" });
+          } else {
+            console.log(result);
+            return res.json(result);
+          }
+        }
+      );
   },
 
   countAllOrder: (req, res) => {
@@ -305,7 +356,7 @@ module.exports = {
       const result = await Order.aggregate([
         // { $unwind: "$orderStatus" },
         // { $match: { "orderStatus.name": "completed" } },
-        
+
         // { $lookup : {
         //     from : 'Bill',
         //     localField : 'billStatus',
@@ -318,8 +369,8 @@ module.exports = {
         //     orderComplete: { $sum: 1 },
         //   },
         // },
-        
-        { $project : { _id:1, orderTime:1} },
+
+        { $project: { _id: 1, orderTime: 1 } },
         { $addFields: { month: { $month: "$orderTime" } } },
         // { $group: {
         //     _id: "$lastStatus.name",
@@ -327,14 +378,13 @@ module.exports = {
         //   },
         // },
         //đổi month theo dạng input đầu vào
-        {$match: {month:12}},
+        { $match: { month: 12 } },
         {
           $group: {
             _id: null,
             monthlyorder: { $sum: 1 },
           },
         },
-
       ]);
       console.log("Get Total Order By Month successfully");
       console.log(result);
@@ -408,18 +458,19 @@ module.exports = {
         //     orderComplete: { $sum: 1 },
         //   },
         // },
-        { $project : { _id:1, orderTime: 1, orderStatus: 1} },
+        { $project: { _id: 1, orderTime: 1, orderStatus: 1 } },
         { $addFields: { month: { $month: "$orderTime" } } },
         { $addFields: { lastStatus: { $last: "$orderStatus" } } },
         // { $addFields: { lastStatusMonth: { $month: "$lastStatus.date" } } },
         //đổi lại month khi set date time picker
-        { $match: {month: 12}},
-        { $group: {
+        { $match: { month: 12 } },
+        {
+          $group: {
             _id: "$lastStatus.name",
             lastStatusOrder: { $sum: 1 },
           },
         },
-        { $sort: { _id: 1 } }
+        { $sort: { _id: 1 } },
       ]);
       console.log("Get Order Status successfully");
       console.log(result);
@@ -431,57 +482,61 @@ module.exports = {
   },
 
   //query order hàng tháng (mỗi ngày trong 1 tháng)
-  getOrderDaily: async (req, res) => {   
-  try {
-    const result = await Order.aggregate([
-      // {$project: { _id: 1, orderTime: 1}},
-      // { $addFields: { monthOrder: { $month: "$orderTime" } } },
-      // { $addFields: { year: { $year: "$orderTime" } } },
-      {
-        $group: {
+  getOrderDaily: async (req, res) => {
+    try {
+      const result = await Order.aggregate([
+        // {$project: { _id: 1, orderTime: 1}},
+        // { $addFields: { monthOrder: { $month: "$orderTime" } } },
+        // { $addFields: { year: { $year: "$orderTime" } } },
+        {
+          $group: {
             _id: {
-                year: { $year: "$orderTime" },
-                month: { $month: "$orderTime" },
-                date: { $dayOfMonth: "$orderTime" }
+              year: { $year: "$orderTime" },
+              month: { $month: "$orderTime" },
+              date: { $dayOfMonth: "$orderTime" },
             },
-            Total: { $sum: 1 }
-        }
-    },
-    { $match: { "_id.year": 2021}},
-    { $match: { "_id.month": 12}},
-    { $sort: { "_id.date": 1 }}
-    // { $addFields: { monthOrder: { $month: "$orderTime" } } },
-    // { $addFields: { year: { $year: "$orderTime" } } },
-    // { $addFields: { month: { $month: "$_id.month" } } },
-    ]);
-    console.log("Get Order Monthly successfully");
-    console.log(result);
-    res.status(200).json(result);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ err });
-  }
+            Total: { $sum: 1 },
+          },
+        },
+        { $match: { "_id.year": 2021 } },
+        { $match: { "_id.month": 12 } },
+        { $sort: { "_id.date": 1 } },
+        // { $addFields: { monthOrder: { $month: "$orderTime" } } },
+        // { $addFields: { year: { $year: "$orderTime" } } },
+        // { $addFields: { month: { $month: "$_id.month" } } },
+      ]);
+      console.log("Get Order Monthly successfully");
+      console.log(result);
+      res.status(200).json(result);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
+    }
   },
 
   getOrderFabricType: async (req, res) => {
     try {
       const result = await Order.aggregate([
-        { $project: { _id: 1, orderTime: 1, products: 1}},
+        { $project: { _id: 1, orderTime: 1, products: 1 } },
         { $addFields: { month: { $month: "$orderTime" } } },
         { $addFields: { year: { $year: "$orderTime" } } },
         { $unwind: "$products" },
-        { 
+        {
           $lookup: {
             from: "FabricRoll",
-            let: { bill_fabricRoll: "$fabricRoll"},
+            let: { bill_fabricRoll: "$fabricRoll" },
             pipeline: [
-              { $match: {$expr: {$eq: ["$_id", "$$bill_fabricRoll"]}}},
+              { $match: { $expr: { $eq: ["$_id", "$$bill_fabricRoll"] } } },
               {
                 $lookup: {
                   from: "Item",
                   let: { color_code: "$colorCode" },
                   pipeline: [
-                    { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
+                    {
+                      $match: {
+                        $expr: { $eq: ["$colorCode", "$$color_code"] },
+                      },
+                    },
                     {
                       $lookup: {
                         from: "FabricType",
@@ -507,7 +562,7 @@ module.exports = {
               { $unwind: "$item" },
             ],
             as: "fabricTypeSell",
-          }, 
+          },
         },
         // { $unwind: "$fabricTypeSell" },
         // {
@@ -518,7 +573,7 @@ module.exports = {
         // },
         // { $sort: { countFabrictype: -1 } },
         // { $limit: 5 },
-      ])
+      ]);
       console.log("Get Order Fabric Type successfully");
       console.log(result);
       res.status(200).json(result);
@@ -526,9 +581,8 @@ module.exports = {
       //   res.status(200).json(item.fabricRoll)
       // ))}
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ err });
+      console.log(err);
+      res.status(500).json({ err });
     }
   },
-
 };

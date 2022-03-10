@@ -19,7 +19,8 @@ const {
   getOrderStatus,
   getOrderDaily,
   getTotalOrderbyMonth,
-  getOrderFabricType
+  getOrderFabricType,
+  cancleExportBill,
 } = require("../controller/OrderController");
 
 const { getListFabricType } = require("../controller/FabricTypeController");
@@ -31,15 +32,16 @@ router.get("/api/order/:id", detail);
 router.get("/api/order/:id/products", getListProductsById);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/:id/update_status", updateStatus);
-router.get("/api/countallorder",countAllOrder);
-router.get("/api/countallordercomplete",countAllOrderComplete);
-router.get("/api/deposit",deposit);
+router.get("/api/countallorder", countAllOrder);
+router.get("/api/countallordercomplete", countAllOrderComplete);
+router.get("/api/deposit", deposit);
 router.get("/api/getorderrange", getOrderbyDateRange);
 router.get("/api/getfabrictypeorder", getFabricTypeOrder);
 router.get("/api/getorderstatus", getOrderStatus);
 router.get("/api/getorderdaily", getOrderDaily);
 router.get("/api/getorderbymonth", getTotalOrderbyMonth);
 router.get("/api/getorderfabrictype", getOrderFabricType);
+router.put("/api/order/cancle-status/:id", cancleExportBill);
 
 /*----bill route-------*/
 const {
@@ -51,7 +53,7 @@ const {
   getListBillByIds,
   getBillComplete,
   getBillStatus,
-  getBillFabricTypeSell
+  getBillFabricTypeSell,
   // getBillCompleteMonthly
 } = require("../controller/BillController");
 
@@ -123,14 +125,16 @@ const {
   updateProductStatus,
   updateMarketPrice,
   getListFabricRollWithIds,
+  getFabricRollOfBill,
   getChartWarehouseTrue,
   // getFabricTypeSell,
-  getFabricTypeWarehouse
+  getFabricTypeWarehouse,
 } = require("../controller/FabricRollController");
 
 router.get("/api/product", getProductList);
 router.get("/api/product1", getProductList1);
 router.post("/api/product/list", getListFabricRollWithIds);
+router.post("/api/product/fabricroll-bill", getFabricRollOfBill);
 router.get("/api/product/detail", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);

@@ -1,5 +1,6 @@
 const { FabricRoll } = require("../models/FabricRoll");
 const { getListDistinctColorCode } = require("../services/FabricRollService");
+const { FabricRules } = require("../services/FabricRules");
 //Insert 50 documents of FabricRolls collection
 // const colorCodeList=["ffff",];
 const lotList = [];
@@ -138,4 +139,31 @@ async function UpdateLot() {
     });
   });
 }
-module.exports = { InsertToFabricRoll, UpdateLot };
+
+async function updateLength() {
+  const fabricRules = FabricRules();
+  // console.log(fabricRules);
+  for (let i = 0; i < fabricRules.length; i++) {
+    const res = await FabricRoll.find({
+      colorCode: fabricRules[i].item,
+      status: true,
+    }).exec();
+    if (res.length > 0)
+      for (let j = 0; j < res.length; j++) {
+        res[j].length =
+          fabricRules[i].avgLength +
+          Math.floor(Math.random() * fabricRules[i].error);
+        res[j].save();
+        console.log(res[j]);
+      }
+  }
+
+  // const res = await FabricRoll.find({
+  //   colorCode: fabricRules[2].item,
+  //   status: true,
+  // }).exec();
+  // res[0].length = 120;
+  // res[0].save();
+  // console.log(res);
+}
+module.exports = { InsertToFabricRoll, UpdateLot, updateLength };
