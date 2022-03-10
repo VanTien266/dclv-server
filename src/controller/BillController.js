@@ -56,7 +56,7 @@ const createBill = async (req, res) => {
 
   // Create Bill and add to list bill of Order
   const billObjId = new mongoose.Types.ObjectId();
-  await Order.findOneAndUpdate(
+  const order = await Order.findOneAndUpdate(
     { _id: req.body.orderId },
     { $push: { detailBill: billObjId } }
   );
@@ -65,10 +65,10 @@ const createBill = async (req, res) => {
     billID: id,
     valueBill: 0,
     orderID: mongoose.Types.ObjectId(req.body.orderId),
-    clientID: req.body?.clientID,
+    clientID: order.clientID,
     salesmanID: mongoose.Types.ObjectId("61b1d9600f59311316f228ea"),
     fabricRoll: req.body.ids,
-    note: req.body?.note,
+    note: order.note,
     status: [
       {
         name: "exported",
