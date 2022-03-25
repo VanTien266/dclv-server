@@ -21,9 +21,11 @@ const {
   getTotalOrderbyMonth,
   getOrderFabricType,
   cancleExportBill,
-} = require("../controller/OrderController");
+} = require("../convertController/OrderController");
 
-const { getListFabricType } = require("../controller/FabricTypeController");
+const {
+  getListFabricType,
+} = require("../convertController/FabricTypeController");
 
 /*----order route------*/
 router.get("/api/order", list);
@@ -54,25 +56,17 @@ const {
   getBillComplete,
   getBillStatus,
   getBillFabricTypeSell,
-  getBillCompletePicker,
   // getBillCompleteMonthly
-  getListBillUncomplete,
-  getListBillComplete,
-  updateBillStatus,
-} = require("../controller/BillController");
+} = require("../convertController/BillController");
 
 router.get("/api/bill", getListBill);
-router.get("/api/bill/list/uncomplete", getListBillUncomplete);
-router.get("/api/bill/list/complete", getListBillComplete);
 router.post("/api/bill/create", createBill);
-router.get("/api/bill/list", getListBillByIds);
-router.get("/api/bill/order/:orderid", getListBillByOrderId);
+router.post("/api/bill/list", getListBillByIds);
 router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 router.get("/api/bill/completed", getBillComplete);
 router.get("/api/bill/status", getBillStatus);
 router.get("/api/bill/fabrictypesell", getBillFabricTypeSell);
-router.put("/api/bill/:id", updateBillStatus);
 // router.get("/api/bill/completedbymonth", getBillCompleteMonthly);
 
 // router.post("/api/bill/create")
@@ -81,7 +75,7 @@ router.put("/api/bill/:id", updateBillStatus);
 const {
   createNewCustomer,
   login,
-} = require("../controller/CustomerController");
+} = require("../convertController/CustomerController");
 const {
   createNewStaff,
   listStaff,
@@ -137,7 +131,7 @@ const {
   getChartWarehouseTrue,
   // getFabricTypeSell,
   getFabricTypeWarehouse,
-} = require("../controller/FabricRollController");
+} = require("../convertController/FabricRollController");
 
 router.get("/api/product", getProductList);
 router.get("/api/product1", getProductList1);

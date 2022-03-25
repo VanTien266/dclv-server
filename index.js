@@ -24,8 +24,12 @@ mongoose
       console.log(`Server is running at http://localhost:${port}`);
     });
 
-    const { CheckOrderStatus } = require("./src/services/Order/ValidateOrder");
-    // CheckOrderStatus("61b22ad91531f293e8eb7549");
+    const { ValidateOrder } = require("./src/services/Order/ValidateOrder");
+    // ValidateOrder("61bb45f4fcfed50810d281a9");
+    const { UpdateItem } = require("./src/create/CreateItem");
+    // UpdateItem();
+    const { updateLength } = require("./src/create/CreateFabricRoll");
+    // updateLength();
   })
   .catch((error) => {
     console.log("Connect to MongoDB failed!" + error);

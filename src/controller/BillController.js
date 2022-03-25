@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const qs = require("qs");
 
 const { ValidateOrder } = require("../services/Order/ValidateOrder");
+const { hashSync } = require("bcryptjs");
 
 async function getNextSequenceValue(sequenceName) {
   let seq = await Counter.findOneAndUpdate(
@@ -19,8 +20,10 @@ async function getNextSequenceValue(sequenceName) {
 
 const createBill = async (req, res) => {
   const id = await getNextSequenceValue("billId");
+  console.log(req.body);
+  // Change status of FabricRoll from true->false
   const listFabricRoll = await Promise.all(
-    req.body.fabricRoll.map(async (item, idx) => {
+    req.body.ids?.map(async (item, idx) => {
       let fabricRollId = await FabricRoll.findOneAndUpdate(
         { _id: item },
         { status: false }
@@ -29,41 +32,44 @@ const createBill = async (req, res) => {
     })
   );
   console.log(listFabricRoll);
-  const hasList = await Has.find({
-    orderId: mongoose.Types.ObjectId(req.body.orderID),
-  })
-    .populate("colorCode", "colorCode -_id")
-    .exec();
-  console.log(hasList);
-  const hasUpdate = await Promise.all(
-    listFabricRoll.map(async (item, idx) => {
-      for (let i = 0; i < hasList.length; i++) {
-        if (item.colorCode === hasList[i].colorCode.colorCode) {
-          const changeShippedLength = await Has.findOneAndUpdate(
-            { _id: mongoose.Types.ObjectId(hasList[i]._id) },
-            { $inc: { shippedLength: item.length } }
-          );
-          console.log(changeShippedLength);
-          return 1;
-        }
-      }
-      return 0;
-    })
-  );
+  // Update Has-> Already have in validate
+  // const hasList = await Has.find({
+  //   orderId: mongoose.Types.ObjectId(req.body.orderID),
+  // })
+  //   .populate("colorCode", "colorCode -_id")
+  //   .exec();
+  // console.log(hasList);
+  // const hasUpdate = await Promise.all(
+  //   listFabricRoll.map(async (item, idx) => {
+  //     for (let i = 0; i < hasList.length; i++) {
+  //       if (item.colorCode === hasList[i].colorCode.colorCode) {
+  //         const changeShippedLength = await Has.findOneAndUpdate(
+  //           { _id: mongoose.Types.ObjectId(hasList[i]._id) },
+  //           { $inc: { shippedLength: item.length } }
+  //         );
+  //         console.log(changeShippedLength);
+  //         return 1;
+  //       }
+  //     }
+  //     return 0;
+  //   })
+  // );
+
+  // Create Bill and add to list bill of Order
   const billObjId = new mongoose.Types.ObjectId();
-  await Order.findOneAndUpdate(
-    { _id: req.body.orderID },
+  const order = await Order.findOneAndUpdate(
+    { _id: req.body.orderId },
     { $push: { detailBill: billObjId } }
   );
   let result = await Bill.create({
     _id: billObjId,
     billID: id,
     valueBill: 0,
-    orderID: mongoose.Types.ObjectId(req.body.orderID),
-    clientID: req.body.clientID,
+    orderID: mongoose.Types.ObjectId(req.body.orderId),
+    clientID: order.clientID,
     salesmanID: mongoose.Types.ObjectId("61b1d9600f59311316f228ea"),
-    fabricRoll: req.body.fabricRoll,
-    note: req.body.note,
+    fabricRoll: req.body.ids,
+    note: order.note,
     status: [
       {
         name: "exported",
@@ -73,10 +79,10 @@ const createBill = async (req, res) => {
     ],
   });
 
-  ValidateOrder(req.body.orderID);
+  ValidateOrder(req.body.orderId);
 
   console.log(result);
-  res.send(result);
+  res.send("Ok");
 };
 
 const getListBill = async (req, res) => {
@@ -98,6 +104,69 @@ const getListBill = async (req, res) => {
     console.log(err);
     res.status(500).json({ err });
   }
+  Bill.find({})
+    .populate({ path: "clientID" })
+    .populate({ path: "orderID" })
+    .populate({ path: "salesmanID" })
+    .exec(function (err, result) {
+      if (err) {
+        console.log(err);
+        return res.json({ message: "Error" });
+      } else {
+        return res.json(result);
+      }
+    });
+};
+
+const getListBillComplete = async (req, res) => {
+  Bill.find({})
+    .populate({ path: "clientID" })
+    .populate({ path: "orderID" })
+    .populate({ path: "salesmanID" })
+    .exec(function (err, result) {
+      if (err) {
+        console.log(err);
+        return res.json({ message: "Error" });
+      } else {
+        const newResult = result.filter((item) => {
+          if (item.status[item.status.length - 1].name === "completed")
+            return item;
+          else {
+            let count = 0;
+            item.status.forEach((ele) => {
+              if (ele.name === "failed") count += 1;
+            });
+            if (count === 3) return item;
+          }
+        });
+        return res.json(newResult);
+      }
+    });
+};
+const getListBillUncomplete = async (req, res) => {
+  Bill.find({})
+    .populate({ path: "clientID" })
+    .populate({ path: "orderID" })
+    .populate({ path: "salesmanID" })
+    .exec(function (err, result) {
+      if (err) {
+        console.log(err);
+        return res.json({ message: "Error" });
+      } else {
+        const newResult = result.filter((item) => {
+          let count = 0;
+          item.status.forEach((ele) => {
+            if (ele.name === "failed") count += 1;
+          });
+          if (
+            item.status[item.status.length - 1].name !== "completed" &&
+            count !== 3
+          )
+            return item;
+        });
+        return res.json(newResult);
+      }
+    });
 };
 
 const getListBillByIds = async (req, res) => {
@@ -438,9 +507,6 @@ const getBillFabricTypeSell = async (req, res) => {
     console.log("Get Bill Fabric Type Sell successfully");
     console.log(result);
     res.status(200).json(result);
-    // {result.map((item) => (
-    //   res.status(200).json(item.fabricRoll)
-    // ))}
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
@@ -532,6 +598,28 @@ const getBillCompletePicker = async (req, res) => {
     console.log(err);
     res.status(500).json({ err });
   }
+}
+
+const updateBillStatus = async (req, res) => {
+  try {
+    Bill.findOneAndUpdate(
+      { _id: mongoose.Types.ObjectId(req.params.id) },
+      {
+        $push: { status: { name: req.body.name, reason: req.body.reason } },
+      },
+      function (err, result) {
+        if (err) {
+          console.log(err);
+          res.json({ message: err });
+        } else {
+          console.log("Update bill status successfull");
+          res.json(result);
+        }
+      }
+    );
+  } catch (error) {
+    console.log(err);
+  }
 };
 
 // const getBillCompleteMonthly = async (req, res) => {
@@ -576,5 +664,8 @@ module.exports = {
   getBillStatus,
   getBillFabricTypeSell,
   getBillCompletePicker,
+  getListBillUncomplete,
+  getListBillComplete,
+  updateBillStatus
   // getBillCompleteMonthly
 };
