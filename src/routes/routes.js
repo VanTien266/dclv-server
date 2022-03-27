@@ -86,16 +86,15 @@ const {
   createNewStaff,
   listStaff,
   infoStaffById,
+  loginstaff,
 } = require("../controller/StaffController");
 
 //for customer
 router.post("/api/register", createNewCustomer);
-router.post("/api/login", login);
-// router.get('/dashboard', verify, function(req, res){
-//   res.send("Chào mừng bạn đến với BK Fabric")
-// })
+router.post("/api/customer/login", login);
 
 //for Staff
+router.post("/api/staff/login", loginstaff);
 router.post("/api/createstaff", createNewStaff);
 // router.put("/updatePassword/:id", updatePassword);
 
