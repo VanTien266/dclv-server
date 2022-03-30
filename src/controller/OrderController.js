@@ -287,18 +287,23 @@ module.exports = {
   // },
 
   deposit: async (req, res) => {
-    const today = new Date();
-    const monthCur = today.getMonth() + 1;    
-    const yearCur = today.getFullYear();
     try {
-      
+      if (req.query.date) {
+        selectDate = req.query.date;
+        yearSel = Number(selectDate.slice(0, 4));
+        monthSel = Number(selectDate.slice(5, 7));
+      } else {
+        selectDate = new Date();
+        monthSel = selectDate.getMonth() + 1;
+        yearSel = selectDate.getFullYear();
+      }
       const depositBillTotal = await Bill.aggregate([
         { $unwind: "$status" },
         { $match: { "status.name": "completed" } },
         { $addFields: { month: { $month: "$status.date" } } },
         { $addFields: { year: { $year: "$status.date" } } },
-        {$match: {year:yearCur}},
-        {$match: {month:monthCur}},
+        { $match: { year: yearSel } },
+        { $match: { month: monthSel } },
         // { $project : { _id : 0, name : 1 } },
         // { $lookup : {
         //     from : 'Bill',
@@ -313,11 +318,12 @@ module.exports = {
           },
         },
       ]);
-      let resultBill 
+      let resultBill;
       if (depositBillTotal.length == 0) resultBill = 0;
       else {
         depositBillTotal.map((item) => item.depositBill);
       }
+      //chưa check
       const depositOrderTotal = await Order.aggregate([
         {
           $group: {
@@ -326,20 +332,17 @@ module.exports = {
           },
         },
       ]);
-      let resultOrder 
+      let resultOrder;
       if (depositOrderTotal.length == 0) resultOrder = 0;
       else {
         depositOrderTotal.map((item) => item.totalDeposit);
-      } 
-      let result; 
-      if ((depositBillTotal.length == 0) && (depositOrderTotal.length == 0))
-        result =  0;
-      else if (depositBillTotal.length == 0) 
-        result = resultOrder[0];
-      else if (depositOrderTotal.length == 0)
-        result = resultBill[0];
-      else
-        result = resultBill[0] + resultOrder[0];
+      }
+      let result;
+      if (depositBillTotal.length == 0 && depositOrderTotal.length == 0)
+        result = 0;
+      else if (depositBillTotal.length == 0) result = resultOrder[0];
+      else if (depositOrderTotal.length == 0) result = resultBill[0];
+      else result = resultBill[0] + resultOrder[0];
       console.log("Get Total Deposit successfully");
       console.log(result);
       res.status(200).json(result);
@@ -376,7 +379,6 @@ module.exports = {
   },
 
   getTotalOrderbyMonth: async (req, res) => {
-    
     try {
       if (req.query.date) {
         selectDate = req.query.date;
@@ -386,7 +388,7 @@ module.exports = {
         selectDate = new Date();
         monthSel = selectDate.getMonth() + 1;
         yearSel = selectDate.getFullYear();
-      }   
+      }
       const result = await Order.aggregate([
         // { $unwind: "$orderStatus" },
         // { $match: { "orderStatus.name": "completed" } },
@@ -413,9 +415,9 @@ module.exports = {
         //   },
         // },
         // đổi month theo dạng input đầu vào
-        
-        {$match: {"year":yearSel}},
-        {$match: {"month":monthSel}},
+
+        { $match: { year: yearSel } },
+        { $match: { month: monthSel } },
         {
           $group: {
             _id: null,
@@ -426,10 +428,9 @@ module.exports = {
       console.log("Get Total Order By Month successfully");
       console.log(result);
       if (result.length == 0) res.status(200).json(0);
-      else  
-      {
-        result.map((item) => res.status(200).json(item.monthlyorder))
-      };
+      else {
+        result.map((item) => res.status(200).json(item.monthlyorder));
+      }
       // res.status(200).json(result);
     } catch (err) {
       console.log(err);
@@ -489,7 +490,7 @@ module.exports = {
         selectDate = new Date();
         monthSel = selectDate.getMonth() + 1;
         yearSel = selectDate.getFullYear();
-      } 
+      }
       const result = await Order.aggregate([
         // { $unwind: "$orderStatus" },
         // { $match: { "orderStatus.name": "completed" } },
@@ -512,8 +513,8 @@ module.exports = {
         { $addFields: { lastStatus: { $last: "$orderStatus" } } },
         // { $addFields: { lastStatusMonth: { $month: "$lastStatus.date" } } },
         //đổi lại month khi set date time picker
-        {$match: {"year":yearSel}},
-        {$match: {"month":monthSel}},
+        { $match: { year: yearSel } },
+        { $match: { month: monthSel } },
         {
           $group: {
             _id: "$lastStatus.name",
@@ -524,6 +525,21 @@ module.exports = {
       ]);
       console.log("Get Order Status successfully");
       console.log(result);
+      const length = result.length;
+      if (length == 0) {
+        result.push(
+          { _id: "cancel", lastStatusOrder: 0 },
+          { _id: "completed", lastStatusOrder: 0 },
+          { _id: "pending", lastStatusOrder: 0 }
+        );
+      } else {
+        for (i = 0; i<length; i++) {
+          if (result[i]._id !== 'cancel') 
+        result.unshift({ _id: "cancel", lastStatusOrder: 0 })
+        }
+        
+      }
+      console.log(result);
       res.status(200).json(result);
     } catch (err) {
       console.log(err);
@@ -532,45 +548,45 @@ module.exports = {
   },
 
   //query order hàng tháng (mỗi ngày trong 1 tháng)
-  getOrderDaily: async (req, res) => {   
-  try {
-    if (req.query.date) {
-      selectDate = req.query.date;
-      yearSel = Number(selectDate.slice(0, 4));
-      monthSel = Number(selectDate.slice(5, 7));
-    } else {
-      selectDate = new Date();
-      monthSel = selectDate.getMonth() + 1;
-      yearSel = selectDate.getFullYear();
-    }
-    const result = await Order.aggregate([
-      // {$project: { _id: 1, orderTime: 1}},
-      // { $addFields: { monthOrder: { $month: "$orderTime" } } },
-      // { $addFields: { year: { $year: "$orderTime" } } },
-      {
-        $group: {
+  getOrderDaily: async (req, res) => {
+    try {
+      if (req.query.date) {
+        selectDate = req.query.date;
+        yearSel = Number(selectDate.slice(0, 4));
+        monthSel = Number(selectDate.slice(5, 7));
+      } else {
+        selectDate = new Date();
+        monthSel = selectDate.getMonth() + 1;
+        yearSel = selectDate.getFullYear();
+      }
+      const result = await Order.aggregate([
+        // {$project: { _id: 1, orderTime: 1}},
+        // { $addFields: { monthOrder: { $month: "$orderTime" } } },
+        // { $addFields: { year: { $year: "$orderTime" } } },
+        {
+          $group: {
             _id: {
               year: { $year: "$orderTime" },
               month: { $month: "$orderTime" },
               date: { $dayOfMonth: "$orderTime" },
             },
-            Total: { $sum: 1 }
-        }
-    },
-    { $match: { "_id.year": yearSel}},
-    { $match: { "_id.month": monthSel}},
-    { $sort: { "_id.date": 1 }}
-    // { $addFields: { monthOrder: { $month: "$orderTime" } } },
-    // { $addFields: { year: { $year: "$orderTime" } } },
-    // { $addFields: { month: { $month: "$_id.month" } } },
-    ]);
-    console.log("Get Order Monthly successfully");
-    console.log(result);
-    res.status(200).json(result);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ err });
-  }
+            Total: { $sum: 1 },
+          },
+        },
+        { $match: { "_id.year": yearSel } },
+        { $match: { "_id.month": monthSel } },
+        { $sort: { "_id.date": 1 } },
+        // { $addFields: { monthOrder: { $month: "$orderTime" } } },
+        // { $addFields: { year: { $year: "$orderTime" } } },
+        // { $addFields: { month: { $month: "$_id.month" } } },
+      ]);
+      console.log("Get Order Monthly successfully");
+      console.log(result);
+      res.status(200).json(result);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
+    }
   },
 
   getOrderFabricType: async (req, res) => {

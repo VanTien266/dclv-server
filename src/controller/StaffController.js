@@ -209,7 +209,6 @@ const infoStaffById = async (req, res) => {
       return res.json(result);
     }
   });
-};
     // Staff.find({}, function (err, result) {
     //     if (err) {
     //         console.log(err);
@@ -228,7 +227,7 @@ const infoStaffById = async (req, res) => {
         console.log(err);
         res.status(500).json({ err });
       }
-}
+};
 
 
 module.exports = {
