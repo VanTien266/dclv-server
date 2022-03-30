@@ -310,7 +310,7 @@ const getBillComplete = async (req, res) => {
       monthSel = selectDate.getMonth() + 1;
       yearSel = selectDate.getFullYear();
     }
-    const result = await Bill.aggregate([
+    const resultBillCompleted = await Bill.aggregate([
       { $unwind: "$status" },
       { $match: { "status.name": "completed" } },
       { $addFields: { month: { $month: "$status.date" } } },
@@ -327,21 +327,23 @@ const getBillComplete = async (req, res) => {
     ]);
 
     console.log("Get Bill Completed successfully");
-    console.log(result);
-    if (result.length === 0) {
-      res.status(200).json(0);
+    console.log(resultBillCompleted);
+    let result = 0;
+    if (resultBillCompleted?.length === 0) {
+      result = '0';
     }
-    // res.status(200).json(result);
     else {
-      result.map((item) => res.status(200).json(item.billcompleted));
+      resultBillCompleted.map((item) => result = item.billcompleted);
     }
+    console.log(result);
+    res.status(200).json(result);
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
   }
 };
 
-const getFabricRollBillComplete = async (req, res) => {
+const getFabricRollBillCompleted = async (req, res) => {
 
   try {
     if (req.query.date) {
@@ -353,7 +355,7 @@ const getFabricRollBillComplete = async (req, res) => {
       monthSel = selectDate.getMonth() + 1;
       yearSel = selectDate.getFullYear();
     }
-    const result = await Bill.aggregate([
+    const resultFabricRollBill = await Bill.aggregate([
       { $unwind: "$status" },
       { $match: { "status.name": "completed" } },
       { $addFields: { month: { $month: "$status.date" } } },
@@ -366,63 +368,20 @@ const getFabricRollBillComplete = async (req, res) => {
     ]);
 
     console.log("Get Total Fabric Roll Bill Completed successfully");
-    console.log(result);
-    // res.status(200).json(result);
-    if (result.length == 0) res.status(200).json(0);
+    console.log(resultFabricRollBill);
+    let result;
+    if (resultFabricRollBill?.length === 0) result = '0';
     else {
-      result.map((item) => res.status(200).json(item.fabricRoll));
+      resultFabricRollBill.map((item) => result = item.fabricRoll);
     }
+    console.log(result);
+    res.status(200).json(result);
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
   }
 };
 
-// const getFabricTypeSell = (req, res) => {
-//   // Order.find()
-//   //   .populate({
-//   //     path: "products",
-//   //     populate: {
-//   //       path: "colorCode",
-//   //       //   populate: {
-//   //       //     path: "typeId",
-//   //       //     select: "name -_id",
-//   //       //   },
-//   //       select: "colorCode typeId name -_id",
-//   //     },
-//   //     select: "colorCode length shippedLength -_id",
-//   //   })
-//   //   .populate({
-//   //     path: "detailBill",
-//   //     // populate: { path: "salesmanID", select: "name -_id" },
-//   //   })
-//   Bill
-//     .find({"status.name": "completed"})
-//     .select('fabricRoll')
-//     .populate({
-//       path:'fabricRoll',
-//       select:'colorCode',
-//       populate:{
-//         path: 'colorCode',
-//         // collection: 'Item',
-//         //   populate: {
-//         //     path: "name",
-//         //     // select: "name -_id",
-//         //   },
-//       },
-//     })
-//     .exec(function (err, result) {
-//       if (err) {
-//         console.log(err);
-//         res.json(err);
-//       }
-//       else {
-//         console.log("Get Fabric Type Sell Success");
-//         console.log(result);
-//         res.json(result);
-//       }
-//     });
-// };
 const getBillFabricTypeSell = async (req, res) => {
   try {
     if (req.query.date) {
@@ -658,7 +617,7 @@ module.exports = {
   createBill,
   getListBillByOrderId,
   getBillDetail,
-  getFabricRollBillComplete,
+  getFabricRollBillCompleted,
   getListBillByIds,
   getBillComplete,
   getBillStatus,
