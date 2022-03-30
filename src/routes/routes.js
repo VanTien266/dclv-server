@@ -54,6 +54,7 @@ const {
   getBillComplete,
   getBillStatus,
   getBillFabricTypeSell,
+  getBillCompletePicker,
   // getBillCompleteMonthly
   getListBillUncomplete,
   getListBillComplete,
@@ -64,7 +65,8 @@ router.get("/api/bill", getListBill);
 router.get("/api/bill/list/uncomplete", getListBillUncomplete);
 router.get("/api/bill/list/complete", getListBillComplete);
 router.post("/api/bill/create", createBill);
-router.post("/api/bill/list", getListBillByIds);
+router.get("/api/bill/list", getListBillByIds);
+router.get("/api/bill/order/:orderid", getListBillByOrderId);
 router.get("/api/bill/detail/:id", getBillDetail);
 router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 router.get("/api/bill/completed", getBillComplete);
