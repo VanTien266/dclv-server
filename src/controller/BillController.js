@@ -206,7 +206,7 @@ const getListBillByOrderId = async (req, res) => {
   try {
     const id = mongoose.Types.ObjectId(req.params.orderid);
     const result = await Bill.aggregate([{ $match: { orderID: id } }]);
-    console.log("Get Bill By Order Id Completed successfully");
+    console.log("Get list bill of ${_id} success!");
     console.log(result);
     res.status(200).json(result);
   } catch (err) {
@@ -290,8 +290,8 @@ const getBillDetail = async (req, res) => {
       },
     ]);
     console.log("Get Bill Detail successfully");
-    console.log(result);
-    res.status(200).json(result);
+    console.log(result[0]);
+    res.status(200).json(result[0]);
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
