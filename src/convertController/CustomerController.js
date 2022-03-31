@@ -55,7 +55,8 @@ const login = async (req, res) => {
 
   // Ký và tạo token
   const token = jwt.sign({ _id: userLogin._id }, process.env.SECRET_TOKEN);
-  res.header("auth-token", token).send({ ...userLogin._doc, jwt: token });
+
+  res.header("auth-token", token).send(token);
 };
 const updatePassword = function (req, res) {};
 

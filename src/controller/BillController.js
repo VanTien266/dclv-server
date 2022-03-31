@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const qs = require("qs");
 
 const { ValidateOrder } = require("../services/Order/ValidateOrder");
+const { hashSync } = require("bcryptjs");
 
 async function getNextSequenceValue(sequenceName) {
   let seq = await Counter.findOneAndUpdate(
@@ -85,176 +86,318 @@ const createBill = async (req, res) => {
 };
 
 const getListBill = async (req, res) => {
-  Bill.find({}, function (err, result) {
-    if (err) {
-      console.log(err);
-      return res.json({ message: "Error" });
-    } else {
-      return res.json(result);
-    }
-  });
-};
-
-const getListBillByIds = async (req, res) => {
-  const body = qs.parse(req.body);
-  const ids = body.ids || [];
-  console.log(body.ids);
-  Bill.find({ _id: { $in: ids } })
-    .populate({ path: "salesmanID", select: "name" })
-    .exec(function (err, result) {
-      if (err) res.json(err);
-      else res.json(result);
-    });
-};
-
-const getListBillByOrderId = async (req, res) => {
-  const _id = mongoose.Types.ObjectId(req.params.id);
-  Bill.find({ orderID: _id }).exec(function (err, result) {
-    if (err) {
-      console.log(err);
-      res.json(err);
-    } else {
-      console.log(`Get list bill of ${_id} success!`);
-      res.json(result);
-    }
-  });
-};
-
-const getBillDetail = async (req, res) => {
-  const id = mongoose.Types.ObjectId(req.params.id);
-  Bill.findOne({ _id: id })
-    .populate({ path: "clientID", select: "name email phone address" })
-    .populate({ path: "salesmanID", select: "name phone" })
-    .populate({ path: "shipperID", select: "name phone" })
-    .populate({
-      path: "orderID",
-      select: "receiverName receiverPhone receiverAddress",
-    })
+  //   Bill.find({}, function (err, result) {
+  //     if (err) {
+  //       console.log(err);
+  //       return res.json({ message: "Error" });
+  //     } else {
+  //       return res.json(result);
+  //     }
+  //   });
+  //aggregate bo qua nhung key trong
+  try {
+    const result = await Bill.aggregate([{ $match: {} }]);
+    console.log("Get Bill Completed successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+  Bill.find({})
+    .populate({ path: "clientID" })
+    .populate({ path: "orderID" })
+    .populate({ path: "salesmanID" })
     .exec(function (err, result) {
       if (err) {
         console.log(err);
-        return res.json(err);
+        return res.json({ message: "Error" });
       } else {
         return res.json(result);
       }
     });
 };
 
+const getListBillComplete = async (req, res) => {
+  Bill.find({})
+    .populate({ path: "clientID" })
+    .populate({ path: "orderID" })
+    .populate({ path: "salesmanID" })
+    .exec(function (err, result) {
+      if (err) {
+        console.log(err);
+        return res.json({ message: "Error" });
+      } else {
+        const newResult = result.filter((item) => {
+          if (item.status[item.status.length - 1].name === "completed")
+            return item;
+          else {
+            let count = 0;
+            item.status.forEach((ele) => {
+              if (ele.name === "failed") count += 1;
+            });
+            if (count === 3) return item;
+          }
+        });
+        return res.json(newResult);
+      }
+    });
+};
+const getListBillUncomplete = async (req, res) => {
+  Bill.find({})
+    .populate({ path: "clientID" })
+    .populate({ path: "orderID" })
+    .populate({ path: "salesmanID" })
+    .exec(function (err, result) {
+      if (err) {
+        console.log(err);
+        return res.json({ message: "Error" });
+      } else {
+        const newResult = result.filter((item) => {
+          let count = 0;
+          item.status.forEach((ele) => {
+            if (ele.name === "failed") count += 1;
+          });
+          if (
+            item.status[item.status.length - 1].name !== "completed" &&
+            count !== 3
+          )
+            return item;
+        });
+        return res.json(newResult);
+      }
+    });
+};
+
+const getListBillByIds = async (req, res) => {
+  // const body = qs.parse(req.body);
+  // const ids = body.ids || [];
+  // console.log(body.ids);
+  // Bill.find({ _id: { $in: ids } })
+  //   .populate({ path: "salesmanID", select: "name" })
+  //   .exec(function (err, result) {
+  //     if (err) res.json(err);
+  //     else res.json(result);
+  //   });
+  try {
+    const body = qs.parse(req.body);
+    const ids = body.ids || [];
+    const result = await Bill.aggregate([{ $match: { _id: ids } }]);
+    console.log("Get Bill By Ids Completed successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
+
+const getListBillByOrderId = async (req, res) => {
+  // const _id = mongoose.Types.ObjectId(req.params.orderid);
+  // Bill.find({ orderID: _id }).exec(function (err, result) {
+  //   if (err) {
+  //     console.log(err);
+  //     res.json(err);
+  //   } else {
+  //     console.log(`Get list bill of ${_id} success!`);
+  //     res.json(result);
+  //   }
+  // });
+  try {
+    const id = mongoose.Types.ObjectId(req.params.orderid);
+    const result = await Bill.aggregate([{ $match: { orderID: id } }]);
+    console.log("Get list bill of ${_id} success!");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
+
+const getBillDetail = async (req, res) => {
+  // const id = mongoose.Types.ObjectId(req.params.id);
+  // Bill.findOne({ _id: id })
+  // 	.populate({ path: "clientID", select: "name email phone address" })
+  // 	.populate({ path: "salesmanID", select: "name phone" })
+  // 	.populate({ path: "shipperID", select: "name phone" })
+  // 	.populate({
+  // 	path: "orderID",
+  // 	select: "receiverName receiverPhone receiverAddress",
+  // 	})
+  // 	.exec(function (err, result) {
+  // 	if (err) {
+  // 		console.log(err);
+  // 		return res.json(err);
+  // 	} else {
+  // 		return res.json(result);
+  // 	}
+  // 	});
+  try {
+    const id = mongoose.Types.ObjectId(req.params.id);
+    const result = await Bill.aggregate([
+      { $match: { _id: id } },
+      {
+        $lookup: {
+          from: "Staff",
+          let: { id_Shipper: "$shipperID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Shipper"] } } },
+            { $project: { _id: 1, name: 1, phone: 1 } },
+          ],
+          as: "shipperID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Order",
+          let: { id_Order: "$orderID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } },
+            {
+              $project: {
+                _id: 1,
+                receiverName: 1,
+                receiverPhone: 1,
+                receiverAddress: 1,
+              },
+            },
+          ],
+          as: "orderID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Staff",
+          let: { id_Saleman: "$salesmanID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } },
+            { $project: { _id: 1, name: 1, phone: 1 } },
+          ],
+          as: "salesmanID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Customer",
+          let: { id_Customer: "$clientID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } },
+            { $project: { _id: 1, name: 1, email: 1, phone: 1, address: 1 } },
+          ],
+          as: "clientID",
+        },
+      },
+    ]);
+    console.log("Get Bill Detail successfully");
+    console.log(result[0]);
+    res.status(200).json(result[0]);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
+
 const getBillComplete = async (req, res) => {
   try {
-    // Bill.find(
-    //   { "status.name": "completed" }
-    // );
-    const result = await Bill.aggregate([
+    if (req.query.date) {
+      selectDate = req.query.date;
+      yearSel = Number(selectDate.slice(0, 4));
+      monthSel = Number(selectDate.slice(5, 7));
+    } else {
+      selectDate = new Date();
+      monthSel = selectDate.getMonth() + 1;
+      yearSel = selectDate.getFullYear();
+    }
+    const resultBillCompleted = await Bill.aggregate([
       { $unwind: "$status" },
-      // // {$unwind: "$status.name"},
       { $match: { "status.name": "completed" } },
+      { $addFields: { month: { $month: "$status.date" } } },
+      { $addFields: { year: { $year: "$status.date" } } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $project: { _id: 1 } },
-      // { $unwind: "$fabricRoll" },
       {
         $group: {
           _id: null,
           billcompleted: { $sum: 1 },
         },
       },
-      // // }}
-      // { $count: "fabricRoll" },
     ]);
 
     console.log("Get Bill Completed successfully");
-    console.log(result);
-    // res.status(200).json(result);
-    {
-      result.map((item) => res.status(200).json(item.billcompleted));
+    console.log(resultBillCompleted);
+    let result = 0;
+    if (resultBillCompleted?.length === 0) {
+      result = '0';
     }
+    else {
+      resultBillCompleted.map((item) => result = item.billcompleted);
+    }
+    console.log(result);
+    res.status(200).json(result);
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
   }
 };
 
-const getFabricRollBillComplete = async (req, res) => {
+const getFabricRollBillCompleted = async (req, res) => {
+
   try {
-    // Bill.find(
-    //   { "status.name": "completed" }
-    // );
-    const result = await Bill.aggregate([
+    if (req.query.date) {
+      selectDate = req.query.date;
+      yearSel = Number(selectDate.slice(0, 4));
+      monthSel = Number(selectDate.slice(5, 7));
+    } else {
+      selectDate = new Date();
+      monthSel = selectDate.getMonth() + 1;
+      yearSel = selectDate.getFullYear();
+    }
+    const resultFabricRollBill = await Bill.aggregate([
       { $unwind: "$status" },
-      // // {$unwind: "$status.name"},
       { $match: { "status.name": "completed" } },
+      { $addFields: { month: { $month: "$status.date" } } },
+      { $addFields: { year: { $year: "$status.date" } } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $project: { fabricRoll: 1 } },
       { $unwind: "$fabricRoll" },
-      // {$group: {
-      //   _id: null,
-      //   totalFabric : {$sum: 1}
-      // }}
-      // }}
       { $count: "fabricRoll" },
     ]);
 
     console.log("Get Total Fabric Roll Bill Completed successfully");
-    console.log(result);
-    // res.status(200).json(result);
-    {
-      result.map((item) => res.status(200).json(item.fabricRoll));
+    console.log(resultFabricRollBill);
+    let result;
+    if (resultFabricRollBill?.length === 0) result = '0';
+    else {
+      resultFabricRollBill.map((item) => result = item.fabricRoll);
     }
+    console.log(result);
+    res.status(200).json(result);
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
   }
 };
 
-// const getFabricTypeSell = (req, res) => {
-//   // Order.find()
-//   //   .populate({
-//   //     path: "products",
-//   //     populate: {
-//   //       path: "colorCode",
-//   //       //   populate: {
-//   //       //     path: "typeId",
-//   //       //     select: "name -_id",
-//   //       //   },
-//   //       select: "colorCode typeId name -_id",
-//   //     },
-//   //     select: "colorCode length shippedLength -_id",
-//   //   })
-//   //   .populate({
-//   //     path: "detailBill",
-//   //     // populate: { path: "salesmanID", select: "name -_id" },
-//   //   })
-//   Bill
-//     .find({"status.name": "completed"})
-//     .select('fabricRoll')
-//     .populate({
-//       path:'fabricRoll',
-//       select:'colorCode',
-//       populate:{
-//         path: 'colorCode',
-//         // collection: 'Item',
-//         //   populate: {
-//         //     path: "name",
-//         //     // select: "name -_id",
-//         //   },
-//       },
-//     })
-//     .exec(function (err, result) {
-//       if (err) {
-//         console.log(err);
-//         res.json(err);
-//       }
-//       else {
-//         console.log("Get Fabric Type Sell Success");
-//         console.log(result);
-//         res.json(result);
-//       }
-//     });
-// };
 const getBillFabricTypeSell = async (req, res) => {
   try {
+    if (req.query.date) {
+      selectDate = req.query.date;
+      yearSel = Number(selectDate.slice(0, 4));
+      monthSel = Number(selectDate.slice(5, 7));
+    } else {
+      selectDate = new Date();
+      monthSel = selectDate.getMonth() + 1;
+      yearSel = selectDate.getFullYear();
+    }
     const result = await Bill.aggregate([
       { $project: { _id: 1, exportBillTime: 1, fabricRoll: 1 } },
       { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { year: { $year: "$exportBillTime" } } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $unwind: "$fabricRoll" },
       {
         $lookup: {
@@ -319,27 +462,22 @@ const getBillFabricTypeSell = async (req, res) => {
 
 const getBillStatus = async (req, res) => {
   try {
+    if (req.query.date) {
+      selectDate = req.query.date;
+      yearSel = Number(selectDate.slice(0, 4));
+      monthSel = Number(selectDate.slice(5, 7));
+    } else {
+      selectDate = new Date();
+      monthSel = selectDate.getMonth() + 1;
+      yearSel = selectDate.getFullYear();
+    }
     const result = await Bill.aggregate([
-      // { $unwind: "$orderStatus" },
-      // { $match: { "orderStatus.name": "completed" } },
-      // { $project : { _id : 1, status: 1 } },
-      // { $lookup : {
-      //     from : 'Bill',
-      //     localField : 'billStatus',
-      //     foreignField : '',
-      //     as : 'Bill'
-      // } }
-      // {
-      //   $group: {
-      //     _id: "$orderStatus.name",
-      //     orderComplete: { $sum: 1 },
-      //   },
-      // },
       { $project: { _id: 1, status: 1, exportBillTime: 1 } },
       { $addFields: { month: { $month: "$exportBillTime" } } },
+      { $addFields: { year: { $year: "$exportBillTime" } } },
       { $addFields: { lastStatus: { $last: "$status" } } },
-      // { $addFields: { lastStatus: { $last: "$status" } } },
-      { $match: { month: 12 } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       {
         $group: {
           _id: "$lastStatus.name",
@@ -357,46 +495,78 @@ const getBillStatus = async (req, res) => {
   }
 };
 
-// const getBillCompleteMonthly = async (req, res) => {
-//   try {
-//     // Bill.find(
-//     //   { "status.name": "completed" }
-//     // );
-//     const result = await Bill.aggregate([
-//       { $unwind: "$status" },
-//       // // {$unwind: "$status.name"},
-//       { $match: { "status.name": "completed" } },
-//       // { $project: { _id: 1 } },
-//       // { $unwind: "$fabricRoll" },
-//       // {$group: {
-//       //   _id: null,
-//       //   billcompleted : {$sum: 1}
-//       }}
-//       // // }}
-//       // { $count: "fabricRoll" },
-//     ]);
+const getBillCompletePicker = async (req, res) => {
+  try {
+    const datePicker = mongoose.Types.ObjectId(req.params.date);
+    // const today = new Date();
+    // const monthCur = today.getMonth() + 1;
+    // const yearCur = today.getFullYear();
+    const result = await Bill.aggregate([
+      { $unwind: "$status" },
+      { $match: { "status.name": "completed" } },
+      { $addFields: { month: { $month: "$exportBillTime" } } },
+      { $addFields: { year: { $year: "$exportBillTime" } } },
+      { $match: { year: yearCur } },
+      { $match: { month: monthCur } },
+      { $project: { _id: 1 } },
+      {
+        $group: {
+          _id: null,
+          billcompleted: { $sum: 1 },
+        },
+      },
+    ]);
 
-//     console.log("Get Bill Completed successfully");
-//     console.log(result);
-//     // res.status(200).json(result);
-//     {
-//       result.map((item) => res.status(200).json(item.billcompleted));
-//     }
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({ err });
-//   }
-// };
+    console.log("Get Bill Completed successfully");
+    console.log(result);
+    if (result.length === 0) {
+      res.status(200).json(0);
+    }
+    // res.status(200).json(result);
+    else {
+      result.map((item) => res.status(200).json(item.billcompleted));
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
+
+const updateBillStatus = async (req, res) => {
+  try {
+    Bill.findOneAndUpdate(
+      { _id: mongoose.Types.ObjectId(req.params.id) },
+      {
+        $push: { status: { name: req.body.name, reason: req.body.reason } },
+      },
+      function (err, result) {
+        if (err) {
+          console.log(err);
+          res.json({ message: err });
+        } else {
+          console.log("Update bill status successfull");
+          res.json(result);
+        }
+      }
+    );
+  } catch (error) {
+    console.log(err);
+  }
+};
+
 
 module.exports = {
   getListBill,
   createBill,
   getListBillByOrderId,
   getBillDetail,
-  getFabricRollBillComplete,
+  getFabricRollBillCompleted,
   getListBillByIds,
   getBillComplete,
   getBillStatus,
   getBillFabricTypeSell,
+  getListBillUncomplete,
+  getListBillComplete,
+  updateBillStatus,
   // getBillCompleteMonthly
 };

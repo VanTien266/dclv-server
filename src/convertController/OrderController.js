@@ -223,24 +223,81 @@ module.exports = {
       );
   },
 
+  countAllOrder: (req, res) => {
+    Order.count(function (err, result) {
+      if (err) {
+        console.log(err);
+        return res.json({ message: "Error" });
+      } else {
+        console.log(result);
+        return res.json(result);
+      }
+    });
+  },
+
+  countAllOrderComplete: async (req, res) => {
+    // Order.aggregate([
+    //   { $match : { "orderStatus.name" : "completed" } },
+    //   { $count: "total"},
+    // ],
+    //   function (err, result) {
+    //     if (err) {
+    //       console.log(err);
+    //       return res.json({ message: "Error" });
+    //     } else {
+    //       console.log(result);
+    //       return res.json(result);
+    //     }
+    //   }
+    // );
+    const query = { "orderStatus.name": "completed" };
+    try {
+      const countship = await Order.countDocuments(query);
+      console.log(countship);
+      return res.json(countship);
+    } catch {
+      console.log(err);
+      return res.json({ message: "Error" });
+    }
+  },
+
+  countAllOrderByDate: (req, res) => {
+    // db.orders.countDocuments( { ord_dt: { $gt: new Date('01/01/2012') } }, { limit: 100 } )
+  },
+
+  // deposit: (req, res) => {
+  //   Order.aggregate(
+  //     [
+  //         {
+  //             $group : {
+  //                 _id : null,
+  //                 totalDeposit: { $sum: "$deposit" }
+  //             }
+  //         }
+  //     ]
+  // ).exec(function (err, result) {
+  //   if (err) res.json(err);
+  //   // else res.json(result);
+  //   else {
+  //     result.map((item) => (
+  //       res.json(item.totalDeposit)
+  //     ))
+  //   }
+  // });
+  // },
+
   deposit: async (req, res) => {
     try {
-      if (req.query.date) {
-        selectDate = req.query.date;
-        yearSel = Number(selectDate.slice(0, 4));
-        monthSel = Number(selectDate.slice(5, 7));
-      } else {
-        selectDate = new Date();
-        monthSel = selectDate.getMonth() + 1;
-        yearSel = selectDate.getFullYear();
-      }
       const depositBillTotal = await Bill.aggregate([
         { $unwind: "$status" },
         { $match: { "status.name": "completed" } },
-        { $addFields: { month: { $month: "$status.date" } } },
-        { $addFields: { year: { $year: "$status.date" } } },
-        { $match: { year: yearSel } },
-        { $match: { month: monthSel } },
+        // { $project : { _id : 0, name : 1 } },
+        // { $lookup : {
+        //     from : 'Bill',
+        //     localField : 'billStatus',
+        //     foreignField : '',
+        //     as : 'Bill'
+        // } }
         {
           $group: {
             _id: null,
@@ -248,19 +305,8 @@ module.exports = {
           },
         },
       ]);
-      console.log('depositBillTotal', depositBillTotal);
-      let resultBill;
-      if (depositBillTotal?.length === 0) resultBill = 0;
-      else {
-        depositBillTotal.map((item) => resultBill = item.depositBill);
-      }
-      console.log('resultBill', resultBill);
+      const resultBill = depositBillTotal.map((item) => item.depositBill);
       const depositOrderTotal = await Order.aggregate([
-        { $project: { _id: 1, orderTime: 1, deposit: 1 } },
-        { $addFields: { month: { $month: "$orderTime" } } },
-        { $addFields: { year: { $year: "$orderTime" } } },
-        { $match: { year: yearSel } },
-        { $match: { month: monthSel } },
         {
           $group: {
             _id: null,
@@ -268,16 +314,8 @@ module.exports = {
           },
         },
       ]);
-      console.log('depositOrderTotal', depositOrderTotal);
-      let resultOrder;
-      if (depositOrderTotal?.length === 0) resultOrder = 0;
-      else {
-        depositOrderTotal.map((item) => resultOrder = item.totalDeposit);
-      }
-      console.log('resultOrder', resultOrder);
-      let result;
-      result = resultBill + resultOrder;
-      if (result === 0) result = '0';
+      const resultOrder = depositOrderTotal.map((item) => item.totalDeposit);
+      const result = resultBill[0] + resultOrder[0];
       console.log("Get Total Deposit successfully");
       console.log(result);
       res.status(200).json(result);
@@ -287,23 +325,60 @@ module.exports = {
     }
   },
 
+  getOrderbyDateRange: async (req, res) => {
+    try {
+      // let today = moment().startOf('day');
+      // // "2021-12-013T00:00:00.00
+      // let tomorrow = moment(today).endOf('day');
+      // // "2021-12-13T23:59:59.999
+
+      let from_date = new Date("2021-12-6").toISOString();
+      let to_date = new Date("2021-12-8").toISOString();
+      const rangeDateOrder = await Order.find({
+        orderTime: { $gte: from_date, $lte: to_date },
+      }).count();
+      // const rangeDateOrder = await Order.aggregate([
+      //   {$match: {orderTime: {$gte: from_date, $lte:to_date}}},
+      //   // {$count: "countOrder"}
+      //   ]
+      // );
+      console.log("Get Order By Range successfully");
+      console.log(rangeDateOrder);
+      res.status(200).json(rangeDateOrder);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
+    }
+  },
+
   getTotalOrderbyMonth: async (req, res) => {
     try {
-      if (req.query.date) {
-        selectDate = req.query.date;
-        yearSel = Number(selectDate.slice(0, 4));
-        monthSel = Number(selectDate.slice(5, 7));
-      } else {
-        selectDate = new Date();
-        monthSel = selectDate.getMonth() + 1;
-        yearSel = selectDate.getFullYear();
-      }
-      const resultTotalOrder = await Order.aggregate([
+      const result = await Order.aggregate([
+        // { $unwind: "$orderStatus" },
+        // { $match: { "orderStatus.name": "completed" } },
+
+        // { $lookup : {
+        //     from : 'Bill',
+        //     localField : 'billStatus',
+        //     foreignField : '',
+        //     as : 'Bill'
+        // } }
+        // {
+        //   $group: {
+        //     _id: "$orderStatus.name",
+        //     orderComplete: { $sum: 1 },
+        //   },
+        // },
+
         { $project: { _id: 1, orderTime: 1 } },
         { $addFields: { month: { $month: "$orderTime" } } },
-        { $addFields: { year: { $year: "$orderTime" } } },
-        { $match: { year: yearSel } },
-        { $match: { month: monthSel } },
+        // { $group: {
+        //     _id: "$lastStatus.name",
+        //     lastStatusOrder: { $sum: 1 },
+        //   },
+        // },
+        //đổi month theo dạng input đầu vào
+        { $match: { month: 12 } },
         {
           $group: {
             _id: null,
@@ -312,13 +387,10 @@ module.exports = {
         },
       ]);
       console.log("Get Total Order By Month successfully");
-      console.log(resultTotalOrder);
-      let result;
-      if (resultTotalOrder?.length === 0) result = '0';
-      else {
-        resultTotalOrder.map((item) => result = item.monthlyorder);
-      }
       console.log(result);
+      {
+        result.map((item) => res.status(200).json(item.monthlyorder));
+      }
       res.status(200).json(result);
     } catch (err) {
       console.log(err);
@@ -341,6 +413,21 @@ module.exports = {
         },
         select: "colorCode length shippedLength -_id",
       })
+      // Bill
+      //   .find({"status.name": "completed"})
+      //   .select('fabricRoll')
+      //   .populate({
+      //     path:'fabricRoll',
+      //     select:'colorCode',
+      //     populate:{
+      //       path: 'colorCode',
+      //       collection: 'Item',
+      //         populate: {
+      //           path: "name",
+      //           // select: "name -_id",
+      //         },
+      //     },
+      //   })
       .exec(function (err, result) {
         if (err) {
           console.log(err);
@@ -355,22 +442,28 @@ module.exports = {
 
   getOrderStatus: async (req, res) => {
     try {
-      if (req.query.date) {
-        selectDate = req.query.date;
-        yearSel = Number(selectDate.slice(0, 4));
-        monthSel = Number(selectDate.slice(5, 7));
-      } else {
-        selectDate = new Date();
-        monthSel = selectDate.getMonth() + 1;
-        yearSel = selectDate.getFullYear();
-      }
       const result = await Order.aggregate([
+        // { $unwind: "$orderStatus" },
+        // { $match: { "orderStatus.name": "completed" } },
+        // { $project : { _id : 1, orderStatus: 1 } },
+        // { $lookup : {
+        //     from : 'Bill',
+        //     localField : 'billStatus',
+        //     foreignField : '',
+        //     as : 'Bill'
+        // } }
+        // {
+        //   $group: {
+        //     _id: "$orderStatus.name",
+        //     orderComplete: { $sum: 1 },
+        //   },
+        // },
         { $project: { _id: 1, orderTime: 1, orderStatus: 1 } },
         { $addFields: { month: { $month: "$orderTime" } } },
-        { $addFields: { year: { $year: "$orderTime" } } },
         { $addFields: { lastStatus: { $last: "$orderStatus" } } },
-        { $match: { year: yearSel } },
-        { $match: { month: monthSel } },
+        // { $addFields: { lastStatusMonth: { $month: "$lastStatus.date" } } },
+        //đổi lại month khi set date time picker
+        { $match: { month: 12 } },
         {
           $group: {
             _id: "$lastStatus.name",
@@ -380,7 +473,6 @@ module.exports = {
         { $sort: { _id: 1 } },
       ]);
       console.log("Get Order Status successfully");
-      console.log(result);
       console.log(result);
       res.status(200).json(result);
     } catch (err) {
@@ -392,16 +484,10 @@ module.exports = {
   //query order hàng tháng (mỗi ngày trong 1 tháng)
   getOrderDaily: async (req, res) => {
     try {
-      if (req.query.date) {
-        selectDate = req.query.date;
-        yearSel = Number(selectDate.slice(0, 4));
-        monthSel = Number(selectDate.slice(5, 7));
-      } else {
-        selectDate = new Date();
-        monthSel = selectDate.getMonth() + 1;
-        yearSel = selectDate.getFullYear();
-      }
       const result = await Order.aggregate([
+        // {$project: { _id: 1, orderTime: 1}},
+        // { $addFields: { monthOrder: { $month: "$orderTime" } } },
+        // { $addFields: { year: { $year: "$orderTime" } } },
         {
           $group: {
             _id: {
@@ -412,9 +498,12 @@ module.exports = {
             Total: { $sum: 1 },
           },
         },
-        { $match: { "_id.year": yearSel } },
-        { $match: { "_id.month": monthSel } },
+        { $match: { "_id.year": 2021 } },
+        { $match: { "_id.month": 12 } },
         { $sort: { "_id.date": 1 } },
+        // { $addFields: { monthOrder: { $month: "$orderTime" } } },
+        // { $addFields: { year: { $year: "$orderTime" } } },
+        // { $addFields: { month: { $month: "$_id.month" } } },
       ]);
       console.log("Get Order Monthly successfully");
       console.log(result);

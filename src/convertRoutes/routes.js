@@ -11,16 +11,21 @@ const {
   updateInfo,
   getListProductsById,
   updateStatus,
+  countAllOrder,
+  countAllOrderComplete,
   deposit,
+  getOrderbyDateRange,
   getFabricTypeOrder,
   getOrderStatus,
   getOrderDaily,
   getTotalOrderbyMonth,
   getOrderFabricType,
   cancleExportBill,
-} = require("../controller/OrderController");
+} = require("../convertController/OrderController");
 
-const { getListFabricType } = require("../controller/FabricTypeController");
+const {
+  getListFabricType,
+} = require("../convertController/FabricTypeController");
 
 /*----order route------*/
 router.get("/api/order", list);
@@ -29,7 +34,10 @@ router.get("/api/order/:id", detail);
 router.get("/api/order/:id/products", getListProductsById);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/:id/update_status", updateStatus);
+router.get("/api/countallorder", countAllOrder);
+router.get("/api/countallordercomplete", countAllOrderComplete);
 router.get("/api/deposit", deposit);
+router.get("/api/getorderrange", getOrderbyDateRange);
 router.get("/api/getfabrictypeorder", getFabricTypeOrder);
 router.get("/api/getorderstatus", getOrderStatus);
 router.get("/api/getorderdaily", getOrderDaily);
@@ -43,29 +51,22 @@ const {
   createBill,
   getListBillByOrderId,
   getBillDetail,
-  getFabricRollBillCompleted,
+  getFabricRollBillComplete,
   getListBillByIds,
   getBillComplete,
   getBillStatus,
   getBillFabricTypeSell,
   // getBillCompleteMonthly
-  getListBillUncomplete,
-  getListBillComplete,
-  updateBillStatus,
-} = require("../controller/BillController");
+} = require("../convertController/BillController");
 
 router.get("/api/bill", getListBill);
-router.get("/api/bill/list/uncomplete", getListBillUncomplete);
-router.get("/api/bill/list/complete", getListBillComplete);
 router.post("/api/bill/create", createBill);
-router.get("/api/bill/list", getListBillByIds);
-router.get("/api/bill/order/:orderid", getListBillByOrderId);
+router.post("/api/bill/list", getListBillByIds);
 router.get("/api/bill/detail/:id", getBillDetail);
-router.get("/api/bill/fabricrollcompleted", getFabricRollBillCompleted);
+router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
 router.get("/api/bill/completed", getBillComplete);
 router.get("/api/bill/status", getBillStatus);
 router.get("/api/bill/fabrictypesell", getBillFabricTypeSell);
-router.put("/api/bill/:id", updateBillStatus);
 // router.get("/api/bill/completedbymonth", getBillCompleteMonthly);
 
 // router.post("/api/bill/create")
@@ -74,20 +75,21 @@ router.put("/api/bill/:id", updateBillStatus);
 const {
   createNewCustomer,
   login,
-} = require("../controller/CustomerController");
+} = require("../convertController/CustomerController");
 const {
   createNewStaff,
   listStaff,
   infoStaffById,
-  loginstaff,
 } = require("../controller/StaffController");
 
 //for customer
 router.post("/api/register", createNewCustomer);
-router.post("/api/customer/login", login);
+router.post("/api/login", login);
+// router.get('/dashboard', verify, function(req, res){
+//   res.send("Chào mừng bạn đến với BK Fabric")
+// })
 
 //for Staff
-router.post("/api/staff/login", loginstaff);
 router.post("/api/createstaff", createNewStaff);
 // router.put("/updatePassword/:id", updatePassword);
 
@@ -127,10 +129,9 @@ const {
   getListFabricRollWithIds,
   getFabricRollOfBill,
   getChartWarehouseTrue,
+  // getFabricTypeSell,
   getFabricTypeWarehouse,
-  getListColorcode,
-  getFullListFabricType,
-} = require("../controller/FabricRollController");
+} = require("../convertController/FabricRollController");
 
 router.get("/api/product", getProductList);
 router.get("/api/product1", getProductList1);
@@ -140,9 +141,8 @@ router.get("/api/product/detail", getProductById);
 router.put("/api/product/:id", updateProductStatus);
 router.put("/api/product/item/:id", updateMarketPrice);
 router.get("/api/chartwarehouse", getChartWarehouseTrue);
+// router.get("/api/getfabrictypesell", getFabricTypeSell);
 router.get("/api/getfabricwarehouse", getFabricTypeWarehouse);
-router.get("/api/product/list-type", getFullListFabricType);
-router.get("/api/product/colorcode", getListColorcode);
 /*------------------------*/
 
 module.exports = router;
