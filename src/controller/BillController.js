@@ -450,17 +450,6 @@ const getBillFabricTypeSell = async (req, res) => {
       },
       { $sort: { countFabrictype: -1 } },
       { $limit: 5 },
-      // {$unwind: "$status"},
-      // {$unwind: "$status.name"},
-      // {$match: {"status.name": "completed"}},
-      // {$project: {fabricRoll: 1}},
-      // {$unwind: "$fabricRoll"},
-      // {$group: {
-      //   _id: null,
-      //   totalFabric : {$sum: 1}
-      // }}
-      // }}
-      // { $count: "fabricRoll" }
     ]);
 
     console.log("Get Bill Fabric Type Sell successfully");
@@ -484,21 +473,6 @@ const getBillStatus = async (req, res) => {
       yearSel = selectDate.getFullYear();
     }
     const result = await Bill.aggregate([
-      // { $unwind: "$orderStatus" },
-      // { $match: { "orderStatus.name": "completed" } },
-      // { $project : { _id : 1, status: 1 } },
-      // { $lookup : {
-      //     from : 'Bill',
-      //     localField : 'billStatus',
-      //     foreignField : '',
-      //     as : 'Bill'
-      // } }
-      // {
-      //   $group: {
-      //     _id: "$orderStatus.name",
-      //     orderComplete: { $sum: 1 },
-      //   },
-      // },
       { $project: { _id: 1, status: 1, exportBillTime: 1 } },
       { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { year: { $year: "$exportBillTime" } } },
@@ -522,43 +496,6 @@ const getBillStatus = async (req, res) => {
   }
 };
 
-const getBillCompletePicker = async (req, res) => {
-  try {
-    const datePicker = mongoose.Types.ObjectId(req.params.date);
-    // const today = new Date();
-    // const monthCur = today.getMonth() + 1;
-    // const yearCur = today.getFullYear();
-    const result = await Bill.aggregate([
-      { $unwind: "$status" },
-      { $match: { "status.name": "completed" } },
-      { $addFields: { month: { $month: "$exportBillTime" } } },
-      { $addFields: { year: { $year: "$exportBillTime" } } },
-      { $match: { year: yearCur } },
-      { $match: { month: monthCur } },
-      { $project: { _id: 1 } },
-      {
-        $group: {
-          _id: null,
-          billcompleted: { $sum: 1 },
-        },
-      },
-    ]);
-
-    console.log("Get Bill Completed successfully");
-    console.log(result);
-    if (result.length === 0) {
-      res.status(200).json(0);
-    }
-    // res.status(200).json(result);
-    else {
-      result.map((item) => res.status(200).json(item.billcompleted));
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ err });
-  }
-}
-
 const updateBillStatus = async (req, res) => {
   try {
     Bill.findOneAndUpdate(
@@ -581,36 +518,6 @@ const updateBillStatus = async (req, res) => {
   }
 };
 
-// const getBillCompleteMonthly = async (req, res) => {
-//   try {
-//     // Bill.find(
-//     //   { "status.name": "completed" }
-//     // );
-//     const result = await Bill.aggregate([
-//       { $unwind: "$status" },
-//       // // {$unwind: "$status.name"},
-//       { $match: { "status.name": "completed" } },
-//       // { $project: { _id: 1 } },
-//       // { $unwind: "$fabricRoll" },
-//       // {$group: {
-//       //   _id: null,
-//       //   billcompleted : {$sum: 1}
-//       }}
-//       // // }}
-//       // { $count: "fabricRoll" },
-//     ]);
-
-//     console.log("Get Bill Completed successfully");
-//     console.log(result);
-//     // res.status(200).json(result);
-//     {
-//       result.map((item) => res.status(200).json(item.billcompleted));
-//     }
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({ err });
-//   }
-// };
 
 module.exports = {
   getListBill,
@@ -622,7 +529,6 @@ module.exports = {
   getBillComplete,
   getBillStatus,
   getBillFabricTypeSell,
-  getBillCompletePicker,
   getListBillUncomplete,
   getListBillComplete,
   updateBillStatus

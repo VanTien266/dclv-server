@@ -341,21 +341,6 @@ module.exports = {
         },
         select: "colorCode length shippedLength -_id",
       })
-      // Bill
-      //   .find({"status.name": "completed"})
-      //   .select('fabricRoll')
-      //   .populate({
-      //     path:'fabricRoll',
-      //     select:'colorCode',
-      //     populate:{
-      //       path: 'colorCode',
-      //       collection: 'Item',
-      //         populate: {
-      //           path: "name",
-      //           // select: "name -_id",
-      //         },
-      //     },
-      //   })
       .exec(function (err, result) {
         if (err) {
           console.log(err);
@@ -380,27 +365,10 @@ module.exports = {
         yearSel = selectDate.getFullYear();
       }
       const result = await Order.aggregate([
-        // { $unwind: "$orderStatus" },
-        // { $match: { "orderStatus.name": "completed" } },
-        // { $project : { _id : 1, orderStatus: 1 } },
-        // { $lookup : {
-        //     from : 'Bill',
-        //     localField : 'billStatus',
-        //     foreignField : '',
-        //     as : 'Bill'
-        // } }
-        // {
-        //   $group: {
-        //     _id: "$orderStatus.name",
-        //     orderComplete: { $sum: 1 },
-        //   },
-        // },
         { $project: { _id: 1, orderTime: 1, orderStatus: 1 } },
         { $addFields: { month: { $month: "$orderTime" } } },
         { $addFields: { year: { $year: "$orderTime" } } },
         { $addFields: { lastStatus: { $last: "$orderStatus" } } },
-        // { $addFields: { lastStatusMonth: { $month: "$lastStatus.date" } } },
-        //đổi lại month khi set date time picker
         { $match: { year: yearSel } },
         { $match: { month: monthSel } },
         {
@@ -413,20 +381,6 @@ module.exports = {
       ]);
       console.log("Get Order Status successfully");
       console.log(result);
-      const length = result.length;
-      if (length == 0) {
-        result.push(
-          { _id: "cancel", lastStatusOrder: 0 },
-          { _id: "completed", lastStatusOrder: 0 },
-          { _id: "pending", lastStatusOrder: 0 }
-        );
-      } else {
-        for (i = 0; i<length; i++) {
-          if (result[i]._id !== 'cancel') 
-        result.unshift({ _id: "cancel", lastStatusOrder: 0 })
-        }
-        
-      }
       console.log(result);
       res.status(200).json(result);
     } catch (err) {
@@ -448,9 +402,6 @@ module.exports = {
         yearSel = selectDate.getFullYear();
       }
       const result = await Order.aggregate([
-        // {$project: { _id: 1, orderTime: 1}},
-        // { $addFields: { monthOrder: { $month: "$orderTime" } } },
-        // { $addFields: { year: { $year: "$orderTime" } } },
         {
           $group: {
             _id: {
@@ -464,9 +415,6 @@ module.exports = {
         { $match: { "_id.year": yearSel } },
         { $match: { "_id.month": monthSel } },
         { $sort: { "_id.date": 1 } },
-        // { $addFields: { monthOrder: { $month: "$orderTime" } } },
-        // { $addFields: { year: { $year: "$orderTime" } } },
-        // { $addFields: { month: { $month: "$_id.month" } } },
       ]);
       console.log("Get Order Monthly successfully");
       console.log(result);
