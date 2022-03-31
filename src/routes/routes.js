@@ -48,7 +48,6 @@ const {
   getBillComplete,
   getBillStatus,
   getBillFabricTypeSell,
-  getBillCompletePicker,
   // getBillCompleteMonthly
   getListBillUncomplete,
   getListBillComplete,
