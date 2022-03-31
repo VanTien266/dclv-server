@@ -299,7 +299,6 @@ const getBillDetail = async (req, res) => {
 };
 
 const getBillComplete = async (req, res) => {
-  
   try {
     if (req.query.date) {
       selectDate = req.query.date;
@@ -315,8 +314,8 @@ const getBillComplete = async (req, res) => {
       { $match: { "status.name": "completed" } },
       { $addFields: { month: { $month: "$status.date" } } },
       { $addFields: { year: { $year: "$status.date" } } },
-      { $match: { "year": yearSel } },
-      { $match: { "month": monthSel } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $project: { _id: 1 } },
       {
         $group: {
@@ -360,8 +359,8 @@ const getFabricRollBillCompleted = async (req, res) => {
       { $match: { "status.name": "completed" } },
       { $addFields: { month: { $month: "$status.date" } } },
       { $addFields: { year: { $year: "$status.date" } } },
-      { $match: { "year": yearSel } },
-      { $match: { "month": monthSel } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $project: { fabricRoll: 1 } },
       { $unwind: "$fabricRoll" },
       { $count: "fabricRoll" },
@@ -397,8 +396,8 @@ const getBillFabricTypeSell = async (req, res) => {
       { $project: { _id: 1, exportBillTime: 1, fabricRoll: 1 } },
       { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { year: { $year: "$exportBillTime" } } },
-      { $match: { "year": yearSel } },
-      { $match: { "month": monthSel } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $unwind: "$fabricRoll" },
       {
         $lookup: {
@@ -477,8 +476,8 @@ const getBillStatus = async (req, res) => {
       { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { year: { $year: "$exportBillTime" } } },
       { $addFields: { lastStatus: { $last: "$status" } } },
-      { $match: { "year": yearSel } },
-      { $match: { "month": monthSel } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       {
         $group: {
           _id: "$lastStatus.name",
@@ -490,6 +489,43 @@ const getBillStatus = async (req, res) => {
     console.log("Get Bill Status successfully");
     console.log(result);
     res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
+
+const getBillCompletePicker = async (req, res) => {
+  try {
+    const datePicker = mongoose.Types.ObjectId(req.params.date);
+    // const today = new Date();
+    // const monthCur = today.getMonth() + 1;
+    // const yearCur = today.getFullYear();
+    const result = await Bill.aggregate([
+      { $unwind: "$status" },
+      { $match: { "status.name": "completed" } },
+      { $addFields: { month: { $month: "$exportBillTime" } } },
+      { $addFields: { year: { $year: "$exportBillTime" } } },
+      { $match: { year: yearCur } },
+      { $match: { month: monthCur } },
+      { $project: { _id: 1 } },
+      {
+        $group: {
+          _id: null,
+          billcompleted: { $sum: 1 },
+        },
+      },
+    ]);
+
+    console.log("Get Bill Completed successfully");
+    console.log(result);
+    if (result.length === 0) {
+      res.status(200).json(0);
+    }
+    // res.status(200).json(result);
+    else {
+      result.map((item) => res.status(200).json(item.billcompleted));
+    }
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
@@ -531,6 +567,6 @@ module.exports = {
   getBillFabricTypeSell,
   getListBillUncomplete,
   getListBillComplete,
-  updateBillStatus
+  updateBillStatus,
   // getBillCompleteMonthly
 };
