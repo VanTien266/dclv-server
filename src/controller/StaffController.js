@@ -209,7 +209,26 @@ const infoStaffById = async (req, res) => {
       return res.json(result);
     }
   });
+    // Staff.find({}, function (err, result) {
+    //     if (err) {
+    //         console.log(err);
+    //         return res.json({ message: "Error" });
+    //     } else {
+    //         console.log(result);
+    //         return res.json(result);
+    //         }
+    // });
+    try {
+        const result = await Staff.aggregate([{ $match: {} }]);
+        console.log("Get List Staff Completed successfully");
+        console.log(result);
+        res.status(200).json(result);
+      } catch (err) {
+        console.log(err);
+        res.status(500).json({ err });
+      }
 };
+
 
 module.exports = {
   createNewStaff,

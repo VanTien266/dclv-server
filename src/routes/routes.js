@@ -11,10 +11,7 @@ const {
   updateInfo,
   getListProductsById,
   updateStatus,
-  countAllOrder,
-  countAllOrderComplete,
   deposit,
-  getOrderbyDateRange,
   getFabricTypeOrder,
   getOrderStatus,
   getOrderDaily,
@@ -32,10 +29,7 @@ router.get("/api/order/:id", detail);
 router.get("/api/order/:id/products", getListProductsById);
 router.put("/api/order/update_info", updateInfo);
 router.put("/api/order/:id/update_status", updateStatus);
-router.get("/api/countallorder", countAllOrder);
-router.get("/api/countallordercomplete", countAllOrderComplete);
 router.get("/api/deposit", deposit);
-router.get("/api/getorderrange", getOrderbyDateRange);
 router.get("/api/getfabrictypeorder", getFabricTypeOrder);
 router.get("/api/getorderstatus", getOrderStatus);
 router.get("/api/getorderdaily", getOrderDaily);
@@ -49,7 +43,7 @@ const {
   createBill,
   getListBillByOrderId,
   getBillDetail,
-  getFabricRollBillComplete,
+  getFabricRollBillCompleted,
   getListBillByIds,
   getBillComplete,
   getBillStatus,
@@ -68,7 +62,7 @@ router.post("/api/bill/create", createBill);
 router.get("/api/bill/list", getListBillByIds);
 router.get("/api/bill/order/:orderid", getListBillByOrderId);
 router.get("/api/bill/detail/:id", getBillDetail);
-router.get("/api/bill/fabricrollcompleted", getFabricRollBillComplete);
+router.get("/api/bill/fabricrollcompleted", getFabricRollBillCompleted);
 router.get("/api/bill/completed", getBillComplete);
 router.get("/api/bill/status", getBillStatus);
 router.get("/api/bill/fabrictypesell", getBillFabricTypeSell);
