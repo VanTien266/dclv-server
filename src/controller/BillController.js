@@ -291,7 +291,7 @@ const getBillDetail = async (req, res) => {
     ]);
     console.log("Get Bill Detail successfully");
     console.log(result);
-    res.status(200).json(result);
+    res.status(200).json(result[0]);
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
@@ -299,7 +299,6 @@ const getBillDetail = async (req, res) => {
 };
 
 const getBillComplete = async (req, res) => {
-  
   try {
     if (req.query.date) {
       selectDate = req.query.date;
@@ -315,8 +314,8 @@ const getBillComplete = async (req, res) => {
       { $match: { "status.name": "completed" } },
       { $addFields: { month: { $month: "$status.date" } } },
       { $addFields: { year: { $year: "$status.date" } } },
-      { $match: { "year": yearSel } },
-      { $match: { "month": monthSel } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $project: { _id: 1 } },
       {
         $group: {
@@ -342,7 +341,6 @@ const getBillComplete = async (req, res) => {
 };
 
 const getFabricRollBillComplete = async (req, res) => {
-
   try {
     if (req.query.date) {
       selectDate = req.query.date;
@@ -358,8 +356,8 @@ const getFabricRollBillComplete = async (req, res) => {
       { $match: { "status.name": "completed" } },
       { $addFields: { month: { $month: "$status.date" } } },
       { $addFields: { year: { $year: "$status.date" } } },
-      { $match: { "year": yearSel } },
-      { $match: { "month": monthSel } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $project: { fabricRoll: 1 } },
       { $unwind: "$fabricRoll" },
       { $count: "fabricRoll" },
@@ -438,8 +436,8 @@ const getBillFabricTypeSell = async (req, res) => {
       { $project: { _id: 1, exportBillTime: 1, fabricRoll: 1 } },
       { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { year: { $year: "$exportBillTime" } } },
-      { $match: { "year": yearSel } },
-      { $match: { "month": monthSel } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       { $unwind: "$fabricRoll" },
       {
         $lookup: {
@@ -544,8 +542,8 @@ const getBillStatus = async (req, res) => {
       { $addFields: { month: { $month: "$exportBillTime" } } },
       { $addFields: { year: { $year: "$exportBillTime" } } },
       { $addFields: { lastStatus: { $last: "$status" } } },
-      { $match: { "year": yearSel } },
-      { $match: { "month": monthSel } },
+      { $match: { year: yearSel } },
+      { $match: { month: monthSel } },
       {
         $group: {
           _id: "$lastStatus.name",
@@ -598,7 +596,7 @@ const getBillCompletePicker = async (req, res) => {
     console.log(err);
     res.status(500).json({ err });
   }
-}
+};
 
 const updateBillStatus = async (req, res) => {
   try {
@@ -666,6 +664,6 @@ module.exports = {
   getBillCompletePicker,
   getListBillUncomplete,
   getListBillComplete,
-  updateBillStatus
+  updateBillStatus,
   // getBillCompleteMonthly
 };
