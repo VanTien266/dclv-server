@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const SupportRequestSchema = new Schema(
   {
+    supportId: { type: Number, require: true },
     status: {
       type: Boolean,
       required: true,

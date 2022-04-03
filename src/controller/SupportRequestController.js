@@ -1,11 +1,22 @@
 const mongoose = require("mongoose");
 const { SupportRequest } = require("../models/SupportRequest");
+const { Counter } = require("../models/Counter");
+
+async function getNextSequenceValue(sequenceName) {
+  let seq = await Counter.findOneAndUpdate(
+    { _id: sequenceName },
+    { $inc: { sequence_value: 1 } }
+  ).exec();
+  return seq.sequence_value;
+}
 
 module.exports = {
-  createSupport: (req, res) => {
+  createSupport: async (req, res) => {
+    const supportId = await getNextSequenceValue("supportId");
     try {
       SupportRequest.create(
         {
+          supportId: supportId,
           status: false,
           request: req.body.content,
           orderId: req.body.orderId,
@@ -79,6 +90,7 @@ module.exports = {
               response: 1,
               requestTime: 1,
               responseTime: 1,
+              supportId: 1,
               order: 1,
               customer: 1,
               salesman: 1,

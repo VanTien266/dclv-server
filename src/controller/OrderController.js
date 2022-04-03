@@ -496,4 +496,35 @@ module.exports = {
       res.status(500).json({ err });
     }
   },
+
+  getOrderByCustomer: (req, res) => {
+    try {
+      Order.aggregate(
+        [
+          {
+            $match: {
+              clientID: { $eq: mongoose.Types.ObjectId(req.params.id) },
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              orderId: 1,
+            },
+          },
+        ],
+        function (err, data) {
+          if (err) {
+            console.log(err);
+            res.status(500).json(err);
+          } else {
+            console.log(data);
+            res.status(200).json(data);
+          }
+        }
+      );
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
