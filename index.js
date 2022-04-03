@@ -29,6 +29,14 @@ mongoose
     const { UpdateItem } = require("./src/create/CreateItem");
     // UpdateItem();
     const { updateLength } = require("./src/create/CreateFabricRoll");
+    const { Counter } = require("./src/models/Counter");
+    // Counter.create(
+    //   { _id: "supportId", sequence_value: 0 },
+    //   function (err, result) {
+    //     if (err) console.log(err);
+    //     else console.log(result);
+    //   }
+    // );
     // updateLength();
   })
   .catch((error) => {
