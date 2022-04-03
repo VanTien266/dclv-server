@@ -47,7 +47,6 @@ module.exports = {
       });
   },
   create: async (req, res) => {
-    console.log("call");
     try {
       const id = await getNextSequenceValue("orderId");
       const asyncRes = await Promise.all(

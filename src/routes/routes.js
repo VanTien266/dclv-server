@@ -145,4 +145,15 @@ router.get("/api/product/list-type", getFullListFabricType);
 router.get("/api/product/colorcode", getListColorcode);
 /*------------------------*/
 
+/*-----Support Request route------*/
+const {
+  createSupport,
+  responseRequest,
+  getAllRequest,
+} = require("../controller/SupportRequestController");
+
+router.get("/api/support/all", getAllRequest);
+router.post("/api/support/create", createSupport);
+router.put("/api/support/response", responseRequest);
+
 module.exports = router;
