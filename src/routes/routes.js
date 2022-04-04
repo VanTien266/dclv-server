@@ -50,7 +50,6 @@ const {
   getBillComplete,
   getBillStatus,
   getBillFabricTypeSell,
-  // getBillCompleteMonthly
   getListBillUncomplete,
   getListBillComplete,
   updateBillStatus,
@@ -68,9 +67,6 @@ router.get("/api/bill/completed", getBillComplete);
 router.get("/api/bill/status", getBillStatus);
 router.get("/api/bill/fabrictypesell", getBillFabricTypeSell);
 router.put("/api/bill/:id", updateBillStatus);
-// router.get("/api/bill/completedbymonth", getBillCompleteMonthly);
-
-// router.post("/api/bill/create")
 /*---------------------*/
 
 const {
@@ -93,7 +89,6 @@ router.post("/api/customer/login", login);
 router.post("/api/staff/login", loginstaff);
 router.post("/api/createstaff", createNewStaff);
 router.get("/api/staff/salesman", getAllSalesman);
-// router.put("/updatePassword/:id", updatePassword);
 
 //for admin
 router.get("/api/admin/liststaff", listStaff);
@@ -101,20 +96,6 @@ router.get("/api/admin/liststaff/info/:id", infoStaffById);
 
 //for product
 /*----Customer route-------*/
-// const {
-//   listCustomer,
-//   createCustomer,
-//   infoById,
-//   infoByEmail,
-//   updateCustomerInfo,
-//   updatePassword,
-// } = require("../controller/CustomerController");
-// router.get("/api/customer", listCustomer);
-// router.post("/api/customer/create", createCustomer);
-// router.get("/api/customer/:id", infoById);
-// router.get("/api/customer/:email", infoByEmail);
-// router.post("/api/customer/update_info", updateCustomerInfo);
-// router.post("/api/customer/update_password", updatePassword);
 /*---------------------*/
 
 /*-----FabricType route------*/

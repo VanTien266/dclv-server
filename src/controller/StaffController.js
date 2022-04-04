@@ -1,108 +1,5 @@
 "use strict";
 const mongoose = require("mongoose");
-// module.exports = {
-//     list: (req, res) => {
-//         Staffs.find({}, function (err, result) {
-//             if (err) {
-//                 console.log(err);
-//                 return res.json({ message: "Error" });
-//             } else {
-//                 console.log(result);
-//                 return res.json(result);
-//             }
-//         });
-//     },
-
-//     create: (req, res) => {
-//         Staffs.create(
-//             {
-//                 id: "STA" + (new Date().getTime() % 10000),
-//                 name: req.body.name,
-//                 phone: req.body.phone,
-//                 email: req.body.email,
-//                 password: req.body.password,
-//                 address: req.body.address,
-//                 // birthday: req.body.birthday,
-//                 gender: req.body.gender,
-//                 role: req.body.role,
-//             },
-//             function (err, result) {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.json({ message: "Error" });
-//                 } else {
-//                     console.log(result);
-//                     return res.json(result);
-//                 }
-//             }
-//         );
-//     },
-
-//     infoById: (req, res) => {
-//         Staffs.findOne({ id: req.params.id }, function (err, result) {
-//             if (err) {
-//                 console.log(err);
-//                 return res.json({ message: "Error" });
-//             } else {
-//                 console.log(result);
-//                 return res.json(result);
-//             }
-//         });
-//     },
-
-//     infoByEmail: (req, res) => {
-//         Staffs.findOne({ email: req.params.email }, function (err, result) {
-//             if (err) {
-//                 console.log(err);
-//                 return res.json({ message: "Error" });
-//             } else {
-//                 console.log(result);
-//                 return res.json(result);
-//             }
-//         });
-//     },
-
-//     updateInfo: (req, res) => {
-//         Staffs.findOneAndUpdate(
-//             { id: req.body.id },
-//             {
-//                 name: req.body.name,
-//                 phone: req.body.phone,
-//                 address: req.body.address,
-//                 gender: req.body.gender,
-//                 birthday: req.body.birthday,
-//             },
-//             function (err, result) {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.json({ message: "Error" });
-//                 } else {
-//                     console.log(result);
-//                     return res.json(result);
-//                 }
-//             }
-//         );
-//     },
-
-//     updatePassword: (req, res) => {
-//         Staffs.findOneAndUpdate(
-//             { id: req.body.id },
-//             {
-//                 password: req.body.password,
-//             },
-//             function (err, result) {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.json({ message: "Error" });
-//                 } else {
-//                     console.log(result);
-//                     return res.json(result);
-//                 }
-//             }
-//         );
-//     },
-// };
-
 const { Staff } = require("../models/Staff");
 const {
   registerValidationStaff,
@@ -167,26 +64,6 @@ const loginstaff = async (req, res) => {
   res.send({ ...userLogin._doc, jwt: token });
 };
 
-// const updatePassword = async (req, res) {
-//     // Kiểm tra password
-//     const oldpassword = await bcrypt.compare(req.body.password, userLogin.password);
-//     if(!passLogin) return res.status(400).send("Mật khẩu không hợp lệ")
-
-// }
-
-// const updateInfo = async (req, res) => {
-//     try {
-//         const body = req.body;
-//         const id = req.params.id
-
-//         Staff.findOneAndUpdate({ _id: id }, body, function (err, data) {
-//           if (!err) res.status(200).json("Update Status successfully!");
-//         });
-//       } catch (err) {
-//         res.status(500).json({ err });
-//       }
-// }
-
 const listStaff = async (req, res) => {
   Staff.find({}, function (err, result) {
     if (err) {
@@ -209,15 +86,6 @@ const infoStaffById = async (req, res) => {
       return res.json(result);
     }
   });
-  // Staff.find({}, function (err, result) {
-  //     if (err) {
-  //         console.log(err);
-  //         return res.json({ message: "Error" });
-  //     } else {
-  //         console.log(result);
-  //         return res.json(result);
-  //         }
-  // });
   try {
     const result = await Staff.aggregate([{ $match: {} }]);
     console.log("Get List Staff Completed successfully");
@@ -260,7 +128,6 @@ const getAllSalesman = (req, res) => {
 module.exports = {
   createNewStaff,
   loginstaff,
-  // updateInfo,
   listStaff,
   infoStaffById,
   getAllSalesman,
