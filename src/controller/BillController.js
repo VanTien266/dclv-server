@@ -248,6 +248,7 @@ const getBillDetail = async (req, res) => {
           as: "shipperID",
         },
       },
+      { $unwind: "$shipperID" },
       {
         $lookup: {
           from: "Order",
@@ -266,6 +267,7 @@ const getBillDetail = async (req, res) => {
           as: "orderID",
         },
       },
+      { $unwind: "$orderID" },
       {
         $lookup: {
           from: "Staff",
@@ -277,6 +279,7 @@ const getBillDetail = async (req, res) => {
           as: "salesmanID",
         },
       },
+      { $unwind: "$salesmanID" },
       {
         $lookup: {
           from: "Customer",
@@ -288,6 +291,7 @@ const getBillDetail = async (req, res) => {
           as: "clientID",
         },
       },
+      { $unwind: "$clientID" },
     ]);
     console.log("Get Bill Detail successfully");
     console.log(result[0]);
@@ -329,10 +333,9 @@ const getBillComplete = async (req, res) => {
     console.log(resultBillCompleted);
     let result = 0;
     if (resultBillCompleted?.length === 0) {
-      result = '0';
-    }
-    else {
-      resultBillCompleted.map((item) => result = item.billcompleted);
+      result = "0";
+    } else {
+      resultBillCompleted.map((item) => (result = item.billcompleted));
     }
     console.log(result);
     res.status(200).json(result);
@@ -343,7 +346,6 @@ const getBillComplete = async (req, res) => {
 };
 
 const getFabricRollBillCompleted = async (req, res) => {
-
   try {
     if (req.query.date) {
       selectDate = req.query.date;
@@ -369,9 +371,9 @@ const getFabricRollBillCompleted = async (req, res) => {
     console.log("Get Total Fabric Roll Bill Completed successfully");
     console.log(resultFabricRollBill);
     let result;
-    if (resultFabricRollBill?.length === 0) result = '0';
+    if (resultFabricRollBill?.length === 0) result = "0";
     else {
-      resultFabricRollBill.map((item) => result = item.fabricRoll);
+      resultFabricRollBill.map((item) => (result = item.fabricRoll));
     }
     console.log(result);
     res.status(200).json(result);
@@ -553,7 +555,6 @@ const updateBillStatus = async (req, res) => {
     console.log(err);
   }
 };
-
 
 module.exports = {
   getListBill,
