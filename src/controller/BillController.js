@@ -95,78 +95,205 @@ const getListBill = async (req, res) => {
   //     }
   //   });
   //aggregate bo qua nhung key trong
+ 
+  // Bill.find({})
+  //   .populate({ path: "clientID" })
+  //   .populate({ path: "orderID" })
+  //   .populate({ path: "salesmanID" })
+  //   .exec(function (err, result) {
+  //     if (err) {
+  //       console.log(err);
+  //       return res.json({ message: "Error" });
+  //     } else {
+  //       return res.json(result);
+  //     }
+  //   });
   try {
-    const result = await Bill.aggregate([{ $match: {} }]);
-    console.log("Get Bill Completed successfully");
+    const result = await Bill.aggregate([
+      {
+        $lookup: {
+          from: "Order",
+          let: { id_Order: "$orderID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } },
+          ],
+          as: "orderID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Staff",
+          let: { id_Saleman: "$salesmanID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } },
+          ],
+          as: "salesmanID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Customer",
+          let: { id_Customer: "$clientID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } },
+          ],
+          as: "clientID",
+        },
+      },
+      { $unwind: "$orderID" },
+      { $unwind: "$salesmanID" },
+      { $unwind: "$clientID" },
+    ]);
+    console.log("Get List Bill successfully");
     console.log(result);
     res.status(200).json(result);
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
   }
-  Bill.find({})
-    .populate({ path: "clientID" })
-    .populate({ path: "orderID" })
-    .populate({ path: "salesmanID" })
-    .exec(function (err, result) {
-      if (err) {
-        console.log(err);
-        return res.json({ message: "Error" });
-      } else {
-        return res.json(result);
-      }
-    });
 };
 
 const getListBillComplete = async (req, res) => {
-  Bill.find({})
-    .populate({ path: "clientID" })
-    .populate({ path: "orderID" })
-    .populate({ path: "salesmanID" })
-    .exec(function (err, result) {
-      if (err) {
-        console.log(err);
-        return res.json({ message: "Error" });
-      } else {
-        const newResult = result.filter((item) => {
-          if (item.status[item.status.length - 1].name === "completed")
-            return item;
-          else {
-            let count = 0;
-            item.status.forEach((ele) => {
-              if (ele.name === "failed") count += 1;
-            });
-            if (count === 3) return item;
-          }
-        });
-        return res.json(newResult);
-      }
-    });
+  // Bill.find({})
+  //   .populate({ path: "clientID" })
+  //   .populate({ path: "orderID" })
+  //   .populate({ path: "salesmanID" })
+  //   .exec(function (err, result) {
+  //     if (err) {
+  //       console.log(err);
+  //       return res.json({ message: "Error" });
+  //     } else {
+  //       const newResult = result.filter((item) => {
+  //         if (item.status[item.status.length - 1].name === "completed")
+  //           return item;
+  //         else {
+  //           let count = 0;
+  //           item.status.forEach((ele) => {
+  //             if (ele.name === "failed") count += 1;
+  //           });
+  //           if (count === 3) return item;
+  //         }
+  //       });
+  //       return res.json(newResult);
+  //     }
+  //   });
+  try {
+    const result = await Bill.aggregate([
+      { $addFields: { lastStatus: { $last: "$status" } } },
+      { $match: { "lastStatus.name": "completed" } },
+      {
+        $lookup: {
+          from: "Order",
+          let: { id_Order: "$orderID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } },
+          ],
+          as: "orderID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Staff",
+          let: { id_Saleman: "$salesmanID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } },
+          ],
+          as: "salesmanID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Customer",
+          let: { id_Customer: "$clientID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } },
+          ],
+          as: "clientID",
+        },
+      },
+      { $unwind: "$orderID" },
+      { $unwind: "$salesmanID" },
+      { $unwind: "$clientID" },
+    ]);
+    console.log("Get List Bill Completed successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
 };
 const getListBillUncomplete = async (req, res) => {
-  Bill.find({})
-    .populate({ path: "clientID" })
-    .populate({ path: "orderID" })
-    .populate({ path: "salesmanID" })
-    .exec(function (err, result) {
-      if (err) {
-        console.log(err);
-        return res.json({ message: "Error" });
-      } else {
-        const newResult = result.filter((item) => {
-          let count = 0;
-          item.status.forEach((ele) => {
-            if (ele.name === "failed") count += 1;
-          });
-          if (
-            item.status[item.status.length - 1].name !== "completed" &&
-            count !== 3
-          )
-            return item;
-        });
-        return res.json(newResult);
-      }
-    });
+  // Bill.find({})
+  //   .populate({ path: "clientID" })
+  //   .populate({ path: "orderID" })
+  //   .populate({ path: "salesmanID" })
+  //   .exec(function (err, result) {
+  //     if (err) {
+  //       console.log(err);
+  //       return res.json({ message: "Error" });
+  //     } else {
+  //       const newResult = result.filter((item) => {
+  //         let count = 0;
+  //         item.status.forEach((ele) => {
+  //           if (ele.name === "failed") count += 1;
+  //         });
+  //         if (
+  //           item.status[item.status.length - 1].name !== "completed" &&
+  //           count !== 3
+  //         )
+  //           return item;
+  //       });
+  //       return res.json(newResult);
+  //     }
+  //   });
+  try {
+    const result = await Bill.aggregate([
+      { $addFields: { lengthStatus: {$cond: { if: { $isArray: "$status" }, then: { $size: "$status" }, else: "NA"} } } },
+      { $match: { "lengthStatus": {$lt: 7} } },
+      { $addFields: { lastStatus: { $last: "$status" } } },
+      { $match: { "lastStatus.name": {$ne: "completed"} } },
+      {
+        $lookup: {
+          from: "Order",
+          let: { id_Order: "$orderID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } },
+          ],
+          as: "orderID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Staff",
+          let: { id_Saleman: "$salesmanID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } },
+          ],
+          as: "salesmanID",
+        },
+      },
+      {
+        $lookup: {
+          from: "Customer",
+          let: { id_Customer: "$clientID" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } },
+          ],
+          as: "clientID",
+        },
+      },
+      { $unwind: "$orderID" },
+      { $unwind: "$salesmanID" },
+      { $unwind: "$clientID" },
+    ]);
+    console.log("Get List Bill UnCompleted successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
 };
 
 const getListBillByIds = async (req, res) => {
@@ -288,6 +415,10 @@ const getBillDetail = async (req, res) => {
           as: "clientID",
         },
       },
+      { $unwind: "$orderID" },
+      { $unwind: "$salesmanID" },
+      { $unwind: "$clientID" },
+      { $unwind: "$shipperID" },
     ]);
     console.log("Get Bill Detail successfully");
     console.log(result[0]);
