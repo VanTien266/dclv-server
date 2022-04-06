@@ -624,43 +624,6 @@ const getBillStatus = async (req, res) => {
   }
 };
 
-const getBillCompletePicker = async (req, res) => {
-  try {
-    const datePicker = mongoose.Types.ObjectId(req.params.date);
-    // const today = new Date();
-    // const monthCur = today.getMonth() + 1;
-    // const yearCur = today.getFullYear();
-    const result = await Bill.aggregate([
-      { $unwind: "$status" },
-      { $match: { "status.name": "completed" } },
-      { $addFields: { month: { $month: "$exportBillTime" } } },
-      { $addFields: { year: { $year: "$exportBillTime" } } },
-      { $match: { year: yearCur } },
-      { $match: { month: monthCur } },
-      { $project: { _id: 1 } },
-      {
-        $group: {
-          _id: null,
-          billcompleted: { $sum: 1 },
-        },
-      },
-    ]);
-
-    console.log("Get Bill Completed successfully");
-    console.log(result);
-    if (result.length === 0) {
-      res.status(200).json(0);
-    }
-    // res.status(200).json(result);
-    else {
-      result.map((item) => res.status(200).json(item.billcompleted));
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ err });
-  }
-};
-
 const updateBillStatus = async (req, res) => {
   try {
     Bill.findOneAndUpdate(
