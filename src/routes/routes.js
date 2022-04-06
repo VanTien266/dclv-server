@@ -18,6 +18,7 @@ const {
   getTotalOrderbyMonth,
   getOrderFabricType,
   cancleExportBill,
+  getOrderByCustomer,
 } = require("../controller/OrderController");
 
 const { getListFabricType } = require("../controller/FabricTypeController");
@@ -36,6 +37,7 @@ router.get("/api/getorderdaily", getOrderDaily);
 router.get("/api/getorderbymonth", getTotalOrderbyMonth);
 router.get("/api/getorderfabrictype", getOrderFabricType);
 router.put("/api/order/cancle-status/:id", cancleExportBill);
+router.get("/api/order/customer/:id", getOrderByCustomer);
 
 /*----bill route-------*/
 const {
@@ -80,6 +82,7 @@ const {
   listStaff,
   infoStaffById,
   loginstaff,
+  getAllSalesman,
 } = require("../controller/StaffController");
 
 //for customer
@@ -89,6 +92,7 @@ router.post("/api/customer/login", login);
 //for Staff
 router.post("/api/staff/login", loginstaff);
 router.post("/api/createstaff", createNewStaff);
+router.get("/api/staff/salesman", getAllSalesman);
 // router.put("/updatePassword/:id", updatePassword);
 
 //for admin
@@ -144,5 +148,16 @@ router.get("/api/getfabricwarehouse", getFabricTypeWarehouse);
 router.get("/api/product/list-type", getFullListFabricType);
 router.get("/api/product/colorcode", getListColorcode);
 /*------------------------*/
+
+/*-----Support Request route------*/
+const {
+  createSupport,
+  responseRequest,
+  getAllRequest,
+} = require("../controller/SupportRequestController");
+
+router.get("/api/support/all", getAllRequest);
+router.post("/api/support/create", createSupport);
+router.put("/api/support/response", responseRequest);
 
 module.exports = router;
