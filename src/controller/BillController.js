@@ -167,7 +167,7 @@ const getBillDetail = async (req, res) => {
           as: "shipperID",
         },
       },
-      { $unwind: "$shipperID" },
+      { $unwind: { path: "$shipperID", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
           from: "Order",
@@ -186,7 +186,7 @@ const getBillDetail = async (req, res) => {
           as: "orderID",
         },
       },
-      { $unwind: "$orderID" },
+      { $unwind: { path: "$orderID", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
           from: "Staff",
@@ -210,7 +210,7 @@ const getBillDetail = async (req, res) => {
           as: "clientID",
         },
       },
-      { $unwind: "$clientID" },
+      { $unwind: { path: "$clientID", preserveNullAndEmptyArrays: true } },
     ]);
     res.status(200).json(result[0]);
   } catch (err) {
