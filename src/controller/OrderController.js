@@ -506,4 +506,25 @@ module.exports = {
       res.status(500).json(error);
     }
   },
+
+  getOrderbyDateRange: async (req, res) => {
+  try {
+    if (req.query) {
+      from_date = new Date(req.query.from_date);
+      to_date = new Date(req.query.to_date);
+    } else {
+      from_date = new Date();
+      to_date = new Date() + 1;
+    }
+    const result = await Order.aggregate([
+      { $match: {orderTime : { $gte: from_date, $lte: to_date}}},
+    ]);
+    console.log("Get List Order By Date Range successfully");
+    console.log(result);
+    res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+},
 };
