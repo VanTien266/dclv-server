@@ -255,7 +255,6 @@ const getListFabricRollWithIds = async (req, res) => {
     ]);
     console.log("Get List Fabric Roll successfully");
     res.status(200).json(result);
-    // res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -264,7 +263,6 @@ const getListFabricRollWithIds = async (req, res) => {
 //Get sort list fabric roll with ids
 const getFabricRollOfBill = async (req, res) => {
   const body = qs.parse(req.body);
-  // console.log(body);
   const ids = body.ids || [];
   ids.forEach((item) => ids.push(mongoose.Types.ObjectId(item)));
   try {
@@ -325,7 +323,6 @@ const getFabricRollOfBill = async (req, res) => {
       clist.map((item) => _.omit(item, "colorCode"))
     );
     res.status(200).json(Object.values(lastResult));
-    // res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -378,11 +375,7 @@ const updateMarketPrice = async (req, res) => {
 const getChartWarehouseTrue = async (req, res) => {
   try {
     const result = await FabricRoll.aggregate([
-      // {$unwind: "$status"},
-      // // {$unwind: "$status.name"},
       { $match: { status: true } },
-      // {$project: {status: 1}},
-      // {$unwind: "$fabricRoll"},
       {
         $group: {
           _id: "$warehouseId",
@@ -390,8 +383,6 @@ const getChartWarehouseTrue = async (req, res) => {
         },
       },
       { $sort: { _id: 1 } },
-      // }}
-      // { $count: "warehouseId" }
     ]);
     console.log("Get Chart Warehouse successfully");
     console.log(result);
@@ -402,116 +393,13 @@ const getChartWarehouseTrue = async (req, res) => {
   }
 };
 
-// const getFabricTypeSell = async (req, res) => {
-//   try {
-//     const result = await FabricRoll.aggregate([
-//       // {$unwind: "$status"},
-//       // // {$unwind: "$status.name"},
-//       { $match: { status: false } },
-//       { $project: { colorCode: 1 } },
-//       {
-//         $lookup: {
-//           from: "Item",
-//           let: { color_code: "$colorCode" },
-//           pipeline: [
-//             { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
-//             {
-//               $lookup: {
-//                 from: "FabricType",
-//                 let: { type_id: "$typeId" },
-//                 pipeline: [
-//                   {
-//                     $match: { $expr: { $eq: ["$_id", "$$type_id"] } },
-//                   },
-//                 ],
-//                 as: "fabricType",
-//               },
-//             },
-//             { $unwind: "$fabricType" },
-//             {
-//               $group: {
-//                 _id: "$fabricType.name",
-//               },
-//             },
-//           ],
-//           as: "item",
-//         },
-//       },
-//       { $unwind: "$item" },
-//       {
-//         $group: {
-//           _id: "$item._id",
-//           countFabrictype: { $sum: 1 },
-//         },
-//       },
-//       { $sort: { countFabrictype: -1 } },
-//       { $limit: 5 },
-//     ]);
-//     console.log("Get Fabric Type Sell successfully");
-//     // console.log(result);
-//     res.status(200).json(result);
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({ err });
-//   }
-// };
-
 //chưa test xong
 const getFabricTypeWarehouse = async (req, res) => {
   try {
     const result = await FabricRoll.aggregate([
-      // {$unwind: "$status"},
-      // // {$unwind: "$status.name"},
-      // { $match: { status: false } },
       { $project: { warehouseId: 1, status: 1 } },
-      // {$unwind: "$fabricRoll"},
-      // {$group: {
-      //   _id: "$warehouseId",
-      //   countFabric : {$sum: 1},
-      // }},
-      // {$sort: {_id:1}},
-      // }}
-      // { $count: "colorCode" }
-      // {
-      //   $lookup: {
-      //     from: "Item",
-      //     let: { color_code: "$colorCode" },
-      //     pipeline: [
-      //       { $match: { $expr: { $eq: ["$colorCode", "$$color_code"] } } },
-      //       {
-      //         $lookup: {
-      //           from: "FabricType",
-      //           let: { type_id: "$typeId" },
-      //           pipeline: [
-      //             {
-      //               $match: { $expr: { $eq: ["$_id", "$$type_id"] } },
-      //             },
-      //           ],
-      //           as: "fabricType",
-      //         },
-      //       },
-      //       { $unwind: "$fabricType" },
-      //       {
-      //         $group: {
-      //           _id: "$fabricType.name",
-      //         },
-      //       },
-      //     ],
-      //     as: "item",
-      //   },
-      // },
-      // { $unwind: "$item" },
-      // {
-      //   $group: {
-      //     _id: "$item._id",
-      //     countFabrictype: { $sum: 1 },
-      //   },
-      // },
-      // { $sort: { countFabrictype: -1 } },
-      // { $limit: 7 },
     ]);
     console.log("Get Fabric Type Warehouse successfully");
-    // console.log(result);
     res.status(200).json(result);
   } catch (err) {
     console.log(err);
@@ -577,7 +465,6 @@ module.exports = {
   getListFabricRollWithIds,
   getFabricRollOfBill,
   getChartWarehouseTrue,
-  // getFabricTypeSell,
   getFabricTypeWarehouse,
   getFullListFabricType,
   getListColorcode,

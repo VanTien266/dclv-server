@@ -22,10 +22,6 @@ module.exports = {
         path: "products",
         populate: {
           path: "colorCode",
-          //   populate: {
-          //     path: "typeId",
-          //     select: "name -_id",
-          //   },
           select: "colorCode typeId name -_id",
         },
         select: "colorCode length shippedLength -_id",
@@ -56,7 +52,6 @@ module.exports = {
           }).exec();
           console.log(colorId);
           let a = await Has.create({
-            // orderId: id,
             colorCode: colorId._id,
             length: item.length,
             shippedLength: 0,
@@ -333,10 +328,6 @@ module.exports = {
         path: "products",
         populate: {
           path: "colorCode",
-          //   populate: {
-          //     path: "typeId",
-          //     select: "name -_id",
-          //   },
           select: "colorCode typeId name -_id",
         },
         select: "colorCode length shippedLength -_id",
@@ -475,22 +466,10 @@ module.exports = {
             as: "fabricTypeSell",
           },
         },
-        // { $unwind: "$fabricTypeSell" },
-        // {
-        //   $group: {
-        //     _id: "$fabricTypeSell.item._id",
-        //     countFabrictype: { $sum: 1 },
-        //   },
-        // },
-        // { $sort: { countFabrictype: -1 } },
-        // { $limit: 5 },
       ]);
       console.log("Get Order Fabric Type successfully");
       console.log(result);
       res.status(200).json(result);
-      // {result.map((item) => (
-      //   res.status(200).json(item.fabricRoll)
-      // ))}
     } catch (err) {
       console.log(err);
       res.status(500).json({ err });
