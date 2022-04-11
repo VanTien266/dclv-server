@@ -144,4 +144,8 @@ router.get("/api/support/all", getAllRequest);
 router.post("/api/support/create", createSupport);
 router.put("/api/support/response", responseRequest);
 
+/*-----Support Request route------*/
+const { sendEmail } = require("../controller/MailController");
+router.post("/api/mail/send", sendEmail);
+
 module.exports = router;
