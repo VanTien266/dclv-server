@@ -1,14 +1,17 @@
 const { Bill } = require("../models/Bill");
 const { Order } = require("../models/Order");
+const { Customer } = require("../models/Customer");
 const { Staff } = require("../models/Staff");
 const { Has } = require("../models/Has");
 const { FabricRoll } = require("../models/FabricRoll");
 const { Counter } = require("../models/Counter");
+const mailApi = require("../utils/axios/mailApi");
 const mongoose = require("mongoose");
 const qs = require("qs");
 
 const { ValidateOrder } = require("../services/Order/ValidateOrder");
 const { hashSync } = require("bcryptjs");
+const { constant } = require("lodash");
 
 async function getNextSequenceValue(sequenceName) {
   let seq = await Counter.findOneAndUpdate(
@@ -54,36 +57,35 @@ const createBill = async (req, res) => {
       },
     ],
   });
+  const customer = await Customer.aggregate([
+    { $match: { _id: order.clientID } },
+  ]);
 
+  //send email
+  const data = {
+    email_type: "export_bill_success",
+    email: customer.email,
+    subject: "Xuất thành công hóa đơn",
+    order_id: order.orderId,
+    bill_id: id,
+    customer_name: customer.name,
+    order_status: "",
+    bill_status: "",
+  };
+  mailApi.sendEmail(data);
   ValidateOrder(req.body.orderId);
 
   res.send("Ok");
 };
 
 const getListBill = async (req, res) => {
-  //aggregate bo qua nhung key trong
- 
-  // Bill.find({})
-  //   .populate({ path: "clientID" })
-  //   .populate({ path: "orderID" })
-  //   .populate({ path: "salesmanID" })
-  //   .exec(function (err, result) {
-  //     if (err) {
-  //       console.log(err);
-  //       return res.json({ message: "Error" });
-  //     } else {
-  //       return res.json(result);
-  //     }
-  //   });
   try {
     const result = await Bill.aggregate([
       {
         $lookup: {
           from: "Order",
           let: { id_Order: "$orderID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } }],
           as: "orderID",
         },
       },
@@ -91,9 +93,7 @@ const getListBill = async (req, res) => {
         $lookup: {
           from: "Staff",
           let: { id_Saleman: "$salesmanID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } }],
           as: "salesmanID",
         },
       },
@@ -101,9 +101,7 @@ const getListBill = async (req, res) => {
         $lookup: {
           from: "Customer",
           let: { id_Customer: "$clientID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } }],
           as: "clientID",
         },
       },
@@ -120,29 +118,6 @@ const getListBill = async (req, res) => {
 };
 
 const getListBillComplete = async (req, res) => {
-  // Bill.find({})
-  //   .populate({ path: "clientID" })
-  //   .populate({ path: "orderID" })
-  //   .populate({ path: "salesmanID" })
-  //   .exec(function (err, result) {
-  //     if (err) {
-  //       console.log(err);
-  //       return res.json({ message: "Error" });
-  //     } else {
-  //       const newResult = result.filter((item) => {
-  //         if (item.status[item.status.length - 1].name === "completed")
-  //           return item;
-  //         else {
-  //           let count = 0;
-  //           item.status.forEach((ele) => {
-  //             if (ele.name === "failed") count += 1;
-  //           });
-  //           if (count === 3) return item;
-  //         }
-  //       });
-  //       return res.json(newResult);
-  //     }
-  //   });
   try {
     const result = await Bill.aggregate([
       { $addFields: { lastStatus: { $last: "$status" } } },
@@ -151,9 +126,7 @@ const getListBillComplete = async (req, res) => {
         $lookup: {
           from: "Order",
           let: { id_Order: "$orderID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } }],
           as: "orderID",
         },
       },
@@ -161,9 +134,7 @@ const getListBillComplete = async (req, res) => {
         $lookup: {
           from: "Staff",
           let: { id_Saleman: "$salesmanID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } }],
           as: "salesmanID",
         },
       },
@@ -171,9 +142,7 @@ const getListBillComplete = async (req, res) => {
         $lookup: {
           from: "Customer",
           let: { id_Customer: "$clientID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } }],
           as: "clientID",
         },
       },
@@ -190,42 +159,27 @@ const getListBillComplete = async (req, res) => {
   }
 };
 const getListBillUncomplete = async (req, res) => {
-  // Bill.find({})
-  //   .populate({ path: "clientID" })
-  //   .populate({ path: "orderID" })
-  //   .populate({ path: "salesmanID" })
-  //   .exec(function (err, result) {
-  //     if (err) {
-  //       console.log(err);
-  //       return res.json({ message: "Error" });
-  //     } else {
-  //       const newResult = result.filter((item) => {
-  //         let count = 0;
-  //         item.status.forEach((ele) => {
-  //           if (ele.name === "failed") count += 1;
-  //         });
-  //         if (
-  //           item.status[item.status.length - 1].name !== "completed" &&
-  //           count !== 3
-  //         )
-  //           return item;
-  //       });
-  //       return res.json(newResult);
-  //     }
-  //   });
   try {
     const result = await Bill.aggregate([
-      { $addFields: { lengthStatus: {$cond: { if: { $isArray: "$status" }, then: { $size: "$status" }, else: "NA"} } } },
-      { $match: { "lengthStatus": {$lt: 7} } },
+      {
+        $addFields: {
+          lengthStatus: {
+            $cond: {
+              if: { $isArray: "$status" },
+              then: { $size: "$status" },
+              else: "NA",
+            },
+          },
+        },
+      },
+      { $match: { lengthStatus: { $lt: 7 } } },
       { $addFields: { lastStatus: { $last: "$status" } } },
-      { $match: { "lastStatus.name": {$ne: "completed"} } },
+      { $match: { "lastStatus.name": { $ne: "completed" } } },
       {
         $lookup: {
           from: "Order",
           let: { id_Order: "$orderID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Order"] } } }],
           as: "orderID",
         },
       },
@@ -233,9 +187,7 @@ const getListBillUncomplete = async (req, res) => {
         $lookup: {
           from: "Staff",
           let: { id_Saleman: "$salesmanID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Saleman"] } } }],
           as: "salesmanID",
         },
       },
@@ -243,9 +195,7 @@ const getListBillUncomplete = async (req, res) => {
         $lookup: {
           from: "Customer",
           let: { id_Customer: "$clientID" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } },
-          ],
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$id_Customer"] } } }],
           as: "clientID",
         },
       },
@@ -561,19 +511,30 @@ const getBillCompletePicker = async (req, res) => {
 
 const updateBillStatus = async (req, res) => {
   try {
-    Bill.findOneAndUpdate(
+    const result = await Bill.findOneAndUpdate(
       { _id: mongoose.Types.ObjectId(req.params.id) },
       {
         $push: { status: { name: req.body.name, reason: req.body.reason } },
-      },
-      function (err, result) {
-        if (err) {
-          res.json({ message: err });
-        } else {
-          res.json(result);
-        }
       }
     );
+
+    const customer = await Customer.aggregate([
+      { $match: { _id: result.clientID } },
+    ]);
+    console.log(customer[0]);
+    //send email
+    const data = {
+      email_type: "bill_status_change",
+      email: customer[0].email,
+      subject: "Trạng thái đơn hàng thay đổi",
+      order_id: "",
+      bill_id: result.billID,
+      customer_name: customer[0].name,
+      order_status: "",
+      bill_status: req.body.name,
+    };
+    mailApi.sendEmail(data);
+    res.json(result);
   } catch (error) {
     res.status(500).json(error);
   }
