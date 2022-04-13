@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const { Bill } = require("../../models/Bill");
 const { Has } = require("../../models/Has");
 const { Order } = require("../../models/Order");
+const { Customer } = require("../../models/Customer");
+const mailApi = require("../../utils/axios/mailApi");
 
 async function ValidateOrder(order_id) {
   //Flow: Get list Bill of Order -->Check length
@@ -72,7 +74,7 @@ async function ValidateOrder(order_id) {
     order.orderStatus[order.orderStatus.length - 1].name !== status &&
     order.orderStatus[order.orderStatus.length - 1].name !== "cancel"
   ) {
-    Order.findOneAndUpdate(
+    const order = await Order.findOneAndUpdate(
       { _id: mongoose.Types.ObjectId(order_id) },
       { $push: { orderStatus: { name: status } } },
       function (err, result) {
@@ -83,6 +85,22 @@ async function ValidateOrder(order_id) {
         }
       }
     );
+    if (status === "completed") {
+      const customer = await Customer.aggregate([
+        { $match: { _id: order.clientID } },
+      ]);
+      const data = {
+        email_type: "finish_order",
+        email: customer.email,
+        subject: "Hoàn tất đơn đăt hàng",
+        order_id: order.orderId,
+        bill_id: "",
+        customer_name: customer.name,
+        order_status: "",
+        bill_status: "",
+      };
+      mailApi.sendEmail(data);
+    }
   }
   //Update ShippedLength
   // console.log(order.products);
